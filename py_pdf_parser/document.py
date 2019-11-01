@@ -1,4 +1,4 @@
-from typing import Dict, List, IO, Any, Optional
+from typing import Dict, List, IO, Any, Optional, Iterator
 
 from collections import namedtuple
 
@@ -14,7 +14,6 @@ class PDFElement:
     original_element: LTComponent
     page_number: int
     tags: List[str]
-    sections: List[str]
     ignore: bool
     bounding_box: BoundingBox
 
@@ -23,7 +22,6 @@ class PDFElement:
         self.page_number = page_number
 
         self.tags = []
-        self.sections = []
         self.ignore = False
 
         self.bounding_box = BoundingBox(
@@ -46,6 +44,7 @@ class PDFDocument:
 
     elements: List[PDFElement]
     page_info: Dict[int, PageInfo]
+    number_of_pages: int
     pdf_file_path: Optional[str]
 
     def __init__(
@@ -57,10 +56,16 @@ class PDFDocument:
         self.elements = elements
         self.page_info = page_info
         self.pdf_file_path = pdf_file_path
+        self.number_of_pages = len(page_info)
 
-    def elements_for_page(self, page_number: int) -> List[PDFElement]:
+    def elements_for_page(
+        self, page_number: int, include_ignored: bool = False
+    ) -> Iterator[PDFElement]:
         page_info = self.page_info[page_number]
-        return self.elements[page_info.start_index : page_info.end_index]
+        return filter(
+            lambda elem: include_ignored or not elem.ignore,
+            self.elements[page_info.start_index : page_info.end_index],
+        )
 
 
 def load_file(path_to_file: str) -> PDFDocument:
