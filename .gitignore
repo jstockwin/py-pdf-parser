@@ -105,3 +105,5 @@ venv.bak/
 
 # pytype
 .pytype/
+
+.vscode/
