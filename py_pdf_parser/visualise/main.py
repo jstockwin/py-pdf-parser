@@ -1,6 +1,5 @@
-from typing import Tuple, Optional
+from typing import Tuple
 
-import os
 import matplotlib
 
 matplotlib.use("Qt5Agg", warn=False)  # noqa
@@ -8,7 +7,7 @@ from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 
-from py_pdf_parser.document import PDFDocument
+from py_pdf_parser.components import PDFDocument
 from .zoom_pan_factory import ZoomPanFactory
 from .background import get_pdf_background
 
