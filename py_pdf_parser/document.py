@@ -16,6 +16,8 @@ class PDFElement:
     tags: List[str]
     ignore: bool
     bounding_box: BoundingBox
+    __fontname: Optional[str] = None
+    __fontsize: Optional[int] = None
 
     def __init__(self, element: LTComponent, page_number: int):
         self.original_element = element
@@ -32,6 +34,32 @@ class PDFElement:
             width=element.x1 - element.x0,
             height=element.y1 - element.y0,
         )
+
+    @property
+    def fontname(self) -> str:
+        if self.__fontname is not None:
+            return self.__fontname
+
+        first_line = next(iter(self.original_element))
+        first_character = next(iter(first_line))
+
+        self.__fontname = first_character.fontname
+        return self.__fontname
+
+    @property
+    def fontsize(self) -> int:
+        if self.__fontsize is not None:
+            return self.__fontsize
+
+        first_line = next(iter(self.original_element))
+        first_character = next(iter(first_line))
+
+        self.__fontsize = int(round(first_character.height, 0))
+        return self.__fontsize
+
+    @property
+    def font(self) -> str:
+        return f"{self.fontname},{self.fontsize}"
 
 
 class PDFDocument:
