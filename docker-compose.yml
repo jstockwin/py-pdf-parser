@@ -1,0 +1,24 @@
+shell:
+  build: .
+  dockerfile: dockerfiles/Dockerfile
+  volumes:
+    - .:/py-pdf-parser
+    - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    - ./imagemagick_policy.xml:/etc/ImageMagick-6/policy.xml
+  environment:
+    DISPLAY: ":1"
+  command: bash
+
+lint:
+  build: .
+  dockerfile: dockerfiles/Dockerfile_tests
+  volumes:
+    - .:/py-pdf-parser
+  command: bash -c "black . --check && mypy . && pytype ."
+
+lint-fix:
+  build: .
+  dockerfile: dockerfiles/Dockerfile_tests
+  volumes:
+    - .:/py-pdf-parser
+  command: bash -c "black ."
