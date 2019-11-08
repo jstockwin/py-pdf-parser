@@ -1,9 +1,9 @@
-from typing import Dict, List, IO, Optional
+from typing import Dict, IO, Optional
 
 from pdfminer import converter, pdfdocument, pdfinterp, pdfpage, pdfparser
 from pdfminer.layout import LTTextContainer, LAParams
 
-from .components import PDFDocument, PDFElement, PageInfo
+from .components import PDFDocument, PDFElement, Page
 
 
 def load_file(path_to_file: str) -> PDFDocument:
@@ -24,29 +24,21 @@ def load(pdf_file: IO, pdf_file_path: Optional[str] = None) -> PDFDocument:
     )  # TODO laparams
     interpreter = pdfinterp.PDFPageInterpreter(resource_manager, device)
 
-    elements: List[PDFElement] = []
-    page_info: Dict[int, PageInfo] = {}
+    pages: Dict[int, Page] = {}
     for page in pdfpage.PDFPage.create_pages(document):
         interpreter.process_page(page)
         results = device.get_result()
 
         page_number = results.pageid
 
-        new_elements = [
-            PDFElement(element=element, page_number=results.pageid)
+        elements = [
+            PDFElement(element=element)
             for element in results
             if isinstance(element, LTTextContainer)
         ]
 
-        page_info[page_number] = PageInfo(
-            width=results.width,
-            height=results.height,
-            start_index=len(elements),
-            end_index=len(elements) + len(new_elements) - 1,
+        pages[page_number] = Page(
+            width=results.width, height=results.height, elements=elements
         )
 
-        elements += new_elements
-
-    return PDFDocument(
-        elements=elements, page_info=page_info, pdf_file_path=pdf_file_path
-    )
+    return PDFDocument(pages=pages, pdf_file_path=pdf_file_path)
