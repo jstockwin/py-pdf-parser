@@ -14,7 +14,7 @@ lint:
   dockerfile: dockerfiles/Dockerfile_tests
   volumes:
     - .:/py-pdf-parser
-  command: bash -c "black . --check && mypy . && pytype ."
+  command: bash -c "black . --check && mypy . && pytype . && pycodestyle . --config=pycodestyle.cfg"
 
 lint-fix:
   build: .
