@@ -14,7 +14,8 @@ lint:
   dockerfile: dockerfiles/Dockerfile_tests
   volumes:
     - .:/py-pdf-parser
-  command: bash -c "black . --check && mypy . && pytype . && pycodestyle . --config=pycodestyle.cfg"
+  # pytype pyi-error disabled due to https://github.com/google/pytype/issues/355
+  command: bash -c "black . --check && mypy . && pytype . --disable=pyi-error && pycodestyle . --config=pycodestyle.cfg"
 
 lint-fix:
   build: .
