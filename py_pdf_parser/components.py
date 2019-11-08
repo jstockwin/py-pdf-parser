@@ -78,7 +78,6 @@ class PDFDocument:
     pdf_file_path: Optional[str]
 
     def __init__(self, pages: Dict[int, Page], pdf_file_path: Optional[str] = None):
-        self.__elements = OrderedDict()
         for page_number, page in pages.items():
             self.page_info[page_number] = PageInfo(
                 width=page.width,
