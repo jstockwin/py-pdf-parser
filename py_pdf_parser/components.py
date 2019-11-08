@@ -113,7 +113,7 @@ class PDFDocument:
 
         return filter(
             lambda elem: include_ignored or not elem.ignore,
-            self.elements[start_index:end_index],
+            self.elements[start_index : end_index + 1],
         )
 
     def elements_for_page(
