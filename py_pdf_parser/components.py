@@ -72,12 +72,14 @@ class PDFDocument:
     page_info: Mapping between page number and PageInfo namedtuples.
     """
 
+    __element_map: Dict[int, int] = {}  # Mapping of elements to index in the list
     elements: List[PDFElement] = []
     page_info: Dict[int, PageInfo] = {}
     number_of_pages: int
     pdf_file_path: Optional[str]
 
     def __init__(self, pages: Dict[int, Page], pdf_file_path: Optional[str] = None):
+        idx = 0
         for page_number, page in pages.items():
             self.page_info[page_number] = PageInfo(
                 width=page.width,
@@ -86,7 +88,13 @@ class PDFDocument:
                 end_element=page.elements[-1],
             )
 
-            self.elements += page.elements
+            for element in page.elements:
+                self.elements.append(element)
+                self.__element_map[hash(element)] = idx
+                idx += 1
+
+        if len(self.elements) != len(self.__element_map):
+            raise Exception("Hash collision?")  # TODO
 
         self.pdf_file_path = pdf_file_path
         self.number_of_pages = len(pages)
@@ -98,8 +106,8 @@ class PDFDocument:
         include_ignored: bool = False,
     ) -> Iterator[PDFElement]:
 
-        start_index = self.elements.index(start_element)
-        end_index = self.elements.index(end_element)
+        start_index = self.__element_map[hash(start_element)]
+        end_index = self.__element_map[hash(end_element)]
 
         return filter(
             lambda elem: include_ignored or not elem.ignore,
