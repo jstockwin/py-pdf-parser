@@ -1,9 +1,10 @@
 from typing import Dict, List, Optional, Iterator
 
-from collections import namedtuple, OrderedDict
+from collections import namedtuple
 
 from pdfminer.layout import LTComponent
 
+from .utils import Utils
 
 Page = namedtuple("Page", ["width", "height", "elements"])
 PageInfo = namedtuple("PageInfo", ["width", "height", "start_element", "end_element"])
@@ -79,6 +80,7 @@ class PDFDocument:
     pdf_file_path: Optional[str]
 
     def __init__(self, pages: Dict[int, Page], pdf_file_path: Optional[str] = None):
+        self.utils = Utils(self)
         idx = 0
         for page_number, page in pages.items():
             self.page_info[page_number] = PageInfo(
