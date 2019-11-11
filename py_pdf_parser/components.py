@@ -4,6 +4,7 @@ from collections import namedtuple
 
 from pdfminer.layout import LTComponent
 
+from .sectioning import Sectioning
 from .utils import Utils
 
 Page = namedtuple("Page", ["width", "height", "elements"])
@@ -80,6 +81,7 @@ class PDFDocument:
     pdf_file_path: Optional[str]
 
     def __init__(self, pages: Dict[int, Page], pdf_file_path: Optional[str] = None):
+        self.sectioning = Sectioning(self)
         self.utils = Utils(self)
         idx = 0
         for page_number, page in pages.items():
