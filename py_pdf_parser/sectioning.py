@@ -10,14 +10,14 @@ class Section:
     document: "PDFDocument"
     name: str
     unique_name: str
-    start_elemet: "PDFElement"
+    start_element: "PDFElement"
     end_element: "PDFElement"
 
-    def __init__(self, document, name, unique_name, start_elemet, end_element):
+    def __init__(self, document, name, unique_name, start_element, end_element):
         self.document = document
         self.name = name
         self.unique_name = unique_name
-        self.start_elemet = start_elemet
+        self.start_element = start_element
         self.end_element = end_element
 
 
