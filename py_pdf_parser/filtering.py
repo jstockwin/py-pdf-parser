@@ -109,7 +109,7 @@ class ElementList:
             if section.name == section_name:
                 new_bounds.append(
                     Bound(
-                        lower=self.document.element_index(section.start_elemet),
+                        lower=self.document.element_index(section.start_element),
                         upper=self.document.element_index(section.end_element),
                     )
                 )
@@ -124,7 +124,7 @@ class ElementList:
             if section.name in section_names:
                 new_bounds.append(
                     Bound(
-                        lower=self.document.element_index(section.start_elemet),
+                        lower=self.document.element_index(section.start_element),
                         upper=self.document.element_index(section.end_element),
                     )
                 )
@@ -137,7 +137,7 @@ class ElementList:
         section = self.document.sectioning.sections_dict[section_str]
         new_bounds = [
             Bound(
-                lower=self.document.element_index(section.start_elemet),
+                lower=self.document.element_index(section.start_element),
                 upper=self.document.element_index(section.end_element),
             )
         ]
@@ -152,7 +152,7 @@ class ElementList:
             section = self.document.sectioning.sections_dict[section_str]
             new_bounds.append(
                 Bound(
-                    lower=self.document.element_index(section.start_elemet),
+                    lower=self.document.element_index(section.start_element),
                     upper=self.document.element_index(section.end_element),
                 )
             )
