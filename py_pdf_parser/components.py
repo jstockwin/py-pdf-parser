@@ -62,6 +62,10 @@ class PDFElement:
     def font(self) -> str:
         return f"{self.fontname},{self.fontsize}"
 
+    @property
+    def text(self) -> str:
+        return self.original_element.get_text()
+
     def add_tag(self, new_tag: str):
         if new_tag not in self.tags:
             self.tags.append(new_tag)
