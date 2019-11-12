@@ -68,9 +68,7 @@ class PDFVisualiser:
             interpolation="kaiser",
         )
 
-        for element in self.document.elements_for_page(
-            self.current_page, include_ignored=True
-        ):
+        for element in self.document.elements.filter_by_page(self.current_page):
             style = STYLES["untagged"]
             if element.tags:
                 style = STYLES["tagged"]
@@ -88,7 +86,7 @@ class PDFVisualiser:
 
     def __get_annotations(self, x, y):
         annotation = f"({x:.2f}, {y:.2f})"
-        for element in self.document.elements_for_page(self.current_page):
+        for element in self.document.elements.filter_by_page(self.current_page):
             bbox = element.bounding_box
             if bbox.x0 <= x <= bbox.x1 and bbox.y0 <= y <= bbox.y1:
                 annotation += " ELEMENT["

@@ -1,9 +1,10 @@
-from typing import Dict, List, Optional, Iterator
+from typing import Dict, List, Optional
 
 from collections import namedtuple
 
 from pdfminer.layout import LTComponent
 
+from .filtering import ElementList, Bound
 from .sectioning import Sectioning
 from .utils import Utils
 
@@ -75,7 +76,7 @@ class PDFDocument:
     """
 
     __element_map: Dict[int, int] = {}  # Mapping of elements to index in the list
-    elements: List[PDFElement] = []
+    element_list: List[PDFElement] = []
     page_info: Dict[int, PageInfo] = {}
     number_of_pages: int
     pdf_file_path: Optional[str]
@@ -93,36 +94,21 @@ class PDFDocument:
             )
 
             for element in page.elements:
-                self.elements.append(element)
+                self.element_list.append(element)
                 self.__element_map[hash(element)] = idx
                 idx += 1
 
-        if len(self.elements) != len(self.__element_map):
+        if len(self.element_list) != len(self.__element_map):
             raise Exception("Hash collision?")  # TODO
 
         self.pdf_file_path = pdf_file_path
         self.number_of_pages = len(pages)
 
-    def elements_between(
-        self,
-        start_element: PDFElement,
-        end_element: PDFElement,
-        include_ignored: bool = False,
-    ) -> Iterator[PDFElement]:
+    def element_index(self, element: PDFElement):
+        return self.__element_map[hash(element)]
 
-        start_index = self.__element_map[hash(start_element)]
-        end_index = self.__element_map[hash(end_element)]
-
-        return filter(
-            lambda elem: include_ignored or not elem.ignore,
-            self.elements[start_index : end_index + 1],
-        )
-
-    def elements_for_page(
-        self, page_number: int, include_ignored: bool = False
-    ) -> Iterator[PDFElement]:
-
-        page_info = self.page_info[page_number]
-        return self.elements_between(
-            page_info.start_element, page_info.end_element, include_ignored
+    @property
+    def elements(self):
+        return ElementList(
+            self, bounds=[Bound(lower=0, upper=len(self.element_list) - 1)]
         )
