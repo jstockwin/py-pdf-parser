@@ -18,9 +18,3 @@ class Utils:
 
     def tag_all_elements_by_font(self, config: Dict[str, str]):
         self.tag_elements_by_font(self.document.elements, config)
-
-    def tag_elements_between(
-        self, start_element: "PDFElement", end_element: "PDFElement", tag: str
-    ):
-        for element in self.document.elements_between(start_element, end_element):
-            element.add_tag(tag)

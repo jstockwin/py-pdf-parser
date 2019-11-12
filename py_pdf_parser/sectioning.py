@@ -20,16 +20,11 @@ class Section:
         self.start_elemet = start_elemet
         self.end_element = end_element
 
-    def elements(self, include_ignored=True):
-        return self.document.elements_between(
-            self.start_elemet, self.end_element, include_ignored
-        )
-
 
 class Sectioning:
     document: "PDFDocument"
     name_counts: Dict[str, int] = defaultdict(int)
-    __sections: Dict[str, Section] = {}
+    sections_dict: Dict[str, Section] = {}
 
     def __init__(self, document: "PDFDocument"):
         self.document = document
@@ -42,9 +37,9 @@ class Sectioning:
         self.name_counts[name] += 1
 
         section = Section(self.document, name, unique_name, start_element, end_element)
-        self.__sections[unique_name] = section
+        self.sections_dict[unique_name] = section
         return section
 
     @property
     def sections(self):
-        return self.__sections.values()
+        return self.sections_dict.values()
