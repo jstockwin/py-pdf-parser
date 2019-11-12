@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, TYPE_CHECKING
 
 import matplotlib
 
@@ -10,6 +10,9 @@ from matplotlib.axes import Axes
 from py_pdf_parser.components import PDFDocument
 from .zoom_pan_factory import ZoomPanFactory
 from .background import get_pdf_background
+
+if TYPE_CHECKING:
+    from py_pdf_parser.filtering2 import ElementList
 
 
 PLOT_SIZE = 15
@@ -28,7 +31,12 @@ class PDFVisualiser:
     _fig: Figure
     _ax: Axes
 
-    def __init__(self, document: PDFDocument, current_page: int = 1):
+    def __init__(
+        self,
+        document: PDFDocument,
+        current_page: int = 1,
+        elements: "ElementList" = None,
+    ):
         if not document.pdf_file_path:
             raise Exception(
                 "Can only visualise when there is a file path.. sorry"
@@ -36,6 +44,10 @@ class PDFVisualiser:
 
         self.document = document
         self.current_page = current_page
+        if elements is not None:
+            self.elements = elements
+        else:
+            self.elements = document.elements
 
         self._fig, self._ax = self.__initialise_plot()
 
@@ -68,7 +80,7 @@ class PDFVisualiser:
             interpolation="kaiser",
         )
 
-        for element in self.document.elements.filter_by_page(self.current_page):
+        for element in self.elements.filter_by_page(self.current_page):
             style = STYLES["untagged"]
             if element.tags:
                 style = STYLES["tagged"]
@@ -86,7 +98,7 @@ class PDFVisualiser:
 
     def __get_annotations(self, x, y):
         annotation = f"({x:.2f}, {y:.2f})"
-        for element in self.document.elements.filter_by_page(self.current_page):
+        for element in self.elements.filter_by_page(self.current_page):
             bbox = element.bounding_box
             if bbox.x0 <= x <= bbox.x1 and bbox.y0 <= y <= bbox.y1:
                 annotation += " ELEMENT["
@@ -116,6 +128,8 @@ class PDFVisualiser:
             self.__plot_current_page()
 
 
-def visualise(document: PDFDocument, page_number: int = 1):
-    visualiser = PDFVisualiser(document, page_number)
+def visualise(
+    document: PDFDocument, page_number: int = 1, elements: "ElementList" = None
+):
+    visualiser = PDFVisualiser(document, page_number, elements)
     visualiser.visualise()
