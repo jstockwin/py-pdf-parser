@@ -104,7 +104,18 @@ class PDFVisualiser:
                 annotation += " ELEMENT["
                 if element.tags:
                     tags_str = "', '".join(element.tags)
-                    annotation += f"tags: '{tags_str}'"
+                    annotation += f"TAGS: '{tags_str}'"
+                sections_dict = self.document.sectioning.sections_dict
+                section_names = [
+                    section_name
+                    for section_name, section in sections_dict.items()
+                    if element in section
+                ]
+                if section_names:
+                    if element.tags:
+                        annotation += ", "
+                    sections_str = "', '".join(section_names)
+                    annotation += f"SECTIONS: '{sections_str}'"
                 annotation += "]"
 
         return annotation

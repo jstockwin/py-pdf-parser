@@ -1,7 +1,7 @@
 from typing import Set, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .components import PDFDocument
+    from .components import PDFDocument, PDFElement
 
 
 class ElementIterator:
@@ -52,7 +52,7 @@ class ElementList:
         new_indexes = set(
             range(
                 self.document.element_index(page_info.start_element),
-                self.document.element_index(page_info.end_element),
+                self.document.element_index(page_info.end_element) + 1,
             )
         )
         return self.__add_indexes(new_indexes)
@@ -64,7 +64,7 @@ class ElementList:
             new_indexes |= set(
                 range(
                     self.document.element_index(page_info.start_element),
-                    self.document.element_index(page_info.end_element),
+                    self.document.element_index(page_info.end_element) + 1,
                 )
             )
         return self.__add_indexes(new_indexes)
@@ -76,7 +76,7 @@ class ElementList:
                 new_indexes |= set(
                     range(
                         self.document.element_index(section.start_element),
-                        self.document.element_index(section.end_element),
+                        self.document.element_index(section.end_element) + 1,
                     )
                 )
         return self.__add_indexes(new_indexes)
@@ -88,7 +88,7 @@ class ElementList:
                 new_indexes |= set(
                     range(
                         self.document.element_index(section.start_element),
-                        self.document.element_index(section.end_element),
+                        self.document.element_index(section.end_element) + 1,
                     )
                 )
         return self.__add_indexes(new_indexes)
@@ -98,7 +98,7 @@ class ElementList:
         new_indexes: Set[int] = set(
             range(
                 self.document.element_index(section.start_element),
-                self.document.element_index(section.end_element),
+                self.document.element_index(section.end_element) + 1,
             )
         )
         return self.__add_indexes(new_indexes)
@@ -110,7 +110,7 @@ class ElementList:
             new_indexes |= set(
                 range(
                     self.document.element_index(section.start_element),
-                    self.document.element_index(section.end_element),
+                    self.document.element_index(section.end_element) + 1,
                 )
             )
         return self.__add_indexes(new_indexes)
@@ -121,8 +121,16 @@ class ElementList:
     def __iter__(self) -> ElementIterator:
         return ElementIterator(self)
 
+    def __contains__(self, element: "PDFElement") -> bool:
+        index = self.document.element_index(element)
+        return index in self.indexes
+
     def __repr__(self):
         return f"<ElementsList of {len(self.indexes)} elements>"
+
+    def __getitem__(self, index):
+        element_index = sorted(self.indexes)[index]
+        return self.document.element_list[element_index]
 
     def __sub__(self, other: "ElementList") -> "ElementList":
         return ElementList(self.document, self.indexes - other.indexes)
