@@ -4,7 +4,7 @@ from collections import namedtuple
 
 from pdfminer.layout import LTComponent
 
-from .filtering import ElementList, Bound
+from .filtering2 import ElementList
 from .sectioning import Sectioning
 from .utils import Utils
 
@@ -109,6 +109,4 @@ class PDFDocument:
 
     @property
     def elements(self):
-        return ElementList(
-            self, bounds=[Bound(lower=0, upper=len(self.element_list) - 1)]
-        )
+        return ElementList(self)
