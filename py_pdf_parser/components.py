@@ -108,9 +108,29 @@ class PDFDocument:
         self.pdf_file_path = pdf_file_path
         self.number_of_pages = len(pages)
 
-    def element_index(self, element: PDFElement):
+    def element_index(self, element: PDFElement) -> int:
         return self.__element_map[hash(element)]
 
     @property
-    def elements(self):
+    def elements(self) -> "ElementList":
         return ElementList(self)
+
+    @property
+    def pages(self) -> "PageIterator":
+        return PageIterator(self)
+
+
+class PageIterator:
+    def __init__(self, document: "PDFDocument"):
+        self.indexes = iter(range(1, document.number_of_pages + 1))
+        self.document = document
+
+    def __next__(self) -> "ElementList":
+        index = next(self.indexes)
+        return self.document.elements.filter_by_page(index)
+
+    def __iter__(self):
+        return self
+
+    def __getitem__(self, index: int) -> "ElementList":
+        return self.document.elements.filter_by_page(index)
