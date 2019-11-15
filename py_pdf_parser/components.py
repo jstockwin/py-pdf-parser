@@ -1,6 +1,4 @@
-from typing import Dict, List, Optional
-
-from collections import namedtuple
+from typing import Dict, List, Optional, NamedTuple
 
 from pdfminer.layout import LTComponent
 
@@ -9,8 +7,50 @@ from .filtering import ElementList
 from .sectioning import Sectioning
 from .utils import Utils
 
-Page = namedtuple("Page", ["width", "height", "elements"])
-PageInfo = namedtuple("PageInfo", ["width", "height", "start_element", "end_element"])
+
+class Page(NamedTuple):
+    """
+    This is used to load pages/elements into the PDF document.
+    """
+
+    width: int
+    height: int
+    elements: List[LTComponent]
+
+
+class PDFPage:
+    """
+    This is what we use internally.
+    """
+
+    document: "PDFDocument"
+    width: int
+    height: int
+    page_number: int
+    start_element: "PDFElement"
+    end_element: "PDFElement"
+
+    def __init__(
+        self,
+        document: "PDFDocument",
+        width: int,
+        height: int,
+        page_number: int,
+        start_element: "PDFElement",
+        end_element: "PDFElement",
+    ):
+        self.document = document
+        self.width = width
+        self.height = height
+        self.page_number = page_number
+        self.start_element = start_element
+        self.end_element = end_element
+
+    @property
+    def elements(self) -> "ElementList":
+        return self.document.elements.between(
+            self.start_element, self.end_element, inclusive=True
+        )
 
 
 class PDFElement:
@@ -21,9 +61,12 @@ class PDFElement:
     __fontname: Optional[str] = None
     __fontsize: Optional[int] = None
     __index: Optional[int] = None
+    __page_number: Optional[int] = None
 
-    def __init__(self, element: LTComponent):
+    def __init__(self, element: LTComponent, index, page_number):
         self.original_element = element
+        self.__index = index
+        self.__page_number = page_number
 
         self.tags = []
         self.ignore = False
@@ -40,9 +83,17 @@ class PDFElement:
 
     @index.setter
     def index(self, index):
-        if self.__index is not None:
-            raise Exception("Index cannot be changed")
-        self.__index = index
+        raise Exception("Index cannot be changed")
+
+    @property
+    def page_number(self):
+        if self.__page_number is None:
+            return Exception("page_number has not been set yet")
+        return self.__page_number
+
+    @page_number.setter
+    def page_number(self, page_number):
+        raise Exception("page_number cannot be changed")
 
     @property
     def fontname(self) -> str:
@@ -131,13 +182,10 @@ class PDFElement:
 class PDFDocument:
     """
     PDFDocument ... #TODO
-
-    elements: Ordered list of PDFElements.
-    page_info: Mapping between page number and PageInfo namedtuples.
     """
 
     element_list: List[PDFElement] = []
-    page_info: Dict[int, PageInfo] = {}
+    pages: List[PDFPage] = []
     number_of_pages: int
     pdf_file_path: Optional[str]
 
@@ -145,57 +193,38 @@ class PDFDocument:
         self.sectioning = Sectioning(self)
         self.utils = Utils(self)
         idx = 0
-        for page_number, page in pages.items():
-            self.page_info[page_number] = PageInfo(
-                width=page.width,
-                height=page.height,
-                start_element=page.elements[0],
-                end_element=page.elements[-1],
-            )
-
+        for page_number, page in sorted(pages.items()):
+            first_element = None
             for element in page.elements:
-                element.index = idx
-                self.element_list.append(element)
+                pdf_element = PDFElement(element, index=idx, page_number=page_number)
+                self.element_list.append(pdf_element)
                 idx += 1
+                if not first_element:
+                    first_element = pdf_element
+
+            if first_element is None:
+                raise Exception("No elements on page")
+
+            self.pages.append(
+                PDFPage(
+                    document=self,
+                    width=page.width,
+                    height=page.height,
+                    page_number=page_number,
+                    start_element=first_element,
+                    end_element=pdf_element,
+                )
+            )
 
         self.pdf_file_path = pdf_file_path
         self.number_of_pages = len(pages)
-
-    def element_page(self, element: PDFElement) -> int:
-        for page_number, page_info in self.page_info.items():
-            if (
-                page_info.start_element.index
-                <= element.index
-                <= page_info.end_element.index
-            ):
-                return page_number
-        raise Exception("Something went wrong")
 
     @property
     def elements(self) -> "ElementList":
         return ElementList(self)
 
-    @property
-    def pages(self) -> "PageIterator":
-        return PageIterator(self)
-
-
-class PageIterator:
-    """
-    TODO: This should return an object with page info and elements.
-    """
-
-    def __init__(self, document: "PDFDocument"):
-        self.indexes = iter(range(1, document.number_of_pages + 1))
-        self.document = document
-
-    def __next__(self) -> "ElementList":
-        index = next(self.indexes)
-        return self.document.elements.filter_by_page(index)
-
-    def __iter__(self):
-        return self
-
-    def __getitem__(self, index: int) -> "ElementList":
-        # TODO: This should be get_page or something
-        return self.document.elements.filter_by_page(index)
+    def get_page(self, page_number: int) -> "PDFPage":
+        for page in self.pages:
+            if page.page_number == page_number:
+                return page
+        raise Exception(f"Could not find page {page_number}")

@@ -3,7 +3,7 @@ from typing import Dict, IO, Optional
 from pdfminer import converter, pdfdocument, pdfinterp, pdfpage, pdfparser
 from pdfminer.layout import LTTextContainer, LAParams
 
-from .components import PDFDocument, PDFElement, Page
+from .components import PDFDocument, Page
 
 
 def load_file(path_to_file: str) -> PDFDocument:
@@ -32,9 +32,7 @@ def load(pdf_file: IO, pdf_file_path: Optional[str] = None) -> PDFDocument:
         page_number = results.pageid
 
         elements = [
-            PDFElement(element=element)
-            for element in results
-            if isinstance(element, LTTextContainer)
+            element for element in results if isinstance(element, LTTextContainer)
         ]
 
         pages[page_number] = Page(
