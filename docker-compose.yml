@@ -23,3 +23,10 @@ lint-fix:
   volumes:
     - .:/py-pdf-parser
   command: bash -c "black ."
+
+tests:
+  build: .
+  dockerfile: dockerfiles/Dockerfile_tests
+  volumes:
+    - .:/py-pdf-parser
+  command: bash -c "nosetests ."
