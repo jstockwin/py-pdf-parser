@@ -12,7 +12,7 @@ from .zoom_pan_factory import ZoomPanFactory
 from .background import get_pdf_background
 
 if TYPE_CHECKING:
-    from py_pdf_parser.filtering2 import ElementList
+    from py_pdf_parser.filtering import ElementList
 
 
 PLOT_SIZE = 15

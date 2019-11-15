@@ -2,7 +2,7 @@ from typing import Dict, TYPE_CHECKING
 
 from collections import defaultdict
 
-from .filtering2 import ElementList
+from .filtering import ElementList
 
 if TYPE_CHECKING:
     from .components import PDFDocument, PDFElement
