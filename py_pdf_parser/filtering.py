@@ -32,30 +32,27 @@ class ElementList:
         new_indexes: Set[int] = set()
         for element in self:
             if tag in element.tags:
-                new_indexes.add(self.document.element_index(element))
+                new_indexes.add(element.index)
         return self.__add_indexes(new_indexes)
 
     def filter_by_tags(self, *tags: str) -> "ElementList":
         new_indexes: Set[int] = set()
         for element in self:
             if any([tag in element.tags for tag in tags]):
-                new_indexes.add(self.document.element_index(element))
+                new_indexes.add(element.index)
         return self.__add_indexes(new_indexes)
 
     def exclude_ignored(self) -> "ElementList":
         new_indexes: Set[int] = set()
         for element in self:
             if not element.ignore:
-                new_indexes.add(self.document.element_index(element))
+                new_indexes.add(element.index)
         return self.__add_indexes(new_indexes)
 
     def filter_by_page(self, page_number: int) -> "ElementList":
         page_info = self.document.page_info[page_number]
         new_indexes = set(
-            range(
-                self.document.element_index(page_info.start_element),
-                self.document.element_index(page_info.end_element) + 1,
-            )
+            range(page_info.start_element.index, page_info.end_element.index + 1)
         )
         return self.__add_indexes(new_indexes)
 
@@ -64,10 +61,7 @@ class ElementList:
         for page_number in page_numbers:
             page_info = self.document.page_info[page_number]
             new_indexes |= set(
-                range(
-                    self.document.element_index(page_info.start_element),
-                    self.document.element_index(page_info.end_element) + 1,
-                )
+                range(page_info.start_element.index, page_info.end_element.index + 1)
             )
         return self.__add_indexes(new_indexes)
 
@@ -76,10 +70,7 @@ class ElementList:
         for section in self.document.sectioning.sections:
             if section.name == section_name:
                 new_indexes |= set(
-                    range(
-                        self.document.element_index(section.start_element),
-                        self.document.element_index(section.end_element) + 1,
-                    )
+                    range(section.start_element.index, section.end_element.index + 1)
                 )
         return self.__add_indexes(new_indexes)
 
@@ -88,20 +79,14 @@ class ElementList:
         for section in self.document.sectioning.sections:
             if any([section.name == section_name for section_name in section_names]):
                 new_indexes |= set(
-                    range(
-                        self.document.element_index(section.start_element),
-                        self.document.element_index(section.end_element) + 1,
-                    )
+                    range(section.start_element.index, section.end_element.index + 1)
                 )
         return self.__add_indexes(new_indexes)
 
     def filter_by_section(self, section_str: str) -> "ElementList":
         section = self.document.sectioning.sections_dict[section_str]
         new_indexes: Set[int] = set(
-            range(
-                self.document.element_index(section.start_element),
-                self.document.element_index(section.end_element) + 1,
-            )
+            range(section.start_element.index, section.end_element.index + 1)
         )
         return self.__add_indexes(new_indexes)
 
@@ -110,10 +95,7 @@ class ElementList:
         for section_str in section_strs:
             section = self.document.sectioning.sections_dict[section_str]
             new_indexes |= set(
-                range(
-                    self.document.element_index(section.start_element),
-                    self.document.element_index(section.end_element) + 1,
-                )
+                range(section.start_element.index, section.end_element.index + 1)
             )
         return self.__add_indexes(new_indexes)
 
@@ -129,12 +111,11 @@ class ElementList:
         new_indexes: Set[int] = set()
         for element in self:
             if element.partially_within(bounding_box):
-                new_indexes.add(self.document.element_index(element))
+                new_indexes.add(element.index)
         return self.__add_indexes(new_indexes) & self.filter_by_page(page_number)
 
     def after(self, element: "PDFElement") -> "ElementList":
-        element_index = self.document.element_index(element)
-        new_indexes = set([index for index in self.indexes if index > element_index])
+        new_indexes = set([index for index in self.indexes if index > element.index])
         return self.__add_indexes(new_indexes)
 
     def extract_single_element(self) -> "PDFElement":
@@ -153,7 +134,7 @@ class ElementList:
         return ElementIterator(self)
 
     def __contains__(self, element: "PDFElement") -> bool:
-        index = self.document.element_index(element)
+        index = element.index
         return index in self.indexes
 
     def __repr__(self):
