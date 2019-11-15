@@ -71,12 +71,12 @@ class PDFVisualiser:
         plt.cla()
 
         # draw PDF image as background
-        page_info = self.document.page_info[self.current_page]
+        page = self.document.get_page(self.current_page)
         background = get_pdf_background(self.document.pdf_file_path, self.current_page)
         plt.imshow(
             background,
             origin="lower",
-            extent=[0, page_info.width, 0, page_info.height],
+            extent=[0, page.width, 0, page.height],
             interpolation="kaiser",
         )
 
