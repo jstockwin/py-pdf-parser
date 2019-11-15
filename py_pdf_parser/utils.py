@@ -1,16 +1,15 @@
-from typing import List, Dict, TYPE_CHECKING
+from typing import Dict, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .components import PDFDocument, PDFElement
+    from .components import PDFDocument
+    from .filtering import ElementList
 
 
 class Utils:
     def __init__(self, document: "PDFDocument"):
         self.document = document
 
-    def tag_elements_by_font(
-        self, elements: List["PDFElement"], config: Dict[str, str]
-    ):
+    def tag_elements_by_font(self, elements: "ElementList", config: Dict[str, str]):
         for element in elements:
             new_tag = config.get(element.font)
             if new_tag:
