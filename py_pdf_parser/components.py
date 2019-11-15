@@ -20,6 +20,7 @@ class PDFElement:
     bounding_box: BoundingBox
     __fontname: Optional[str] = None
     __fontsize: Optional[int] = None
+    __index: Optional[int] = None
 
     def __init__(self, element: LTComponent):
         self.original_element = element
@@ -30,6 +31,18 @@ class PDFElement:
         self.bounding_box = BoundingBox(
             x0=element.x0, x1=element.x1, y0=element.y0, y1=element.y1
         )
+
+    @property
+    def index(self):
+        if self.__index is None:
+            return Exception("Index has not been set yet")
+        return self.__index
+
+    @index.setter
+    def index(self, index):
+        if self.__index is not None:
+            raise Exception("Index cannot be changed")
+        self.__index = index
 
     @property
     def fontname(self) -> str:
@@ -123,7 +136,6 @@ class PDFDocument:
     page_info: Mapping between page number and PageInfo namedtuples.
     """
 
-    __element_map: Dict[int, int] = {}  # Mapping of elements to index in the list
     element_list: List[PDFElement] = []
     page_info: Dict[int, PageInfo] = {}
     number_of_pages: int
@@ -142,26 +154,19 @@ class PDFDocument:
             )
 
             for element in page.elements:
+                element.index = idx
                 self.element_list.append(element)
-                self.__element_map[hash(element)] = idx
                 idx += 1
-
-        if len(self.element_list) != len(self.__element_map):
-            raise Exception("Hash collision?")  # TODO
 
         self.pdf_file_path = pdf_file_path
         self.number_of_pages = len(pages)
 
-    def element_index(self, element: PDFElement) -> int:
-        return self.__element_map[hash(element)]
-
     def element_page(self, element: PDFElement) -> int:
-        element_index = self.element_index(element)
         for page_number, page_info in self.page_info.items():
             if (
-                self.element_index(page_info.start_element)
-                <= element_index
-                <= self.element_index(page_info.end_element)
+                page_info.start_element.index
+                <= element.index
+                <= page_info.end_element.index
             ):
                 return page_number
 
