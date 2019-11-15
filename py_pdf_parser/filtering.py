@@ -50,18 +50,16 @@ class ElementList:
         return self.__add_indexes(new_indexes)
 
     def filter_by_page(self, page_number: int) -> "ElementList":
-        page_info = self.document.page_info[page_number]
-        new_indexes = set(
-            range(page_info.start_element.index, page_info.end_element.index + 1)
-        )
+        page = self.document.get_page(page_number)
+        new_indexes = set(range(page.start_element.index, page.end_element.index + 1))
         return self.__add_indexes(new_indexes)
 
     def filter_by_pages(self, *page_numbers: int) -> "ElementList":
         new_indexes: Set[int] = set()
         for page_number in page_numbers:
-            page_info = self.document.page_info[page_number]
+            page = self.document.get_page(page_number)
             new_indexes |= set(
-                range(page_info.start_element.index, page_info.end_element.index + 1)
+                range(page.start_element.index, page.end_element.index + 1)
             )
         return self.__add_indexes(new_indexes)
 
@@ -100,11 +98,11 @@ class ElementList:
         return self.__add_indexes(new_indexes)
 
     def to_the_right_of(self, element: "PDFElement") -> "ElementList":
-        page_number = self.document.element_page(element)
-        page_info = self.document.page_info[page_number]
+        page_number = element.page_number
+        page = self.document.get_page(page_number)
         bounding_box = BoundingBox(
             element.bounding_box.x1 - 1,
-            page_info.width + 1,
+            page.width + 1,
             element.bounding_box.y0 - 1,
             element.bounding_box.y1 + 1,
         )
@@ -114,9 +112,27 @@ class ElementList:
                 new_indexes.add(element.index)
         return self.__add_indexes(new_indexes) & self.filter_by_page(page_number)
 
-    def after(self, element: "PDFElement") -> "ElementList":
-        new_indexes = set([index for index in self.indexes if index > element.index])
+    def before(self, element: "PDFElement", inclusive: bool = False) -> "ElementList":
+        new_indexes = set([index for index in self.indexes if index < element.index])
+        if inclusive:
+            new_indexes.add(element.index)
         return self.__add_indexes(new_indexes)
+
+    def after(self, element: "PDFElement", inclusive: bool = False) -> "ElementList":
+        new_indexes = set([index for index in self.indexes if index > element.index])
+        if inclusive:
+            new_indexes.add(element.index)
+        return self.__add_indexes(new_indexes)
+
+    def between(
+        self,
+        start_element: "PDFElement",
+        end_element: "PDFElement",
+        inclusive: bool = False,
+    ):
+        return self.before(end_element, inclusive=inclusive) & self.after(
+            start_element, inclusive=inclusive
+        )
 
     def extract_single_element(self) -> "PDFElement":
         if not len(self.indexes) != 1:
