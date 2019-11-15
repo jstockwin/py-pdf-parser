@@ -169,6 +169,7 @@ class PDFDocument:
                 <= page_info.end_element.index
             ):
                 return page_number
+        raise Exception("Something went wrong")
 
     @property
     def elements(self) -> "ElementList":
