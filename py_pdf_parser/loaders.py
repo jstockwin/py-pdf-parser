@@ -20,7 +20,7 @@ def load(pdf_file: IO, pdf_file_path: Optional[str] = None) -> PDFDocument:
 
     resource_manager = pdfinterp.PDFResourceManager()
     device = converter.PDFPageAggregator(
-        resource_manager, laparams=LAParams()
+        resource_manager, laparams=LAParams(line_margin=0.05)
     )  # TODO laparams
     interpreter = pdfinterp.PDFPageInterpreter(resource_manager, device)
 
