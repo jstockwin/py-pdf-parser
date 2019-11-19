@@ -15,9 +15,6 @@ if TYPE_CHECKING:
     from py_pdf_parser.filtering import ElementList
 
 
-PLOT_SIZE = 15
-PLOT_RATIO = 0.706  # portrait A4
-
 STYLES = {
     "untagged": {"color": "#00a9f4", "linewidth": 1, "alpha": 0.5},
     "tagged": {"color": "#007ac1", "linewidth": 1, "alpha": 0.5},
@@ -49,7 +46,10 @@ class PDFVisualiser:
         else:
             self.elements = document.elements
 
-        self._fig, self._ax = self.__initialise_plot()
+        page = document.get_page(current_page)
+        self._fig, self._ax = self.__initialise_plot(
+            width=page.width, height=page.height
+        )
 
     def visualise(self):
         self.__plot_current_page()
@@ -120,8 +120,8 @@ class PDFVisualiser:
 
         return annotation
 
-    def __initialise_plot(self) -> Tuple[Figure, Axes]:
-        return plt.subplots(figsize=(PLOT_SIZE, PLOT_SIZE * PLOT_RATIO))
+    def __initialise_plot(self, width: int, height: int) -> Tuple[Figure, Axes]:
+        return plt.subplots(figsize=(height, width))
 
     def __page_home(self):
         if self.current_page != 1:
