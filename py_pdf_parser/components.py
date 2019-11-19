@@ -144,39 +144,17 @@ class PDFElement:
 
     def partially_within(self, bounding_box: BoundingBox) -> bool:
         """
-        TODO: This currently returns true of an entire edge of the element is within
-        the box, which isn't quite what we want.
+        Wether any of the element intersects with the given bounding box.
         """
-        bottom_within = all(
-            [
-                bounding_box.x0 <= self.bounding_box.x0 <= bounding_box.x1,
-                bounding_box.x0 <= self.bounding_box.x1 <= bounding_box.x1,
-                bounding_box.y0 <= self.bounding_box.y0 <= bounding_box.y1,
-            ]
+        within_horizonal = (
+            bounding_box.x0 <= self.bounding_box.x1
+            and bounding_box.x1 >= self.bounding_box.x0
         )
-        top_within = all(
-            [
-                bounding_box.x0 <= self.bounding_box.x0 <= bounding_box.x1,
-                bounding_box.x0 <= self.bounding_box.x1 <= bounding_box.x1,
-                bounding_box.y0 <= self.bounding_box.y1 <= bounding_box.y1,
-            ]
+        within_vertical = (
+            bounding_box.y0 <= self.bounding_box.y1
+            and bounding_box.y1 >= self.bounding_box.y0
         )
-
-        left_within = all(
-            [
-                bounding_box.y0 <= self.bounding_box.y0 <= bounding_box.y1,
-                bounding_box.y0 <= self.bounding_box.y1 <= bounding_box.y1,
-                bounding_box.x0 <= self.bounding_box.x0 <= bounding_box.x1,
-            ]
-        )
-        right_within = all(
-            [
-                bounding_box.y0 <= self.bounding_box.y0 <= bounding_box.y1,
-                bounding_box.y0 <= self.bounding_box.y1 <= bounding_box.y1,
-                bounding_box.x0 <= self.bounding_box.x0 <= bounding_box.x1,
-            ]
-        )
-        return any([bottom_within, top_within, left_within, right_within])
+        return within_horizonal and within_vertical
 
 
 class PDFDocument:
