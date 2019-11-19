@@ -101,10 +101,7 @@ class PDFVisualiser:
         for element in self.elements.filter_by_page(self.current_page):
             bbox = element.bounding_box
             if bbox.x0 <= x <= bbox.x1 and bbox.y0 <= y <= bbox.y1:
-                annotation += f" ELEMENT[FONT: {element.font}"
-                if element.tags:
-                    tags_str = "', '".join(element.tags)
-                    annotation += f", TAGS: '{tags_str}'"
+                annotation += f" {element}"
                 sections_dict = self.document.sectioning.sections_dict
                 section_names = [
                     section_name
@@ -114,7 +111,6 @@ class PDFVisualiser:
                 if section_names:
                     sections_str = "', '".join(section_names)
                     annotation += f", SECTIONS: '{sections_str}'"
-                annotation += "]"
 
         return annotation
 
