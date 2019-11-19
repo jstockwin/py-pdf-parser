@@ -19,9 +19,9 @@ PLOT_SIZE = 15
 PLOT_RATIO = 0.706  # portrait A4
 
 STYLES = {
-    "untagged": {"color": "#B2EBF2", "linewidth": 1, "alpha": 0.5},
-    "tagged": {"color": "#00ACC1", "linewidth": 1, "alpha": 0.5},
-    "ignored": {"color": "#F44336", "linewidth": 1, "alpha": 0.5, "linestyle": ":"},
+    "untagged": {"color": "#00a9f4", "linewidth": 1, "alpha": 0.5},
+    "tagged": {"color": "#007ac1", "linewidth": 1, "alpha": 0.5},
+    "ignored": {"color": "#67daff", "linewidth": 1, "alpha": 0.2, "linestyle": ":"},
 }
 
 
@@ -82,10 +82,10 @@ class PDFVisualiser:
 
         for element in self.elements.filter_by_page(self.current_page):
             style = STYLES["untagged"]
-            if element.tags:
-                style = STYLES["tagged"]
-            elif element.ignore:
+            if element.ignore:
                 style = STYLES["ignored"]
+            elif element.tags:
+                style = STYLES["tagged"]
             bbox = element.bounding_box
             rect = matplotlib.patches.Rectangle(
                 (bbox.x0, bbox.y0), bbox.width, bbox.height, **style
