@@ -101,15 +101,72 @@ class ElementList:
         page_number = element.page_number
         page = self.document.get_page(page_number)
         bounding_box = BoundingBox(
-            element.bounding_box.x1 - 1,
-            page.width + 1,
-            element.bounding_box.y0 - 1,
-            element.bounding_box.y1 + 1,
+            element.bounding_box.x1,
+            page.width,
+            element.bounding_box.y0,
+            element.bounding_box.y1,
         )
         new_indexes: Set[int] = set()
-        for element in self:
-            if element.partially_within(bounding_box):
-                new_indexes.add(element.index)
+        for elem in self:
+            if elem != element and elem.partially_within(bounding_box):
+                new_indexes.add(elem.index)
+        return self.__add_indexes(new_indexes) & self.filter_by_page(page_number)
+
+    def to_the_left_of(self, element: "PDFElement") -> "ElementList":
+        page_number = element.page_number
+        bounding_box = BoundingBox(
+            0, element.bounding_box.x1, element.bounding_box.y0, element.bounding_box.y1
+        )
+        new_indexes: Set[int] = set()
+        for elem in self:
+            if elem != element and elem.partially_within(bounding_box):
+                new_indexes.add(elem.index)
+        return self.__add_indexes(new_indexes) & self.filter_by_page(page_number)
+
+    def below(self, element: "PDFElement") -> "ElementList":
+        """
+        Returns all the elements that are underneath the given element.
+
+        Will return an ElementList of all PDFElements which are partially within the
+        box created by extending the given PDFElement to the bottom of the page.
+
+        TODO: We should extend this to allow it to work on all proceeding pages.
+        TODO: It needs to be made clear that won't return all elements below the
+        bottom of this element - they still need to be in line.
+        """
+        page_number = element.page_number
+        bounding_box = BoundingBox(
+            element.bounding_box.x0, element.bounding_box.x1, 0, element.bounding_box.y0
+        )
+        new_indexes: Set[int] = set()
+        for elem in self:
+            if elem != element and elem.partially_within(bounding_box):
+                new_indexes.add(elem.index)
+        return self.__add_indexes(new_indexes) & self.filter_by_page(page_number)
+
+    def above(self, element: "PDFElement") -> "ElementList":
+        """
+        Returns all the elements that are above the given element.
+
+        Will return an ElementList of all PDFElements which are partially within the
+        box created by extending the given PDFElement to the top of the page.
+
+        TODO: We should extend this to allow it to work on all preceeding pages.
+        TODO: It needs to be made clear that won't return all elements above the
+        top of this element - they still need to be in line.
+        """
+        page_number = element.page_number
+        page = self.document.get_page(page_number)
+        bounding_box = BoundingBox(
+            element.bounding_box.x0,
+            element.bounding_box.x1,
+            element.bounding_box.y1,
+            page.height,
+        )
+        new_indexes: Set[int] = set()
+        for elem in self:
+            if elem != element and elem.partially_within(bounding_box):
+                new_indexes.add(elem.index)
         return self.__add_indexes(new_indexes) & self.filter_by_page(page_number)
 
     def before(self, element: "PDFElement", inclusive: bool = False) -> "ElementList":
