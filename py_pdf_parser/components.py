@@ -165,6 +165,12 @@ class PDFElement:
         )
         return within_horizonal and within_vertical
 
+    def __repr__(self):
+        return (
+            f"<PDFElement tags: {self.tags}, font: '{self.font}''"
+            f"{', ignored' if self.ignore else ''}>"
+        )
+
 
 class PDFDocument:
     """
