@@ -5,7 +5,6 @@ from pdfminer.layout import LTComponent
 from .common import BoundingBox
 from .filtering import ElementList
 from .sectioning import Sectioning
-from .utils import Utils
 
 
 class Page(NamedTuple):
@@ -60,10 +59,17 @@ class PDFElement:
     bounding_box: BoundingBox
     __fontname: Optional[str] = None
     __fontsize: Optional[int] = None
+    __font_mapping: Dict[str, str] = {}
     __index: Optional[int] = None
     __page_number: Optional[int] = None
 
-    def __init__(self, element: LTComponent, index, page_number):
+    def __init__(
+        self,
+        element: LTComponent,
+        index: int,
+        page_number: int,
+        font_mapping: Optional[Dict[str, str]] = None,
+    ):
         self.original_element = element
         self.__index = index
         self.__page_number = page_number
@@ -74,6 +80,8 @@ class PDFElement:
         self.bounding_box = BoundingBox(
             x0=element.x0, x1=element.x1, y0=element.y0, y1=element.y1
         )
+        if font_mapping is not None:
+            self.__font_mapping = font_mapping
 
     @property
     def index(self):
@@ -119,7 +127,8 @@ class PDFElement:
 
     @property
     def font(self) -> str:
-        return f"{self.fontname},{self.fontsize}"
+        font = f"{self.fontname},{self.fontsize}"
+        return self.__font_mapping.get(font, font)
 
     @property
     def text(self) -> str:
@@ -167,14 +176,23 @@ class PDFDocument:
     number_of_pages: int
     pdf_file_path: Optional[str]
 
-    def __init__(self, pages: Dict[int, Page], pdf_file_path: Optional[str] = None):
+    def __init__(
+        self,
+        pages: Dict[int, Page],
+        pdf_file_path: Optional[str] = None,
+        font_mapping: Optional[Dict[str, str]] = None,
+    ):
         self.sectioning = Sectioning(self)
-        self.utils = Utils(self)
         idx = 0
         for page_number, page in sorted(pages.items()):
             first_element = None
             for element in page.elements:
-                pdf_element = PDFElement(element, index=idx, page_number=page_number)
+                pdf_element = PDFElement(
+                    element,
+                    index=idx,
+                    page_number=page_number,
+                    font_mapping=font_mapping,
+                )
                 self.element_list.append(pdf_element)
                 idx += 1
                 if not first_element:

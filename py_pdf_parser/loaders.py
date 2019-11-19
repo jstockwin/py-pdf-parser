@@ -6,12 +6,12 @@ from pdfminer.layout import LTTextContainer, LAParams
 from .components import PDFDocument, Page
 
 
-def load_file(path_to_file: str) -> PDFDocument:
+def load_file(path_to_file: str, **kwargs) -> PDFDocument:
     with open(path_to_file, "rb") as in_file:
-        return load(in_file, pdf_file_path=path_to_file)
+        return load(in_file, pdf_file_path=path_to_file, **kwargs)
 
 
-def load(pdf_file: IO, pdf_file_path: Optional[str] = None) -> PDFDocument:
+def load(pdf_file: IO, pdf_file_path: Optional[str] = None, **kwargs) -> PDFDocument:
     parser = pdfparser.PDFParser(pdf_file)
     document = pdfdocument.PDFDocument(parser)
 
@@ -39,4 +39,4 @@ def load(pdf_file: IO, pdf_file_path: Optional[str] = None) -> PDFDocument:
             width=results.width, height=results.height, elements=elements
         )
 
-    return PDFDocument(pages=pages, pdf_file_path=pdf_file_path)
+    return PDFDocument(pages=pages, pdf_file_path=pdf_file_path, **kwargs)
