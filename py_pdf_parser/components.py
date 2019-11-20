@@ -3,6 +3,7 @@ from typing import Dict, List, Optional, NamedTuple
 from pdfminer.layout import LTComponent
 
 from .common import BoundingBox
+from .exceptions import PageNotFoundError, NoElementsOnPageError
 from .filtering import ElementList
 from .sectioning import Sectioning
 
@@ -196,7 +197,9 @@ class PDFDocument:
                     first_element = pdf_element
 
             if first_element is None:
-                raise Exception("No elements on page")
+                raise NoElementsOnPageError(
+                    f"No elements on page {page_number}, please exclude this page"
+                )
 
             self.pages.append(
                 PDFPage(
@@ -220,4 +223,4 @@ class PDFDocument:
         for page in self.pages:
             if page.page_number == page_number:
                 return page
-        raise Exception(f"Could not find page {page_number}")
+        raise PageNotFoundError(f"Could not find page {page_number}")
