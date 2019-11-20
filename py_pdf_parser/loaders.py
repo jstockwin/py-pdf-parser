@@ -11,7 +11,15 @@ def load_file(path_to_file: str, **kwargs) -> PDFDocument:
         return load(in_file, pdf_file_path=path_to_file, **kwargs)
 
 
-def load(pdf_file: IO, pdf_file_path: Optional[str] = None, **kwargs) -> PDFDocument:
+def load(
+    pdf_file: IO,
+    pdf_file_path: Optional[str] = None,
+    la_params: Optional[Dict[str, str]] = None,
+    **kwargs
+) -> PDFDocument:
+    if la_params is None:
+        la_params = {}
+
     parser = pdfparser.PDFParser(pdf_file)
     document = pdfdocument.PDFDocument(parser)
 
@@ -20,8 +28,8 @@ def load(pdf_file: IO, pdf_file_path: Optional[str] = None, **kwargs) -> PDFDocu
 
     resource_manager = pdfinterp.PDFResourceManager()
     device = converter.PDFPageAggregator(
-        resource_manager, laparams=LAParams(line_margin=0.05)
-    )  # TODO laparams
+        resource_manager, laparams=LAParams(**la_params)
+    )
     interpreter = pdfinterp.PDFPageInterpreter(resource_manager, device)
 
     pages: Dict[int, Page] = {}
