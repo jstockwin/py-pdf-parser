@@ -191,7 +191,7 @@ class PDFDocument:
         idx = 0
         for page_number, page in sorted(pages.items()):
             first_element = None
-            for element in page.elements:
+            for element in sorted(page.elements, key=lambda elem: (-elem.y0, elem.x0)):
                 pdf_element = PDFElement(
                     element,
                     index=idx,
