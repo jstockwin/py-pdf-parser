@@ -122,13 +122,10 @@ class ElementList(Iterable):
             element.bounding_box.y0,
             element.bounding_box.y1,
         )
-        new_indexes: Set[int] = set()
-        if inclusive:
-            new_indexes.add(element.index)
-        for elem in self:
-            if elem != element and elem.partially_within(bounding_box):
-                new_indexes.add(elem.index)
-        return self.__add_indexes(new_indexes) & self.filter_by_page(page_number)
+        results = self.filter_partially_within_bounding_box(bounding_box, page_number)
+        if not inclusive:
+            results = results.remove_element(element)
+        return results
 
     def to_the_left_of(
         self, element: "PDFElement", inclusive: bool = False
@@ -137,15 +134,14 @@ class ElementList(Iterable):
         bounding_box = BoundingBox(
             0, element.bounding_box.x1, element.bounding_box.y0, element.bounding_box.y1
         )
-        new_indexes: Set[int] = set()
-        if inclusive:
-            new_indexes.add(element.index)
-        for elem in self:
-            if elem != element and elem.partially_within(bounding_box):
-                new_indexes.add(elem.index)
-        return self.__add_indexes(new_indexes) & self.filter_by_page(page_number)
+        results = self.filter_partially_within_bounding_box(bounding_box, page_number)
+        if not inclusive:
+            results = results.remove_element(element)
+        return results
 
-    def below(self, element: "PDFElement", inclusive: bool = False) -> "ElementList":
+    def below(
+        self, element: "PDFElement", inclusive: bool = False, all_pages: bool = False
+    ) -> "ElementList":
         """
         Returns all the elements that are underneath the given element.
 
@@ -160,15 +156,26 @@ class ElementList(Iterable):
         bounding_box = BoundingBox(
             element.bounding_box.x0, element.bounding_box.x1, 0, element.bounding_box.y0
         )
-        new_indexes: Set[int] = set()
-        if inclusive:
-            new_indexes.add(element.index)
-        for elem in self:
-            if elem != element and elem.partially_within(bounding_box):
-                new_indexes.add(elem.index)
-        return self.__add_indexes(new_indexes) & self.filter_by_page(page_number)
+        results = self.filter_partially_within_bounding_box(bounding_box, page_number)
+        if all_pages:
+            for page in self.document.pages:
+                if page.page_number <= page_number:
+                    continue
+                # We're on a page which is located below our element, so the bounding
+                # box should be the length of the entire page.
+                bounding_box = BoundingBox(
+                    element.bounding_box.x0, element.bounding_box.x1, 0, page.height
+                )
+                results = results | self.filter_partially_within_bounding_box(
+                    bounding_box, page.page_number
+                )
+        if not inclusive:
+            results = results.remove_element(element)
+        return results
 
-    def above(self, element: "PDFElement", inclusive: bool = False) -> "ElementList":
+    def above(
+        self, element: "PDFElement", inclusive: bool = False, all_pages: bool = False
+    ) -> "ElementList":
         """
         Returns all the elements that are above the given element.
 
@@ -187,16 +194,25 @@ class ElementList(Iterable):
             element.bounding_box.y1,
             page.height,
         )
-        new_indexes: Set[int] = set()
-        if inclusive:
-            new_indexes.add(element.index)
-        for elem in self:
-            if elem != element and elem.partially_within(bounding_box):
-                new_indexes.add(elem.index)
-        return self.__add_indexes(new_indexes) & self.filter_by_page(page_number)
+        results = self.filter_partially_within_bounding_box(bounding_box, page_number)
+        if all_pages:
+            for page in self.document.pages:
+                if page.page_number >= page_number:
+                    continue
+                # We're on a page which is located above our element, so the bounding
+                # box should be the length of the entire page.
+                bounding_box = BoundingBox(
+                    element.bounding_box.x0, element.bounding_box.x1, 0, page.height
+                )
+                results = results | self.filter_partially_within_bounding_box(
+                    bounding_box, page.page_number
+                )
+        if not inclusive:
+            results = results.remove_element(element)
+        return results
 
     def vertically_in_line_with(
-        self, element: "PDFElement", inclusive: bool = False
+        self, element: "PDFElement", inclusive: bool = False, all_pages: bool = False
     ) -> "ElementList":
         """
         TODO: Refactor inclusive above to match this
@@ -207,15 +223,22 @@ class ElementList(Iterable):
         bounding_box = BoundingBox(
             element.bounding_box.x0, element.bounding_box.x1, 0, page.height
         )
-        new_indexes: Set[int] = set()
-        if inclusive:
-            new_indexes.add(element.index)
-        for elem in self:
-            if elem == element and not inclusive:
-                continue
-            if elem.partially_within(bounding_box):
-                new_indexes.add(elem.index)
-        return self.__add_indexes(new_indexes) & self.filter_by_page(page_number)
+        results = self.filter_partially_within_bounding_box(bounding_box, page_number)
+        if all_pages:
+            for page in self.document.pages:
+                if page.page_number == page_number:
+                    # Already handled page containing element
+                    continue
+                bounding_box = BoundingBox(
+                    element.bounding_box.x0, element.bounding_box.x1, 0, page.height
+                )
+                results = results | self.filter_partially_within_bounding_box(
+                    bounding_box, page.page_number
+                )
+
+        if not inclusive:
+            results = results.remove_element(element)
+        return results
 
     def horizontally_in_line_with(
         self, element: "PDFElement", inclusive: bool = False
@@ -229,15 +252,19 @@ class ElementList(Iterable):
         bounding_box = BoundingBox(
             0, page.width, element.bounding_box.y0, element.bounding_box.y1
         )
+        results = self.filter_partially_within_bounding_box(bounding_box, page_number)
+        if not inclusive:
+            results = results.remove_element(element)
+        return results
+
+    def filter_partially_within_bounding_box(
+        self, bounding_box: BoundingBox, page_number: int
+    ) -> "ElementList":
         new_indexes: Set[int] = set()
-        if inclusive:
-            new_indexes.add(element.index)
-        for elem in self:
-            if elem == element and not inclusive:
-                continue
+        for elem in self.filter_by_page(page_number):
             if elem.partially_within(bounding_box):
                 new_indexes.add(elem.index)
-        return self.__add_indexes(new_indexes) & self.filter_by_page(page_number)
+        return self.__add_indexes(new_indexes)
 
     def before(self, element: "PDFElement", inclusive: bool = False) -> "ElementList":
         new_indexes = set([index for index in self.indexes if index < element.index])
@@ -270,6 +297,22 @@ class ElementList(Iterable):
             )
 
         return self.document.element_list[list(self.indexes)[0]]
+
+    def add_element(self, element: "PDFElement") -> "ElementList":
+        return ElementList(self.document, self.indexes | set([element.index]))
+
+    def add_elements(self, *elements: "PDFElement") -> "ElementList":
+        return ElementList(
+            self.document, self.indexes | set([element.index for element in elements])
+        )
+
+    def remove_element(self, element: "PDFElement") -> "ElementList":
+        return ElementList(self.document, self.indexes - set([element.index]))
+
+    def remove_elements(self, *elements: "PDFElement") -> "ElementList":
+        return ElementList(
+            self.document, self.indexes - set([element.index for element in elements])
+        )
 
     def __add_indexes(self, new_indexes: Set[int]):
         return self & ElementList(self.document, new_indexes)
