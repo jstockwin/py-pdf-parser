@@ -155,15 +155,14 @@ class PDFElement:
         """
         Wether any of the element intersects with the given bounding box.
         """
-        within_horizonal = (
-            bounding_box.x0 <= self.bounding_box.x1
-            and bounding_box.x1 >= self.bounding_box.x0
+        return all(
+            [
+                bounding_box.x0 <= self.bounding_box.x1,
+                bounding_box.x1 >= self.bounding_box.x0,
+                bounding_box.y0 <= self.bounding_box.y1,
+                bounding_box.y1 >= self.bounding_box.y0,
+            ]
         )
-        within_vertical = (
-            bounding_box.y0 <= self.bounding_box.y1
-            and bounding_box.y1 >= self.bounding_box.y0
-        )
-        return within_horizonal and within_vertical
 
     def __repr__(self):
         return (
