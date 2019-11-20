@@ -22,6 +22,7 @@ class TestElement(TestCase):
         BoundingBox(4, 6, 1, 6),  # This box intersects the left of the element
         BoundingBox(5, 6, 1, 6),  # This box touches the left of the element
         BoundingBox(3, 4, 1, 6),  # This box goes through the center vertically
+        BoundingBox(3, 4, 3, 4),  # This box is enclosed inside the element
     )
     def test_partially_within_true(self, bounding_box):
         element = create_element(self.element_bbox)
@@ -57,6 +58,7 @@ class TestElement(TestCase):
         BoundingBox(1, 6, 6, 7),  # This box is above the element
         BoundingBox(0, 1, 1, 6),  # This box is to the left of the element
         BoundingBox(6, 7, 1, 6),  # This box is to the lerightft of the element
+        BoundingBox(3, 4, 3, 4),  # This box is enclosed inside the element
     )
     def test_entirely_within_false(self, bounding_box):
         element = create_element(self.element_bbox)

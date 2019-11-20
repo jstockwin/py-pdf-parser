@@ -1,4 +1,13 @@
-from typing import Set, Optional, TYPE_CHECKING
+from typing import (
+    Union,
+    Set,
+    FrozenSet,
+    Optional,
+    Iterable,
+    Iterator,
+    Type,
+    TYPE_CHECKING,
+)
 
 from .common import BoundingBox
 
@@ -6,7 +15,7 @@ if TYPE_CHECKING:
     from .components import PDFDocument, PDFElement
 
 
-class ElementIterator:
+class ElementIterator(Iterator):
     index: int
     document: "PDFDocument"
 
@@ -20,13 +29,17 @@ class ElementIterator:
         return self.document.element_list[index]
 
 
-class ElementList:
-    def __init__(self, document: "PDFDocument", indexes: Optional[Set[int]] = None):
+class ElementList(Iterable):
+    def __init__(
+        self,
+        document: "PDFDocument",
+        indexes: Optional[Union[Set[int], FrozenSet[int]]] = None,
+    ):
         self.document = document
         if indexes is not None:
-            self.indexes = indexes
+            self.indexes = frozenset(indexes)
         else:
-            self.indexes = set(range(0, len(document.element_list)))
+            self.indexes = frozenset(range(0, len(document.element_list)))
 
     def filter_by_tag(self, tag: str) -> "ElementList":
         new_indexes: Set[int] = set()
@@ -97,7 +110,9 @@ class ElementList:
             )
         return self.__add_indexes(new_indexes)
 
-    def to_the_right_of(self, element: "PDFElement") -> "ElementList":
+    def to_the_right_of(
+        self, element: "PDFElement", inclusive: bool = False
+    ) -> "ElementList":
         page_number = element.page_number
         page = self.document.get_page(page_number)
         bounding_box = BoundingBox(
@@ -107,23 +122,29 @@ class ElementList:
             element.bounding_box.y1,
         )
         new_indexes: Set[int] = set()
+        if inclusive:
+            new_indexes.add(element.index)
         for elem in self:
             if elem != element and elem.partially_within(bounding_box):
                 new_indexes.add(elem.index)
         return self.__add_indexes(new_indexes) & self.filter_by_page(page_number)
 
-    def to_the_left_of(self, element: "PDFElement") -> "ElementList":
+    def to_the_left_of(
+        self, element: "PDFElement", inclusive: bool = False
+    ) -> "ElementList":
         page_number = element.page_number
         bounding_box = BoundingBox(
             0, element.bounding_box.x1, element.bounding_box.y0, element.bounding_box.y1
         )
         new_indexes: Set[int] = set()
+        if inclusive:
+            new_indexes.add(element.index)
         for elem in self:
             if elem != element and elem.partially_within(bounding_box):
                 new_indexes.add(elem.index)
         return self.__add_indexes(new_indexes) & self.filter_by_page(page_number)
 
-    def below(self, element: "PDFElement") -> "ElementList":
+    def below(self, element: "PDFElement", inclusive: bool = False) -> "ElementList":
         """
         Returns all the elements that are underneath the given element.
 
@@ -139,12 +160,14 @@ class ElementList:
             element.bounding_box.x0, element.bounding_box.x1, 0, element.bounding_box.y0
         )
         new_indexes: Set[int] = set()
+        if inclusive:
+            new_indexes.add(element.index)
         for elem in self:
             if elem != element and elem.partially_within(bounding_box):
                 new_indexes.add(elem.index)
         return self.__add_indexes(new_indexes) & self.filter_by_page(page_number)
 
-    def above(self, element: "PDFElement") -> "ElementList":
+    def above(self, element: "PDFElement", inclusive: bool = False) -> "ElementList":
         """
         Returns all the elements that are above the given element.
 
@@ -164,8 +187,54 @@ class ElementList:
             page.height,
         )
         new_indexes: Set[int] = set()
+        if inclusive:
+            new_indexes.add(element.index)
         for elem in self:
             if elem != element and elem.partially_within(bounding_box):
+                new_indexes.add(elem.index)
+        return self.__add_indexes(new_indexes) & self.filter_by_page(page_number)
+
+    def vertically_in_line_with(
+        self, element: "PDFElement", inclusive: bool = False
+    ) -> "ElementList":
+        """
+        TODO: Refactor inclusive above to match this
+        TODO: Should there be an __method(bbox) to handle the latter part of this?
+        """
+        page_number = element.page_number
+        page = self.document.get_page(page_number)
+        bounding_box = BoundingBox(
+            element.bounding_box.x0, element.bounding_box.x1, 0, page.height
+        )
+        new_indexes: Set[int] = set()
+        if inclusive:
+            new_indexes.add(element.index)
+        for elem in self:
+            if elem == element and not inclusive:
+                continue
+            if elem.partially_within(bounding_box):
+                new_indexes.add(elem.index)
+        return self.__add_indexes(new_indexes) & self.filter_by_page(page_number)
+
+    def horizontally_in_line_with(
+        self, element: "PDFElement", inclusive: bool = False
+    ) -> "ElementList":
+        """
+        TODO: Refactor inclusive above to match this
+        TODO: Should there be an __method(bbox) to handle the latter part of this?
+        """
+        page_number = element.page_number
+        page = self.document.get_page(page_number)
+        bounding_box = BoundingBox(
+            0, page.width, element.bounding_box.y0, element.bounding_box.y1
+        )
+        new_indexes: Set[int] = set()
+        if inclusive:
+            new_indexes.add(element.index)
+        for elem in self:
+            if elem == element and not inclusive:
+                continue
+            if elem.partially_within(bounding_box):
                 new_indexes.add(elem.index)
         return self.__add_indexes(new_indexes) & self.filter_by_page(page_number)
 
@@ -192,10 +261,10 @@ class ElementList:
         )
 
     def extract_single_element(self) -> "PDFElement":
-        if not len(self.indexes) != 1:
+        if len(self.indexes) != 1:
             raise Exception(
                 f"To extract a single element there must be exactly one element in "
-                "your ElementList. You have {len(self.indexes)}"
+                f"your ElementList. You have {len(self.indexes)}"
             )
 
         return self.document.element_list[list(self.indexes)[0]]
@@ -216,6 +285,21 @@ class ElementList:
     def __getitem__(self, index):
         element_index = sorted(self.indexes)[index]
         return self.document.element_list[element_index]
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ElementList):
+            raise NotImplementedError(f"Can't compare ElementList with {type(other)}")
+        return (
+            self.indexes == other.indexes
+            and self.document == other.document
+            and self.__class__ == other.__class__
+        )
+
+    def __hash__(self):
+        return hash(hash(self.indexes) + hash(self.document))
+
+    def __len__(self):
+        return len(self.indexes)
 
     def __sub__(self, other: "ElementList") -> "ElementList":
         return ElementList(self.document, self.indexes - other.indexes)
