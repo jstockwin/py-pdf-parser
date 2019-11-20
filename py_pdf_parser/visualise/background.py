@@ -31,4 +31,4 @@ def get_pdf_background(pdf_file_path: str, page_number: int) -> Image.Image:
             background.composite(image, 0, 0)
             background.save(filename=output_file_path)
 
-    return Image.open(output_file_path).transpose(Image.FLIP_TOP_BOTTOM)
+    return Image.open(output_file_path).transpose(Image.FLIP_TOP_BOTTOM).convert("RGBA")
