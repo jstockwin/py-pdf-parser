@@ -10,6 +10,7 @@ from typing import (
 )
 
 from .common import BoundingBox
+from .exceptions import NoElementFoundError, MultipleElementsFoundError
 
 if TYPE_CHECKING:
     from .components import PDFDocument, PDFElement
@@ -261,10 +262,11 @@ class ElementList(Iterable):
         )
 
     def extract_single_element(self) -> "PDFElement":
-        if len(self.indexes) != 1:
-            raise Exception(
-                f"To extract a single element there must be exactly one element in "
-                f"your ElementList. You have {len(self.indexes)}"
+        if len(self.indexes) == 0:
+            raise NoElementFoundError("There are no elements in the ElementList")
+        if len(self.indexes) > 1:
+            raise MultipleElementsFoundError(
+                f"There are {len(self.indexes)} elements in the ElementList"
             )
 
         return self.document.element_list[list(self.indexes)[0]]

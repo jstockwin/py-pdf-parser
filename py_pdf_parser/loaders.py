@@ -1,9 +1,13 @@
 from typing import Dict, IO, Optional
 
+import logging
+
 from pdfminer import converter, pdfdocument, pdfinterp, pdfpage, pdfparser
 from pdfminer.layout import LTTextContainer, LAParams
 
 from .components import PDFDocument, Page
+
+logger = logging.getLogger("PDFParser")
 
 
 def load_file(path_to_file: str, **kwargs) -> PDFDocument:
@@ -15,7 +19,7 @@ def load(
     pdf_file: IO,
     pdf_file_path: Optional[str] = None,
     la_params: Optional[Dict[str, str]] = None,
-    **kwargs
+    **kwargs,
 ) -> PDFDocument:
     if la_params is None:
         la_params = {}
@@ -42,6 +46,12 @@ def load(
         elements = [
             element for element in results if isinstance(element, LTTextContainer)
         ]
+
+        if not elements:
+            logger.warning(
+                f"No elements detected on page {page_number}, skipping this page."
+            )
+            continue
 
         pages[page_number] = Page(
             width=results.width, height=results.height, elements=elements

@@ -1,13 +1,20 @@
-from typing import TYPE_CHECKING, Any, List, Dict, Optional, Union
+from typing import TYPE_CHECKING, Any, List, Dict, Optional
 
 from itertools import chain
+
+from .exceptions import (
+    TableExtractionError,
+    NoElementFoundError,
+    InvalidTableError,
+    InvalidTableHeaderError,
+)
 
 if TYPE_CHECKING:
     from .filtering import ElementList
     from .components import PDFElement
 
 
-def extract_simple_table(elements: "ElementList") -> List[List["PDFElement"]]:
+def extract_simple_table(elements: "ElementList") -> List[List[Optional["PDFElement"]]]:
     """
     Returns elements structured as a table.
     """
@@ -18,29 +25,25 @@ def extract_simple_table(elements: "ElementList") -> List[List["PDFElement"]]:
     for left_hand_element in first_column:
         row: List[Optional["PDFElement"]] = []
         for top_element in first_row:
-            row.append(
-                elements.to_the_right_of(left_hand_element, inclusive=True)
-                .below(top_element, inclusive=True)
-                .extract_single_element()
+            element = elements.to_the_right_of(left_hand_element, inclusive=True).below(
+                top_element, inclusive=True
             )
+            try:
+                row.append(element.extract_single_element())
+            except NoElementFoundError:
+                row.append(None)
         table.append(row)
 
-    if sum(len(row) for row in table) != len(elements):
-        raise Exception("Missing elements")
+    table_size = sum(len(row) for row in table)
+    if table_size != len(elements):
+        raise TableExtractionError(
+            f"Number of elements in table ({table_size}) does not match number of "
+            f"elements passed {len(elements)}. Perhaps try extract_table instead of "
+            "extract_simple_table."
+        )
 
     __validate_table_shape(table)
     return table
-
-
-# def elements_to_table_with_header(elements: "ElementList") -> List[Dict[str, str]]:
-#     table = elements_to_table_simple(elements)
-#     header = table.pop(0)
-#     new_table = []
-#     header_text = [element.text for element in header]
-#     for row in table:
-#         new_row = {header_text[idx]: element.text for idx, element in enumerate(row)}
-#         new_table.append(new_row)
-#     return new_table
 
 
 def extract_table(elements: "ElementList") -> List[List[Optional["PDFElement"]]]:
@@ -55,9 +58,9 @@ def extract_table(elements: "ElementList") -> List[List[Optional["PDFElement"]]]
 
     # Check no element is in multiple rows or columns
     if sum([len(row) for row in rows]) != len(set(chain.from_iterable(rows))):
-        raise Exception("An element is in multiple rows")
+        raise TableExtractionError("An element is in multiple rows")
     if sum([len(col) for col in cols]) != len(set(chain.from_iterable(cols))):
-        raise Exception("An element is in multiple columns")
+        raise TableExtractionError("An element is in multiple columns")
 
     sorted_rows = sorted(
         rows, key=lambda row: min([elem.bounding_box.y0 for elem in row]), reverse=True
@@ -71,7 +74,7 @@ def extract_table(elements: "ElementList") -> List[List[Optional["PDFElement"]]]
         for col in sorted_cols:
             try:
                 element = (row & col).extract_single_element()
-            except Exception:  # TODO: Specific exception
+            except NoElementFoundError:
                 element = None
             table_row.append(element)
         table.append(table_row)
@@ -96,7 +99,7 @@ def add_header_to_table(
     if header is None:
         header = table[0]
     elif len(header) != len(table[0]):
-        raise Exception(
+        raise InvalidTableHeaderError(
             f"Header length of {len(header)} does not match the width of the table "
             f"({len(table[0])})"
         )
@@ -114,7 +117,7 @@ def add_header_to_table(
 
 
 def __extract_text_from_table(
-    table: Union[List[List["PDFElement"]], List[List[Optional["PDFElement"]]]],
+    table: List[List[Optional["PDFElement"]]],
 ) -> List[List[str]]:
     __validate_table_shape(table)
     new_table = []
@@ -127,7 +130,7 @@ def __extract_text_from_table(
 def __validate_table_shape(table: List[List[Any]]):
     for idx, row in enumerate(table[1:]):
         if not len(row) == len(table[0]):
-            raise Exception(
+            raise InvalidTableError(
                 f"Table not rectangular, row 0 has {len(table[0])} elements but row "
                 f"{idx + 1} has {len(row)}."
             )

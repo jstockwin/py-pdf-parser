@@ -1,5 +1,7 @@
 from typing import Tuple, TYPE_CHECKING
 
+import logging
+
 import matplotlib
 
 matplotlib.use("Qt5Agg", warn=False)  # noqa
@@ -13,6 +15,8 @@ from .background import get_pdf_background
 
 if TYPE_CHECKING:
     from py_pdf_parser.filtering import ElementList
+
+logger = logging.getLogger("PDFParser")
 
 
 STYLES = {
@@ -35,9 +39,11 @@ class PDFVisualiser:
         elements: "ElementList" = None,
     ):
         if not document.pdf_file_path:
-            raise Exception(
-                "Can only visualise when there is a file path.. sorry"
-            )  # TODO
+            logger.warning(
+                "PDFDocument does not have pdf_file_path set and so we cannot "
+                "add the PDF background for visualisation. Please use load_file "
+                "instead of load, or specify pdf_file_path manually"
+            )
 
         self.document = document
         self.current_page = current_page
@@ -72,13 +78,19 @@ class PDFVisualiser:
 
         # draw PDF image as background
         page = self.document.get_page(self.current_page)
-        background = get_pdf_background(self.document.pdf_file_path, self.current_page)
-        plt.imshow(
-            background,
-            origin="lower",
-            extent=[0, page.width, 0, page.height],
-            interpolation="kaiser",
-        )
+        if self.document.pdf_file_path is not None:
+            background = get_pdf_background(
+                self.document.pdf_file_path, self.current_page
+            )
+            plt.imshow(
+                background,
+                origin="lower",
+                extent=[0, page.width, 0, page.height],
+                interpolation="kaiser",
+            )
+        else:
+            self._ax.set_xlim([0, page.width])
+            self._ax.set_ylim([0, page.height])
 
         for element in self.elements.filter_by_page(self.current_page):
             style = STYLES["untagged"]
