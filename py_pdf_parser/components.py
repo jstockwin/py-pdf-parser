@@ -89,19 +89,11 @@ class PDFElement:
             return Exception("Index has not been set yet")
         return self.__index
 
-    @index.setter
-    def index(self, index):
-        raise Exception("Index cannot be changed")
-
     @property
     def page_number(self):
         if self.__page_number is None:
             return Exception("page_number has not been set yet")
         return self.__page_number
-
-    @page_number.setter
-    def page_number(self, page_number):
-        raise Exception("page_number cannot be changed")
 
     @property
     def fontname(self) -> str:
