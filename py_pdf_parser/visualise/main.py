@@ -27,6 +27,13 @@ STYLES = {
 
 
 class PDFVisualiser:
+    """
+    Class used to handle visualising the PDF. Do not instantiate this yourself, instead
+    you should call the `visualise` function.
+
+    We need a class as we have to keep track of the current page etc.
+    """
+
     document: PDFDocument
     current_page: int
     _fig: Figure
@@ -148,5 +155,22 @@ class PDFVisualiser:
 def visualise(
     document: PDFDocument, page_number: int = 1, elements: "ElementList" = None
 ):
+    """
+    Visualises a PDFDocument, allowing you to inspect all the elements.
+
+    Will open a Matplotlib window showing the current page. You can scrool to zoom,
+    click to drag, and then use the arrow keys in the toolbar to change page.
+
+    Note: In order to show you the actual PDF behind the elements, your document
+        must have pdf_file_path set, and your PDF must be at the given path. If this is
+        not set, the background will be white.
+
+    Args:
+        document (PDFDocument): The pdf document to visualise.
+        page_number (int): The page to visualise. Note you can change pages using
+            the arrow keys in the visualisation window.
+        elements (ElementList, optional): Which elements of the document to visualise.
+            Defaults to all of the elements in the document.
+    """
     visualiser = PDFVisualiser(document, page_number, elements)
     visualiser.visualise()

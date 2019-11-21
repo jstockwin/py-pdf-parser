@@ -10,9 +10,18 @@ from .components import PDFDocument, Page
 logger = logging.getLogger("PDFParser")
 
 
-def load_file(path_to_file: str, **kwargs) -> PDFDocument:
+def load_file(
+    path_to_file: str, la_params: Optional[Dict[str, str]] = None, **kwargs
+) -> PDFDocument:
+    """
+    Loads a file accoring to the specified file path.
+
+    All other arguments are passed to `load`, see the documentation for `load`.
+
+    Returns: PDFDocument with the specified file loaded.
+    """
     with open(path_to_file, "rb") as in_file:
-        return load(in_file, pdf_file_path=path_to_file, **kwargs)
+        return load(in_file, pdf_file_path=path_to_file, la_params=la_params, **kwargs)
 
 
 def load(
@@ -21,6 +30,31 @@ def load(
     la_params: Optional[Dict[str, str]] = None,
     **kwargs,
 ) -> PDFDocument:
+    """
+    Loads the pdf file into a PDFDocument.
+
+    Args:
+        pdf_file (io): The PDF file.
+        la_params (dict): The layout parameters passed to PDF Miner for analysis. These
+            are not obviously documented by PDF Miner, but we give our understanding
+            (which is taken from
+            https://github.com/obeattie/pdfminer/wiki/pdfminer.layout)
+            below. Note the numerical values are specified as a proportion of the length
+            of each character in question.
+            `direction`: 'V' denotes vertical text direction, anything else denotes
+                horizontal. Default: None.
+            `line_overlap`: The amount lines can overlap. Default 0.5.
+            `char_margin`: Characters whose distance is closer than this are grouped
+                into one word. Default 1.0.
+            `line_margin`: Two lines whose distance is closer than the value here are
+                grouped as a text box. Default 0.5.
+            `word_margin`: Two words whose distance is closer than this value are
+                grouped as a text box. Default 0.1.
+        pdf_file_path: Passed to `PDFDocument`. See the documentation for `PDFDocument`.
+        kwargs: Passed to `PDFDocument`. See the documentation for `PDFDocument`.
+
+    Returns: PDFDocument with the file loaded.
+    """
     if la_params is None:
         la_params = {}
 
