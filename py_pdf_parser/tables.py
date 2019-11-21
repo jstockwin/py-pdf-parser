@@ -17,6 +17,17 @@ if TYPE_CHECKING:
 def extract_simple_table(elements: "ElementList") -> List[List[Optional["PDFElement"]]]:
     """
     Returns elements structured as a table.
+
+    Given an ElementList, tries to extract a structured table by examining which
+    elements are aligned. To use this function, the table must contain no gaps, i.e.
+    should be a full N x M table with an element in each cell. There must be a clear
+    gap between each row and between each column which contains no elements, and
+    a single cell cannot contian multiple elements.
+
+    If your table has empty cells, you can use `extract_table` instead. If you fail
+    to satisfy any of the other conditions listed above, that case is not yet supported.
+
+    Returns a list of rows, which are lists of PDFElements.
     """
     first_row = elements.to_the_right_of(elements[0], inclusive=True)
     first_column = elements.below(elements[0], inclusive=True)
@@ -47,6 +58,19 @@ def extract_simple_table(elements: "ElementList") -> List[List[Optional["PDFElem
 
 
 def extract_table(elements: "ElementList") -> List[List[Optional["PDFElement"]]]:
+    """
+    Returns elements structured as a table.
+
+    Given an ElementList, tries to extract a structured table by examining which
+    elements are aligned. There must be a clear gap between each row and between each
+    column which contains no elements, and a single cell cannot contian multiple
+    elements.
+
+    If you fail to satisfy any of the other conditions listed above, that case is not
+    yet supported.
+
+    Returns a list of rows, which are lists of PDFElements.
+    """
     table = []
     rows = set()
     cols = set()
@@ -84,16 +108,47 @@ def extract_table(elements: "ElementList") -> List[List[Optional["PDFElement"]]]
 
 
 def extract_text_from_simple_table(elements: "ElementList") -> List[List[str]]:
+    """
+    Given an ElementList, extracts a simple table (see `extract_simple_table`), but
+    instead of the table containing PDFElements, it will extract the text from each
+    element.
+    """
     return __extract_text_from_table(extract_simple_table(elements))
 
 
 def extract_text_from_table(elements: "ElementList") -> List[List[str]]:
+    """
+    Given an ElementList, extracts a simple table (see `extract_table`), but instead of
+    the table containing PDFElements, it will extract the text from each element.
+    """
     return __extract_text_from_table(extract_table(elements))
 
 
 def add_header_to_table(
     table: List[List[str]], header: Optional[List[str]] = None
 ) -> List[Dict[str, str]]:
+    """
+    Given a table (list of lists) of strings, returns a list of dicts mapping the
+    table header to the values.
+
+    Given a table, a list of rows which are lists of strings, returns a new table
+    which is a list of rows which are dictionaries mapping the header values to the
+    table values.
+
+    Args:
+        table: The table (a list of lists of strings).
+        header (list, optional): The header to use. If not provided, the first row of
+            the table will be used instead. Your header must be the same width as your
+            table, and cannot contain the same entry multiple times.
+
+    Returns: A list of dictionaries, where each entry in the list is a row in the table,
+        and a row in the table is represented as a dictionary mapping the header to the
+        values.
+
+    Raises:
+        InvalidTableHeaderError: If the width of the header does not match the width of
+            the table, or if the header contains duplicate entries.
+    """
     __validate_table_shape(table)
     header_provided = bool(header)
     if header is None:
@@ -103,6 +158,8 @@ def add_header_to_table(
             f"Header length of {len(header)} does not match the width of the table "
             f"({len(table[0])})"
         )
+    elif len(header) != len(set(header)):
+        raise InvalidTableHeaderError("Header contains repeated elements")
     new_table = []
     for row in table:
         new_row = {header[idx]: element for idx, element in enumerate(row)}
@@ -119,6 +176,9 @@ def add_header_to_table(
 def __extract_text_from_table(
     table: List[List[Optional["PDFElement"]]],
 ) -> List[List[str]]:
+    """
+    Given a table (of PDFElements or None), returns a table (of element.text or '').
+    """
     __validate_table_shape(table)
     new_table = []
     for row in table:
@@ -128,6 +188,9 @@ def __extract_text_from_table(
 
 
 def __validate_table_shape(table: List[List[Any]]):
+    """
+    Checks that all rows (and therefore all columns) are the same length.
+    """
     for idx, row in enumerate(table[1:]):
         if not len(row) == len(table[0]):
             raise InvalidTableError(
