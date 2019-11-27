@@ -82,7 +82,7 @@ class ElementList(Iterable):
         for element in self:
             if tag in element.tags:
                 new_indexes.add(element.index)
-        return self.__add_indexes(new_indexes)
+        return self.__intersect_indexes_with_self(new_indexes)
 
     def filter_by_tags(self, *tags: str) -> "ElementList":
         """
@@ -93,7 +93,7 @@ class ElementList(Iterable):
         for element in self:
             if any([tag in element.tags for tag in tags]):
                 new_indexes.add(element.index)
-        return self.__add_indexes(new_indexes)
+        return self.__intersect_indexes_with_self(new_indexes)
 
     def exclude_ignored(self) -> "ElementList":
         """
@@ -103,15 +103,15 @@ class ElementList(Iterable):
         for element in self:
             if not element.ignore:
                 new_indexes.add(element.index)
-        return self.__add_indexes(new_indexes)
+        return self.__intersect_indexes_with_self(new_indexes)
 
     def filter_by_page(self, page_number: int) -> "ElementList":
         """
         Returns an `ElementList` containing only those elements on the given page.
         """
         page = self.document.get_page(page_number)
-        new_indexes = set(range(page.start_element.index, page.end_element.index + 1))
-        return self.__add_indexes(new_indexes)
+        new_indexes = set([element.index for element in page])
+        return self.__intersect_indexes_with_self(new_indexes)
 
     def filter_by_pages(self, *page_numbers: int) -> "ElementList":
         """
@@ -121,10 +121,8 @@ class ElementList(Iterable):
         new_indexes: Set[int] = set()
         for page_number in page_numbers:
             page = self.document.get_page(page_number)
-            new_indexes |= set(
-                range(page.start_element.index, page.end_element.index + 1)
-            )
-        return self.__add_indexes(new_indexes)
+            new_indexes |= set([element.index for element in page])
+        return self.__intersect_indexes_with_self(new_indexes)
 
     def filter_by_section_name(self, section_name: str) -> "ElementList":
         """
@@ -134,10 +132,8 @@ class ElementList(Iterable):
         new_indexes: Set[int] = set()
         for section in self.document.sectioning.sections:
             if section.name == section_name:
-                new_indexes |= set(
-                    range(section.start_element.index, section.end_element.index + 1)
-                )
-        return self.__add_indexes(new_indexes)
+                new_indexes |= set([element.index for element in section.elements])
+        return self.__intersect_indexes_with_self(new_indexes)
 
     def filter_by_section_names(self, *section_names: str) -> "ElementList":
         """
@@ -147,10 +143,8 @@ class ElementList(Iterable):
         new_indexes: Set[int] = set()
         for section in self.document.sectioning.sections:
             if any([section.name == section_name for section_name in section_names]):
-                new_indexes |= set(
-                    range(section.start_element.index, section.end_element.index + 1)
-                )
-        return self.__add_indexes(new_indexes)
+                new_indexes |= set([element.index for element in section.elements])
+        return self.__intersect_indexes_with_self(new_indexes)
 
     def filter_by_section(self, section_str: str) -> "ElementList":
         """
@@ -159,10 +153,8 @@ class ElementList(Iterable):
         See the documentation for a `Section` for more information.
         """
         section = self.document.sectioning.sections_dict[section_str]
-        new_indexes: Set[int] = set(
-            range(section.start_element.index, section.end_element.index + 1)
-        )
-        return self.__add_indexes(new_indexes)
+        new_indexes = set([element.index for element in section.elements])
+        return self.__intersect_indexes_with_self(new_indexes)
 
     def filter_by_sections(self, *section_strs: str) -> "ElementList":
         """
@@ -173,10 +165,8 @@ class ElementList(Iterable):
         new_indexes: Set[int] = set()
         for section_str in section_strs:
             section = self.document.sectioning.sections_dict[section_str]
-            new_indexes |= set(
-                range(section.start_element.index, section.end_element.index + 1)
-            )
-        return self.__add_indexes(new_indexes)
+            new_indexes |= set([element.index for element in section.elements])
+        return self.__intersect_indexes_with_self(new_indexes)
 
     def to_the_right_of(
         self, element: "PDFElement", inclusive: bool = False
@@ -446,7 +436,7 @@ class ElementList(Iterable):
         for elem in self.filter_by_page(page_number):
             if elem.partially_within(bounding_box):
                 new_indexes.add(elem.index)
-        return self.__add_indexes(new_indexes)
+        return self.__intersect_indexes_with_self(new_indexes)
 
     def before(self, element: "PDFElement", inclusive: bool = False) -> "ElementList":
         """
@@ -460,10 +450,10 @@ class ElementList(Iterable):
             inclusive (bool, optional): Whether the include `element` in the returned
                 results. Default: False.
         """
-        new_indexes = set([index for index in self.indexes if index < element.index])
+        new_indexes = set(range(0, element.index))
         if inclusive:
             new_indexes.add(element.index)
-        return self.__add_indexes(new_indexes)
+        return self.__intersect_indexes_with_self(new_indexes)
 
     def after(self, element: "PDFElement", inclusive: bool = False) -> "ElementList":
         """
@@ -477,10 +467,10 @@ class ElementList(Iterable):
             inclusive (bool, optional): Whether the include `element` in the returned
                 results. Default: False.
         """
-        new_indexes = set([index for index in self.indexes if index > element.index])
+        new_indexes = set(range(element.index + 1, max(self.indexes)))
         if inclusive:
             new_indexes.add(element.index)
-        return self.__add_indexes(new_indexes)
+        return self.__intersect_indexes_with_self(new_indexes)
 
     def between(
         self,
@@ -494,7 +484,8 @@ class ElementList(Iterable):
         This is done according to the element indexes. The PDFDocument will order
         elements left to right, top to bottom (as you would normally read).
 
-        This is the same as applying `before` with `start_element` and `afeter
+        This is the same as applying `before` with `start_element` and `after` with
+        `end_element`.
 
         Args:
             start_element (PDFElement): Returned elements will be after this element.
@@ -502,9 +493,10 @@ class ElementList(Iterable):
             inclusive (bool, optional): Whether the include `start_element` and
                 `end_element` in the returned results. Default: False.
         """
-        return self.before(end_element, inclusive=inclusive) & self.after(
-            start_element, inclusive=inclusive
-        )
+        new_indexes = set(range(start_element.index + 1, end_element.index))
+        if inclusive:
+            new_indexes.union([start_element.index, end_element.index])
+        return self.__intersect_indexes_with_self(new_indexes)
 
     def extract_single_element(self) -> "PDFElement":
         """
@@ -567,7 +559,7 @@ class ElementList(Iterable):
             self.document, self.indexes - set([element.index for element in elements])
         )
 
-    def __add_indexes(self, new_indexes: Set[int]):
+    def __intersect_indexes_with_self(self, new_indexes: Set[int]):
         return self & ElementList(self.document, new_indexes)
 
     def __iter__(self) -> ElementIterator:
@@ -582,8 +574,7 @@ class ElementList(Iterable):
         """
         Returns True if the element is in the ElementList, otherwise False.
         """
-        index = element.index
-        return index in self.indexes
+        return element.index in self.indexes
 
     def __repr__(self):
         return f"<ElementsList of {len(self.indexes)} elements>"
