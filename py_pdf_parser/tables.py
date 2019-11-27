@@ -191,9 +191,10 @@ def __validate_table_shape(table: List[List[Any]]):
     """
     Checks that all rows (and therefore all columns) are the same length.
     """
+    first_row_len = len(table[0])
     for idx, row in enumerate(table[1:]):
-        if not len(row) == len(table[0]):
+        if not len(row) == first_row_len:
             raise InvalidTableError(
-                f"Table not rectangular, row 0 has {len(table[0])} elements but row "
+                f"Table not rectangular, row 0 has {first_row_len} elements but row "
                 f"{idx + 1} has {len(row)}."
             )
