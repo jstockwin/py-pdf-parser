@@ -110,7 +110,7 @@ class ElementList(Iterable):
         Returns an `ElementList` containing only those elements on the given page.
         """
         page = self.document.get_page(page_number)
-        new_indexes = set([element.index for element in page])
+        new_indexes = set([element.index for element in page.elements])
         return self.__intersect_indexes_with_self(new_indexes)
 
     def filter_by_pages(self, *page_numbers: int) -> "ElementList":
@@ -121,7 +121,7 @@ class ElementList(Iterable):
         new_indexes: Set[int] = set()
         for page_number in page_numbers:
             page = self.document.get_page(page_number)
-            new_indexes |= set([element.index for element in page])
+            new_indexes |= set([element.index for element in page.elements])
         return self.__intersect_indexes_with_self(new_indexes)
 
     def filter_by_section_name(self, section_name: str) -> "ElementList":
@@ -495,7 +495,7 @@ class ElementList(Iterable):
         """
         new_indexes = set(range(start_element.index + 1, end_element.index))
         if inclusive:
-            new_indexes.union([start_element.index, end_element.index])
+            new_indexes = new_indexes.union([start_element.index, end_element.index])
         return self.__intersect_indexes_with_self(new_indexes)
 
     def extract_single_element(self) -> "PDFElement":
