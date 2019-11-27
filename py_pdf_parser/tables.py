@@ -53,7 +53,7 @@ def extract_simple_table(elements: "ElementList") -> List[List[Optional["PDFElem
             "extract_simple_table."
         )
 
-    __validate_table_shape(table)
+    _validate_table_shape(table)
     return table
 
 
@@ -103,7 +103,7 @@ def extract_table(elements: "ElementList") -> List[List[Optional["PDFElement"]]]
             table_row.append(element)
         table.append(table_row)
 
-    __validate_table_shape(table)
+    _validate_table_shape(table)
     return table
 
 
@@ -113,7 +113,7 @@ def extract_text_from_simple_table(elements: "ElementList") -> List[List[str]]:
     instead of the table containing PDFElements, it will extract the text from each
     element.
     """
-    return __extract_text_from_table(extract_simple_table(elements))
+    return _extract_text_from_table(extract_simple_table(elements))
 
 
 def extract_text_from_table(elements: "ElementList") -> List[List[str]]:
@@ -121,7 +121,7 @@ def extract_text_from_table(elements: "ElementList") -> List[List[str]]:
     Given an ElementList, extracts a simple table (see `extract_table`), but instead of
     the table containing PDFElements, it will extract the text from each element.
     """
-    return __extract_text_from_table(extract_table(elements))
+    return _extract_text_from_table(extract_table(elements))
 
 
 def add_header_to_table(
@@ -149,7 +149,7 @@ def add_header_to_table(
         InvalidTableHeaderError: If the width of the header does not match the width of
             the table, or if the header contains duplicate entries.
     """
-    __validate_table_shape(table)
+    _validate_table_shape(table)
     header_provided = bool(header)
     if header is None:
         header = table[0]
@@ -173,13 +173,13 @@ def add_header_to_table(
     return new_table
 
 
-def __extract_text_from_table(
+def _extract_text_from_table(
     table: List[List[Optional["PDFElement"]]],
 ) -> List[List[str]]:
     """
     Given a table (of PDFElements or None), returns a table (of element.text or '').
     """
-    __validate_table_shape(table)
+    _validate_table_shape(table)
     new_table = []
     for row in table:
         new_row = [element.text if element is not None else "" for element in row]
@@ -187,7 +187,7 @@ def __extract_text_from_table(
     return new_table
 
 
-def __validate_table_shape(table: List[List[Any]]):
+def _validate_table_shape(table: List[List[Any]]):
     """
     Checks that all rows (and therefore all columns) are the same length.
     """
