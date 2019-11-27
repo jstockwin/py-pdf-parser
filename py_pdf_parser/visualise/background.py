@@ -12,7 +12,7 @@ def get_pdf_background(pdf_file_path: str, page_number: int) -> Image.Image:
     background for the matplotlib chart.
     """
     # Appending e.g. [0] to the filename means it only loads the first page
-    path_with_page = pdf_file_path + "[{}]".format(page_number - 1)
+    path_with_page = f"{pdf_file_path}[{page_number - 1}]"
     pdf_pages = wand.image.Image(filename=path_with_page, resolution=150)
     page = pdf_pages.sequence[0]
 
