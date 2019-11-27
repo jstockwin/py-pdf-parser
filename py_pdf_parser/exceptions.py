@@ -7,14 +7,6 @@ class PageNotFoundError(PDFParserError):
     pass
 
 
-class IndexNotSetError(PDFParserError):
-    pass
-
-
-class PageNumberNotSetError(PDFParserError):
-    pass
-
-
 class NoElementsOnPageError(PDFParserError):
     pass
 
