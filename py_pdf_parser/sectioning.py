@@ -39,14 +39,16 @@ class Section:
         self.end_element = end_element
 
     def __contains__(self, element: "PDFElement") -> bool:
-        return self.start_element.index <= element.index <= self.end_element.index
+        return element in self.elements
 
     @property
     def elements(self):
         """
         Returns an ElementList of all the elements in the section.
         """
-        return self.document.elements.filter_by_section(self.unique_name)
+        return self.document.elements.between(
+            self.start_element, self.end_element, inclusive=True
+        )
 
 
 class Sectioning:
