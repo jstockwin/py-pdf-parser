@@ -3,12 +3,7 @@ from typing import Dict, List, Optional, NamedTuple
 from pdfminer.layout import LTComponent
 
 from .common import BoundingBox
-from .exceptions import (
-    PageNotFoundError,
-    NoElementsOnPageError,
-    IndexNotSetError,
-    PageNumberNotSetError,
-)
+from .exceptions import PageNotFoundError, NoElementsOnPageError
 from .filtering import ElementList
 from .sectioning import Sectioning
 
@@ -130,29 +125,15 @@ class PDFElement:
     @property
     def index(self):
         """
-        The index of the element in the document.
-
-        Raises:
-            IndexNotSetError: If the PDFElement was not instantiated correctly, and was
-                not given an index. You should not instantiate PDFElements yourself, but
-                should allow the PDFDocument to do this.
+        The index of the element in the document, for internal use only.
         """
-        if self.__index is None:
-            return IndexNotSetError("Index has not been set yet")
         return self.__index
 
     @property
     def page_number(self):
         """
         The page_number of the element in the document.
-
-        Raises:
-            PageNumberNotSetError: If the PDFElement was not instantiated correctly, and
-                was not given a page_number. You should not instantiate PDFElements
-                yourself, but should allow the PDFDocument to do this.
         """
-        if self.__page_number is None:
-            return PageNumberNotSetError("page_number has not been set yet")
         return self.__page_number
 
     @property
