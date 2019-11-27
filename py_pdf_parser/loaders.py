@@ -1,13 +1,31 @@
-from typing import Dict, IO, Optional
+from typing import Dict, List, NamedTuple, IO, Optional, TYPE_CHECKING
 
 import logging
 
 from pdfminer import converter, pdfdocument, pdfinterp, pdfpage, pdfparser
 from pdfminer.layout import LTTextContainer, LAParams
 
-from .components import PDFDocument, Page
+from .components import PDFDocument
+
+if TYPE_CHECKING:
+    from pdfminer.layout import LTComponent
 
 logger = logging.getLogger("PDFParser")
+
+
+class Page(NamedTuple):
+    """
+    This is used pass pages/elements when instantiating `PDFDocument`.
+
+    Args:
+        width (int): The width of the page.
+        height (int): The height of the page.
+        elements (int): A list of PDF Miner elements (`LTComponent`s) on the page.
+    """
+
+    width: int
+    height: int
+    elements: List["LTComponent"]
 
 
 def load_file(
