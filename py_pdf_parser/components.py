@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, NamedTuple
+from typing import Dict, List, Set, Optional, NamedTuple
 
 from pdfminer.layout import LTComponent
 
@@ -87,13 +87,13 @@ class PDFElement:
 
     Attributes:
         original_element (LTComponent): A reference to the original PDF Miner element.
-        tags (list): A list of tags (str) that have been added to the element.
+        tags (set): A list of tags (str) that have been added to the element.
         ignore (bool): A flag specifying whether the element has been ignored.
         bounding_box (BoundingBox): The box representing the location of the element.
     """
 
     original_element: LTComponent
-    tags: List[str]
+    tags: Set[str]
     ignore: bool
     bounding_box: BoundingBox
     __fontname: Optional[str] = None
@@ -113,7 +113,7 @@ class PDFElement:
         self.__index = index
         self.__page_number = page_number
 
-        self.tags = []
+        self.tags = set()
         self.ignore = False
 
         self.bounding_box = BoundingBox(
@@ -194,10 +194,9 @@ class PDFElement:
 
     def add_tag(self, new_tag: str):
         """
-        Adds the `new_tag` to the tags list.
+        Adds the `new_tag` to the tags set.
         """
-        if new_tag not in self.tags:
-            self.tags.append(new_tag)
+        self.tags.add(new_tag)
 
     def entirely_within(self, bounding_box: BoundingBox) -> bool:
         """
