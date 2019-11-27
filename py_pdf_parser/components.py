@@ -287,7 +287,7 @@ class PDFDocument:
                 )
                 self.element_list.append(pdf_element)
                 idx += 1
-                if not first_element:
+                if first_element is None:
                     first_element = pdf_element
 
             if first_element is None:
