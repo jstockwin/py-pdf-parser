@@ -1,26 +1,13 @@
-from typing import Dict, List, Set, Optional, NamedTuple
-
-from pdfminer.layout import LTComponent
+from typing import Dict, List, Set, Optional, TYPE_CHECKING
 
 from .common import BoundingBox
 from .exceptions import PageNotFoundError, NoElementsOnPageError
 from .filtering import ElementList
 from .sectioning import Sectioning
 
-
-class Page(NamedTuple):
-    """
-    This is used pass pages/elements when instantiating `PDFDocument`.
-
-    Args:
-        width (int): The width of the page.
-        height (int): The height of the page.
-        elements (int): A list of PDF Miner elements (`LTComponent`s) on the page.
-    """
-
-    width: int
-    height: int
-    elements: List[LTComponent]
+if TYPE_CHECKING:
+    from .loaders import Page
+    from pdfminer.layout import LTComponent
 
 
 class PDFPage:
@@ -92,7 +79,7 @@ class PDFElement:
         bounding_box (BoundingBox): The box representing the location of the element.
     """
 
-    original_element: LTComponent
+    original_element: "LTComponent"
     tags: Set[str]
     ignore: bool
     bounding_box: BoundingBox
@@ -104,7 +91,7 @@ class PDFElement:
 
     def __init__(
         self,
-        element: LTComponent,
+        element: "LTComponent",
         index: int,
         page_number: int,
         font_mapping: Optional[Dict[str, str]] = None,
@@ -270,7 +257,7 @@ class PDFDocument:
 
     def __init__(
         self,
-        pages: Dict[int, Page],
+        pages: Dict[int, "Page"],
         pdf_file_path: Optional[str] = None,
         font_mapping: Optional[Dict[str, str]] = None,
     ):
