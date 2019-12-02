@@ -47,7 +47,7 @@ class ElementList(Iterable):
     example `foo.filter_by_tags("bar", "baz")` is the same as
     `foo.filter_by_tag("bar") | foo.filter_by_tag("baz")`.
 
-    Similarly, chaining two filter commands is the same as applying the and & operator,
+    Similarly, chaining two filter commands is the same as applying the & operator,
     for example `foo.filter_by_tag("bar").filter_by_tag("baz")` is the same as
     `foo.filter_by_tag("bar") & foo.filter_by_tag("baz")`. Note that this is not the
     case for methods which do not filter, e.g. `add_element`.
@@ -159,7 +159,7 @@ class ElementList(Iterable):
     def filter_by_sections(self, *section_strs: str) -> "ElementList":
         """
         Returns an `ElementList` of elements contained any of the given sections. Note
-        you need to specifcy an exact section, not just the name (i.e. "foo_0" not just
+        you need to specify an exact section, not just the name (i.e. "foo_0" not just
         "foo"). See the documentation for a `Section` for more information.
         """
         new_indexes: Set[int] = set()
@@ -180,7 +180,7 @@ class ElementList(Iterable):
 
         Note:
             By "to the right of" we really mean "directly to the right of", i.e. the
-            returned elements all have at least some part which is vertically alligned
+            returned elements all have at least some part which is vertically aligned
             with the specified element.
 
         Note:
@@ -218,7 +218,7 @@ class ElementList(Iterable):
 
         Note:
             By "to the left of" we really mean "directly to the left of", i.e. the
-            returned elements all have at least some part which is vertically alligned
+            returned elements all have at least some part which is vertically aligned
             with the specified element.
 
         Note:
@@ -254,7 +254,7 @@ class ElementList(Iterable):
 
         Note:
             By "below" we really mean "directly below", i.e. the returned elements all
-            have at least some part which is horizontally alligned with the specified
+            have at least some part which is horizontally aligned with the specified
             element.
 
         Note:
@@ -304,7 +304,7 @@ class ElementList(Iterable):
 
         Note:
             By "above" we really mean "directly above", i.e. the returned elements all
-            have at least some part which is horizontally alligned with the specified
+            have at least some part which is horizontally aligned with the specified
             element.
 
         Note:
@@ -442,7 +442,7 @@ class ElementList(Iterable):
         """
         Returns an ElementList of all elements before the specified element.
 
-        By before, we mean preceeding elements according to their index. The PDFDocument
+        By before, we mean preceding elements according to their index. The PDFDocument
         will order elements left to right, top to bottom (as you would normally read).
 
         Args:
@@ -459,7 +459,7 @@ class ElementList(Iterable):
         """
         Returns an ElementList of all elements after the specified element.
 
-        By after, we mean preceeding elements according to their index. The PDFDocument
+        By after, we mean succeeding elements according to their index. The PDFDocument
         will order elements left to right, top to bottom (as you would normally read).
 
         Args:
@@ -502,7 +502,7 @@ class ElementList(Iterable):
         """
         Returns only element in the ElementList, provided there is only one element.
 
-        This is mainly for convienence, when you think you've filtered down to a single
+        This is mainly for convenience, when you think you've filtered down to a single
         element and you would like to extract said element.
 
         Raises:
@@ -521,7 +521,7 @@ class ElementList(Iterable):
 
     def add_element(self, element: "PDFElement") -> "ElementList":
         """
-        Explicity adds the element to the ElementList.
+        Explicitly adds the element to the ElementList.
 
         Note:
             If the element is already in the ElementList, this does nothing.
@@ -530,7 +530,7 @@ class ElementList(Iterable):
 
     def add_elements(self, *elements: "PDFElement") -> "ElementList":
         """
-        Explicity adds the elements to the ElementList.
+        Explicitly adds the elements to the ElementList.
 
         Note:
             If the elements are already in the ElementList, this does nothing.
@@ -541,7 +541,7 @@ class ElementList(Iterable):
 
     def remove_element(self, element: "PDFElement") -> "ElementList":
         """
-        Explicity removes the element from the ElementList.
+        Explicitly removes the element from the ElementList.
 
         Note:
             If the element is not in the ElementList, this does nothing.
@@ -550,7 +550,7 @@ class ElementList(Iterable):
 
     def remove_elements(self, *elements: "PDFElement") -> "ElementList":
         """
-        Explicity removes the elements from the ElementList.
+        Explicitly removes the elements from the ElementList.
 
         Note:
             If the elements are not in the ElementList, this does nothing.
@@ -559,7 +559,7 @@ class ElementList(Iterable):
             self.document, self.indexes - set([element.index for element in elements])
         )
 
-    def __intersect_indexes_with_self(self, new_indexes: Set[int]):
+    def __intersect_indexes_with_self(self, new_indexes: Set[int]) -> "ElementList":
         return self & ElementList(self.document, new_indexes)
 
     def __iter__(self) -> ElementIterator:
@@ -579,7 +579,7 @@ class ElementList(Iterable):
     def __repr__(self):
         return f"<ElementsList of {len(self.indexes)} elements>"
 
-    def __getitem__(self, index):
+    def __getitem__(self, index) -> "PDFElement":
         """
         Returns the element in position `index` of the ElementList.
 

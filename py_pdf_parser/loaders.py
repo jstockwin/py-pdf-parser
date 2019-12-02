@@ -15,12 +15,12 @@ logger = logging.getLogger("PDFParser")
 
 class Page(NamedTuple):
     """
-    This is used pass pages/elements when instantiating `PDFDocument`.
+    This is used to pass PDF Miner elements of a page when instantiating `PDFDocument`.
 
     Args:
         width (int): The width of the page.
         height (int): The height of the page.
-        elements (int): A list of PDF Miner elements (`LTComponent`s) on the page.
+        elements (list): A list of PDF Miner elements (`LTComponent`s) on the page.
     """
 
     width: int
@@ -72,6 +72,9 @@ def load(
         kwargs: Passed to `PDFDocument`. See the documentation for `PDFDocument`.
 
     Returns: PDFDocument with the file loaded.
+
+    Raises:
+        pdfminer.pdfpage.PDFTextExtractionNotAllowed: If the document does not allow text extraction.
     """
     if la_params is None:
         la_params = {}
