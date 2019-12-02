@@ -115,7 +115,7 @@ class PDFVisualiser:
 
         self._ax.format_coord = self.__get_annotations
 
-    def __get_annotations(self, x, y):
+    def __get_annotations(self, x, y) -> str:
         annotation = f"({x:.2f}, {y:.2f})"
         for element in self.elements.filter_by_page(self.current_page):
             bbox = element.bounding_box

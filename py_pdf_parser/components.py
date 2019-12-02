@@ -83,11 +83,11 @@ class PDFElement:
     tags: Set[str]
     ignore: bool
     bounding_box: BoundingBox
-    __fontname: Optional[str] = None
-    __fontsize: Optional[int] = None
+    __font_name: Optional[str] = None
+    __font_size: Optional[int] = None
     __font_mapping: Dict[str, str] = {}
-    __index: Optional[int] = None
-    __page_number: Optional[int] = None
+    __index: int
+    __page_number: int
 
     def __init__(
         self,
@@ -124,38 +124,38 @@ class PDFElement:
         return self.__page_number
 
     @property
-    def fontname(self) -> str:
+    def font_name(self) -> str:
         """
         The name of the font.
 
         This will be taken from the pdf itself, using the first character in the
         element.
         """
-        if self.__fontname is not None:
-            return self.__fontname
+        if self.__font_name is not None:
+            return self.__font_name
 
         first_line = next(iter(self.original_element))
         first_character = next(iter(first_line))
 
-        self.__fontname = first_character.fontname
-        return self.__fontname
+        self.__font_name = first_character.fontname
+        return self.__font_name
 
     @property
-    def fontsize(self) -> int:
+    def font_size(self) -> int:
         """
         The size of the font.
 
         This will be taken from the pdf itself, using the first character in the
         element.
         """
-        if self.__fontsize is not None:
-            return self.__fontsize
+        if self.__font_size is not None:
+            return self.__font_size
 
         first_line = next(iter(self.original_element))
         first_character = next(iter(first_line))
 
-        self.__fontsize = int(round(first_character.height, 0))
-        return self.__fontsize
+        self.__font_size = int(round(first_character.height, 0))
+        return self.__font_size
 
     @property
     def font(self) -> str:
@@ -169,7 +169,7 @@ class PDFElement:
         the string is mapped in your font_mapping then the mapped value will be
         returned.
         """
-        font = f"{self.fontname},{self.fontsize}"
+        font = f"{self.font_name},{self.font_size}"
         return self.__font_mapping.get(font, font)
 
     @property
@@ -250,10 +250,12 @@ class PDFDocument:
             the `Sectioning` class.
     """
 
+    # Element list will contain all elements, sorted from top to bottom, left to right.
     element_list: List[PDFElement] = []
-    pages: List[PDFPage] = []
     number_of_pages: int
     pdf_file_path: Optional[str]
+    sectioning: "Sectioning"
+    __pages: Dict[int, PDFPage] = {}
 
     def __init__(
         self,
@@ -282,15 +284,13 @@ class PDFDocument:
                     f"No elements on page {page_number}, please exclude this page"
                 )
 
-            self.pages.append(
-                PDFPage(
-                    document=self,
-                    width=page.width,
-                    height=page.height,
-                    page_number=page_number,
-                    start_element=first_element,
-                    end_element=pdf_element,
-                )
+            self.__pages[page_number] = PDFPage(
+                document=self,
+                width=page.width,
+                height=page.height,
+                page_number=page_number,
+                start_element=first_element,
+                end_element=pdf_element,
             )
 
         self.pdf_file_path = pdf_file_path
@@ -303,6 +303,10 @@ class PDFDocument:
         """
         return ElementList(self)
 
+    @property
+    def pages(self) -> List["PDFPage"]:
+        return [self.__pages[page_number] for page_number in sorted(self.__pages)]
+
     def get_page(self, page_number: int) -> "PDFPage":
         """
         Returns the `PDFPage` for the specified `page_number`.
@@ -310,7 +314,7 @@ class PDFDocument:
         Raises:
             PageNotFoundError: If `page_number` was not found.
         """
-        for page in self.pages:
-            if page.page_number == page_number:
-                return page
-        raise PageNotFoundError(f"Could not find page {page_number}")
+        try:
+            return self.__pages[page_number]
+        except KeyError:
+            raise PageNotFoundError(f"Could not find page {page_number}")
