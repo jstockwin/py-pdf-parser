@@ -1,0 +1,32 @@
+shell:
+  build: .
+  dockerfile: dockerfiles/Dockerfile
+  volumes:
+    - .:/py-pdf-parser
+    - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    - ./imagemagick_policy.xml:/etc/ImageMagick-6/policy.xml
+  environment:
+    DISPLAY: ":1"
+  command: bash
+
+lint:
+  build: .
+  dockerfile: dockerfiles/Dockerfile_tests
+  volumes:
+    - .:/py-pdf-parser
+  # pytype pyi-error disabled due to https://github.com/google/pytype/issues/355
+  command: bash -c "black . --check && mypy . && pytype . --disable=pyi-error && pycodestyle . --config=pycodestyle.cfg"
+
+lint-fix:
+  build: .
+  dockerfile: dockerfiles/Dockerfile_tests
+  volumes:
+    - .:/py-pdf-parser
+  command: bash -c "black ."
+
+tests:
+  build: .
+  dockerfile: dockerfiles/Dockerfile_tests
+  volumes:
+    - .:/py-pdf-parser
+  command: bash -c "nosetests ."

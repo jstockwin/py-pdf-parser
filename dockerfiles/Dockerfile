@@ -1,0 +1,30 @@
+FROM 069140875175.dkr.ecr.eu-west-1.amazonaws.com/ubuntu_base_image:phusion-0.11
+
+RUN apt-get update && \
+    apt-get -y install software-properties-common \
+    python3-dev \
+    python3-pyqt5 \
+    python3-matplotlib \
+    python3-pip \
+    libmagickwand-dev \
+    python3-setuptools
+
+RUN pip3 install --upgrade pip
+
+# Create src dir
+ENV PROJECT_DIR /py-pdf-parser
+
+WORKDIR $PROJECT_DIR
+ADD ./ $PROJECT_DIR
+ADD ./imagemagick_policy.xml /etc/ImageMagick-6/policy.xml
+
+# Clean up APT when done.
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN chown -R optimor: $PROJECT_DIR
+
+RUN python3 $PROJECT_DIR/setup.py install
+
+USER optimor
+
+RUN echo "alias python=python3" > /home/optimor/.bashrc
