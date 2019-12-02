@@ -1,6 +1,6 @@
-import os
-import tempfile
+import io
 
+import numpy
 import wand.image
 import wand.color
 from PIL import Image
@@ -16,9 +16,6 @@ def get_pdf_background(pdf_file_path: str, page_number: int) -> Image.Image:
     pdf_pages = wand.image.Image(filename=path_with_page, resolution=150)
     page = pdf_pages.sequence[0]
 
-    output_directory = tempfile.mkdtemp()
-    output_file_path = os.path.join(output_directory, "screenshot.png")
-
     with wand.image.Image(page) as image:
         # We need to composite this with a white image as a background,
         # because disabling the alpha channel doesn't work.
@@ -29,6 +26,9 @@ def get_pdf_background(pdf_file_path: str, page_number: int) -> Image.Image:
         }
         with wand.image.Image(**bg_params) as background:
             background.composite(image, 0, 0)
-            background.save(filename=output_file_path)
+            img_buffer = numpy.asarray(
+                bytearray(background.make_blob(format="png")), dtype="uint8"
+            )
+            img_stream = io.BytesIO(img_buffer)
 
-    return Image.open(output_file_path).transpose(Image.FLIP_TOP_BOTTOM).convert("RGBA")
+    return Image.open(img_stream).transpose(Image.FLIP_TOP_BOTTOM).convert("RGBA")
