@@ -93,6 +93,40 @@ class ElementList(Iterable):
         )
         return ElementList(self.document, new_indexes)
 
+    def filter_by_text_equal(self, text: str, stripped: bool = True) -> "ElementList":
+        """
+        Returns an `ElementList` containing only those elements whose text is exactly
+        the given string.
+
+        Args:
+            text (str): The text to be matched.
+            stripped (bool, optional): Whether to call .strip() on the element text
+                when looking for matches. Default: True.
+        """
+        if stripped:
+            new_indexes = set(
+                element.index for element in self if element.text.strip() == text
+            )
+        else:
+            new_indexes = set(element.index for element in self if element.text == text)
+
+        return ElementList(self.document, new_indexes)
+
+    def filter_by_text_contains(self, text: str) -> "ElementList":
+        """
+        Returns an `ElementList` containing only those elements whose text contains
+        the given string.
+        """
+        new_indexes = set(element.index for element in self if text in element.text)
+        return ElementList(self.document, new_indexes)
+
+    def filter_by_font(self, font: str) -> "ElementList":
+        """
+        Returns an `ElementList` containing only those elements with the given font.
+        """
+        new_indexes = set(element.index for element in self if element.font == font)
+        return ElementList(self.document, new_indexes)
+
     def exclude_ignored(self) -> "ElementList":
         """
         Returns an `ElementList` with all of the ignored elements removed.
