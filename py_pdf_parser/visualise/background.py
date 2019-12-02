@@ -29,6 +29,6 @@ def get_pdf_background(pdf_file_path: str, page_number: int) -> Image.Image:
             img_buffer = numpy.asarray(
                 bytearray(background.make_blob(format="png")), dtype="uint8"
             )
-            img_stream = io.BytesIO(img_buffer)
+            img_stream = io.BytesIO(img_buffer.tobytes())
 
     return Image.open(img_stream).transpose(Image.FLIP_TOP_BOTTOM).convert("RGBA")

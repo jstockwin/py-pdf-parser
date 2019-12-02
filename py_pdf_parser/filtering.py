@@ -78,32 +78,27 @@ class ElementList(Iterable):
         Returns an `ElementList` containing only those elements containing the given
         tag.
         """
-        new_indexes: Set[int] = set()
-        for element in self:
-            if tag in element.tags:
-                new_indexes.add(element.index)
-        return self.__intersect_indexes_with_self(new_indexes)
+        new_indexes = set(element.index for element in self if tag in element.tags)
+        return ElementList(self.document, new_indexes)
 
     def filter_by_tags(self, *tags: str) -> "ElementList":
         """
         Returns an `ElementList` containing only those elements containing any of the
         given tags.
         """
-        new_indexes: Set[int] = set()
-        for element in self:
-            if any([tag in element.tags for tag in tags]):
-                new_indexes.add(element.index)
-        return self.__intersect_indexes_with_self(new_indexes)
+        new_indexes = set(
+            element.index
+            for element in self
+            if any([tag in element.tags for tag in tags])
+        )
+        return ElementList(self.document, new_indexes)
 
     def exclude_ignored(self) -> "ElementList":
         """
         Returns an `ElementList` with all of the ignored elements removed.
         """
-        new_indexes: Set[int] = set()
-        for element in self:
-            if not element.ignore:
-                new_indexes.add(element.index)
-        return self.__intersect_indexes_with_self(new_indexes)
+        new_indexes = set(element.index for element in self if not element.ignored)
+        return ElementList(self.document, new_indexes)
 
     def filter_by_page(self, page_number: int) -> "ElementList":
         """
