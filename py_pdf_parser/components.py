@@ -22,7 +22,7 @@ class PDFPage:
         document (PDFDocument): A reference to the `PDFDocument`.
         width (int): The width of the page.
         height (int): The height of the page.
-        page_number (int): Then page number of the page.
+        page_number (int): The page number.
         start_element (PDFElement): The first element on the page.
         end_element (PDFElement): The last element on the page.
     """
@@ -110,14 +110,14 @@ class PDFElement:
             self.__font_mapping = font_mapping
 
     @property
-    def index(self):
+    def index(self) -> int:
         """
         The index of the element in the document, for internal use only.
         """
         return self.__index
 
     @property
-    def page_number(self):
+    def page_number(self) -> int:
         """
         The page_number of the element in the document.
         """
@@ -187,7 +187,7 @@ class PDFElement:
 
     def entirely_within(self, bounding_box: BoundingBox) -> bool:
         """
-        Returns whether each edge of the element is inside the bouding box.
+        Returns whether each edge of the element is inside the bounding box.
         """
         return all(
             [

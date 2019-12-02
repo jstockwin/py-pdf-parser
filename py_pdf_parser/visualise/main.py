@@ -158,7 +158,7 @@ def visualise(
     """
     Visualises a PDFDocument, allowing you to inspect all the elements.
 
-    Will open a Matplotlib window showing the current page. You can scrool to zoom,
+    Will open a Matplotlib window showing the current page. You can scroll to zoom,
     click to drag, and then use the arrow keys in the toolbar to change page.
 
     Note: In order to show you the actual PDF behind the elements, your document
