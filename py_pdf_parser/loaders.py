@@ -74,7 +74,8 @@ def load(
     Returns: PDFDocument with the file loaded.
 
     Raises:
-        pdfminer.pdfpage.PDFTextExtractionNotAllowed: If the document does not allow text extraction.
+        pdfminer.pdfpage.PDFTextExtractionNotAllowed: If the document does not allow
+        text extraction.
     """
     if la_params is None:
         la_params = {}
