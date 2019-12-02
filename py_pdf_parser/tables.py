@@ -22,7 +22,7 @@ def extract_simple_table(elements: "ElementList") -> List[List[Optional["PDFElem
     elements are aligned. To use this function, the table must contain no gaps, i.e.
     should be a full N x M table with an element in each cell. There must be a clear
     gap between each row and between each column which contains no elements, and
-    a single cell cannot contian multiple elements.
+    a single cell cannot contain multiple elements.
 
     If your table has empty cells, you can use `extract_table` instead. If you fail
     to satisfy any of the other conditions listed above, that case is not yet supported.

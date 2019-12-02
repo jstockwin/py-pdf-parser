@@ -1,3 +1,6 @@
+from typing import Callable
+
+
 class ZoomPanFactory(object):
     """
     Allow matplotlib to zoom (from scrolling) and pan.
@@ -18,7 +21,7 @@ class ZoomPanFactory(object):
         self.x_press = None
         self.y_press = None
 
-    def zoom_factory(self, zoom_multiplier):
+    def zoom_factory(self, zoom_multiplier) -> Callable:
         """
         Create zoom handlers.
 
@@ -69,7 +72,7 @@ class ZoomPanFactory(object):
 
         return zoom
 
-    def pan_factory(self):
+    def pan_factory(self) -> Callable:
         def press(event):
             if event.inaxes != self.ax:
                 return

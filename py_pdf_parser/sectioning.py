@@ -1,4 +1,4 @@
-from typing import Dict, TYPE_CHECKING
+from typing import Dict, ValuesView, TYPE_CHECKING
 
 from collections import defaultdict
 
@@ -42,7 +42,7 @@ class Section:
         return element in self.elements
 
     @property
-    def elements(self):
+    def elements(self) -> "ElementList":
         """
         Returns an ElementList of all the elements in the section.
         """
@@ -69,7 +69,7 @@ class Sectioning:
         """
         Creates a new section with the specified name.
 
-        Creates a new section with the specificed name, starting at `start_element` and
+        Creates a new section with the specified name, starting at `start_element` and
         ending at `end_element` (inclusive). The unique name will be set to name_<idx>
         where <idx> is the number of existing sections with that name.
 
@@ -84,7 +84,7 @@ class Sectioning:
         return section
 
     @property
-    def sections(self):
+    def sections(self) -> ValuesView[Section]:
         """
         Returns the list of all created `Section`s.
         """
