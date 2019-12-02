@@ -131,7 +131,7 @@ class ElementList(Iterable):
         """
         Returns an `ElementList` with all of the ignored elements removed.
         """
-        new_indexes = set(element.index for element in self if not element.ignored)
+        new_indexes = set(element.index for element in self if not element.ignore)
         return ElementList(self.document, new_indexes)
 
     def filter_by_page(self, page_number: int) -> "ElementList":
@@ -262,7 +262,7 @@ class ElementList(Iterable):
         """
         page_number = element.page_number
         bounding_box = BoundingBox(
-            0, element.bounding_box.x1, element.bounding_box.y0, element.bounding_box.y1
+            0, element.bounding_box.x0, element.bounding_box.y0, element.bounding_box.y1
         )
         results = self.filter_partially_within_bounding_box(bounding_box, page_number)
         if not inclusive:
@@ -496,7 +496,7 @@ class ElementList(Iterable):
             inclusive (bool, optional): Whether the include `element` in the returned
                 results. Default: False.
         """
-        new_indexes = set(range(element.index + 1, max(self.indexes)))
+        new_indexes = set(range(element.index + 1, max(self.indexes) + 1))
         if inclusive:
             new_indexes.add(element.index)
         return self.__intersect_indexes_with_self(new_indexes)
@@ -606,7 +606,7 @@ class ElementList(Iterable):
         return element.index in self.indexes
 
     def __repr__(self):
-        return f"<ElementsList of {len(self.indexes)} elements>"
+        return f"<ElementList of {len(self.indexes)} elements>"
 
     def __getitem__(self, index) -> "PDFElement":
         """

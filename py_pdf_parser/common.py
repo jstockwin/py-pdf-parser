@@ -25,3 +25,16 @@ class BoundingBox:
         self.y1 = y1
         self.width = x1 - x0
         self.height = y1 - y0
+
+    def __eq__(self, other):
+        return all(
+            [
+                self.x0 == other.x0,
+                self.x1 == other.x1,
+                self.y0 == other.y0,
+                self.y1 == other.y1,
+            ]
+        )
+
+    def __repr__(self):
+        return f"<BoundingBox {self.x0}, {self.x1}, {self.y0}, {self.y1}>"

@@ -57,10 +57,12 @@ class Sectioning:
     """
 
     document: "PDFDocument"
-    name_counts: Dict[str, int] = defaultdict(int)
-    sections_dict: Dict[str, Section] = {}
+    name_counts: Dict[str, int]
+    sections_dict: Dict[str, Section]
 
     def __init__(self, document: "PDFDocument"):
+        self.sections_dict = {}
+        self.name_counts = defaultdict(int)
         self.document = document
 
     def create_section(

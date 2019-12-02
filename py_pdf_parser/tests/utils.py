@@ -1,9 +1,10 @@
-from typing import NamedTuple, Dict, Optional
+from typing import NamedTuple, Dict, List, Optional
 
-from py_pdf_parser.components import PDFElement
+from py_pdf_parser.components import PDFElement, PDFDocument
 from pdfminer.layout import LTComponent
 
 from py_pdf_parser.common import BoundingBox
+from py_pdf_parser.loaders import Page
 
 
 class FakePDFMinerCharacter(NamedTuple):
@@ -75,5 +76,15 @@ def create_pdf_element(
         ),
         index=index,
         page_number=page_number,
+        font_mapping=font_mapping,
+    )
+
+
+def create_pdf_document(elements: List[LTComponent], font_mapping=None):
+    """
+    Creates a simple (all elements on first page) PDF doucment with the given elements
+    """
+    return PDFDocument(
+        pages={1: Page(elements=elements, width=100, height=100)},
         font_mapping=font_mapping,
     )
