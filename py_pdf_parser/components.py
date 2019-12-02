@@ -213,7 +213,7 @@ class PDFElement:
 
     def __repr__(self):
         return (
-            f"<PDFElement tags: {self.tags}, font: '{self.font}''"
+            f"<PDFElement tags: {self.tags}, font: '{self.font}'"
             f"{', ignored' if self.ignore else ''}>"
         )
 
