@@ -85,7 +85,7 @@ class PDFElement:
     bounding_box: BoundingBox
     __font_name: Optional[str] = None
     __font_size: Optional[int] = None
-    __font_mapping: Dict[str, str] = {}
+    __font_mapping: Dict[str, str]
     __index: int
     __page_number: int
 
@@ -96,6 +96,7 @@ class PDFElement:
         page_number: int,
         font_mapping: Optional[Dict[str, str]] = None,
     ):
+        self.__font_mapping = {}
         self.original_element = element
         self.__index = index
         self.__page_number = page_number
@@ -251,11 +252,11 @@ class PDFDocument:
     """
 
     # Element list will contain all elements, sorted from top to bottom, left to right.
-    element_list: List[PDFElement] = []
+    element_list: List[PDFElement]
     number_of_pages: int
     pdf_file_path: Optional[str]
     sectioning: "Sectioning"
-    __pages: Dict[int, PDFPage] = {}
+    __pages: Dict[int, PDFPage]
 
     def __init__(
         self,
@@ -263,6 +264,8 @@ class PDFDocument:
         pdf_file_path: Optional[str] = None,
         font_mapping: Optional[Dict[str, str]] = None,
     ):
+        self.element_list = []
+        self.__pages = {}
         self.sectioning = Sectioning(self)
         idx = 0
         for page_number, page in sorted(pages.items()):
