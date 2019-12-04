@@ -1,6 +1,7 @@
 from typing import NamedTuple, Dict, List, Optional
 
 from py_pdf_parser.components import PDFElement, PDFDocument
+from py_pdf_parser.sectioning import Section
 from pdfminer.layout import LTComponent
 
 from py_pdf_parser.common import BoundingBox
@@ -82,9 +83,27 @@ def create_pdf_element(
 
 def create_pdf_document(elements: List[LTComponent], font_mapping=None):
     """
-    Creates a simple (all elements on first page) PDF doucment with the given elements
+    Creates a simple (all elements on first page) PDF document with the given elements
     """
     return PDFDocument(
         pages={1: Page(elements=elements, width=100, height=100)},
         font_mapping=font_mapping,
     )
+
+
+def create_section(
+    document: "PDFDocument",
+    name: str = "fake_name",
+    unique_name: str = "fake_name_1",
+    start_element: Optional["PDFElement"] = None,
+    end_element: Optional["PDFElement"] = None,
+):
+    """
+    Creates a simple section
+    """
+    if start_element is None:
+        start_element = document.element_list[0]
+    if end_element is None:
+        end_element = document.element_list[-1]
+
+    return Section(document, name, unique_name, start_element, end_element)

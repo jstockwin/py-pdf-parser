@@ -50,6 +50,23 @@ class Section:
             self.start_element, self.end_element, inclusive=True
         )
 
+    def __eq__(self, other: object) -> bool:
+        """
+        Returns True if the two sections have the same unique name and are from the
+        same document
+        """
+        if not isinstance(other, Section):
+            raise NotImplementedError(f"Can't compare Section with {type(other)}")
+        return all(
+            [
+                self.document == other.document,
+                self.unique_name == other.unique_name,
+                self.start_element == other.start_element,
+                self.end_element == other.end_element,
+                self.__class__ == other.__class__,
+            ]
+        )
+
 
 class Sectioning:
     """
