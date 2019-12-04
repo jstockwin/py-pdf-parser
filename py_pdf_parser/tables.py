@@ -152,7 +152,11 @@ def add_header_to_table(
     _validate_table_shape(table)
     header_provided = bool(header)
     if header is None:
+        if len(table) == 0:
+            raise InvalidTableError("Cannot extract header from empty table")
         header = table[0]
+    elif len(table) == 0:
+        return []
     elif len(header) != len(table[0]):
         raise InvalidTableHeaderError(
             f"Header length of {len(header)} does not match the width of the table "
@@ -191,6 +195,8 @@ def _validate_table_shape(table: List[List[Any]]):
     """
     Checks that all rows (and therefore all columns) are the same length.
     """
+    if len(table) < 1:
+        return
     first_row_len = len(table[0])
     for idx, row in enumerate(table[1:]):
         if not len(row) == first_row_len:
