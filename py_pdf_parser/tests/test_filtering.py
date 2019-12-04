@@ -1,4 +1,3 @@
-from unittest import TestCase
 from mock import patch, call
 
 from py_pdf_parser.components import PDFDocument, PDFElement
@@ -6,10 +5,11 @@ from py_pdf_parser.common import BoundingBox
 from py_pdf_parser.exceptions import NoElementFoundError, MultipleElementsFoundError
 from py_pdf_parser.filtering import ElementList
 from py_pdf_parser.loaders import Page
+from py_pdf_parser.tests.base import BaseTestCase
 from utils import FakePDFMinerTextElement, create_pdf_document
 
 
-class TestFiltering(TestCase):
+class TestFiltering(BaseTestCase):
     def setUp(self):
         self.elem1 = FakePDFMinerTextElement()
         self.elem2 = FakePDFMinerTextElement()
@@ -72,14 +72,10 @@ class TestFiltering(TestCase):
         self.assertEqual(len(doc.elements.filter_by_text_equal("hello")), 0)
 
         self.assertEqual(len(doc.elements.filter_by_text_equal("baz")), 1)
-        self.__assert_original_element_in(
-            elem4, doc.elements.filter_by_text_equal("baz")
-        )
+        self.assert_original_element_in(elem4, doc.elements.filter_by_text_equal("baz"))
 
         self.assertEqual(len(doc.elements.filter_by_text_equal("foo")), 1)
-        self.__assert_original_element_in(
-            elem1, doc.elements.filter_by_text_equal("foo")
-        )
+        self.assert_original_element_in(elem1, doc.elements.filter_by_text_equal("foo"))
 
     def test_filter_by_text_contains(self):
         elem1 = FakePDFMinerTextElement(text="foo")
@@ -91,15 +87,15 @@ class TestFiltering(TestCase):
         self.assertEqual(len(doc.elements.filter_by_text_contains("hello")), 0)
 
         self.assertEqual(len(doc.elements.filter_by_text_contains("baz")), 1)
-        self.__assert_original_element_in(
+        self.assert_original_element_in(
             elem4, doc.elements.filter_by_text_contains("baz")
         )
 
         self.assertEqual(len(doc.elements.filter_by_text_contains("foo")), 2)
-        self.__assert_original_element_in(
+        self.assert_original_element_in(
             elem1, doc.elements.filter_by_text_contains("foo")
         )
-        self.__assert_original_element_in(
+        self.assert_original_element_in(
             elem3, doc.elements.filter_by_text_contains("foo")
         )
 
@@ -111,14 +107,14 @@ class TestFiltering(TestCase):
         self.assertEqual(len(doc.elements.filter_by_font("hello,1")), 0)
 
         self.assertEqual(len(doc.elements.filter_by_font("foo,2")), 1)
-        self.__assert_original_element_in(elem1, doc.elements.filter_by_font("foo,2"))
+        self.assert_original_element_in(elem1, doc.elements.filter_by_font("foo,2"))
 
         doc = create_pdf_document([elem1, elem2], font_mapping={"foo,2": "font_a"})
         self.assertEqual(len(doc.elements.filter_by_font("hello,1")), 0)
         self.assertEqual(len(doc.elements.filter_by_font("foo,2")), 0)
 
         self.assertEqual(len(doc.elements.filter_by_font("font_a")), 1)
-        self.__assert_original_element_in(elem1, doc.elements.filter_by_font("font_a"))
+        self.assert_original_element_in(elem1, doc.elements.filter_by_font("font_a"))
 
     def test_exclude_ignored(self):
         self.assertEqual(len(self.elem_list.exclude_ignored()), len(self.elem_list))
@@ -136,8 +132,8 @@ class TestFiltering(TestCase):
         doc = PDFDocument({1: page1, 2: page2})
 
         self.assertEqual(len(doc.elements.filter_by_page(1)), 2)
-        self.__assert_original_element_in(elem1, doc.elements.filter_by_page(1))
-        self.__assert_original_element_in(elem2, doc.elements.filter_by_page(1))
+        self.assert_original_element_in(elem1, doc.elements.filter_by_page(1))
+        self.assert_original_element_in(elem2, doc.elements.filter_by_page(1))
 
     def test_filter_by_pages(self):
         elem1 = FakePDFMinerTextElement()
@@ -150,9 +146,9 @@ class TestFiltering(TestCase):
         doc = PDFDocument({1: page1, 2: page2, 3: page3})
 
         self.assertEqual(len(doc.elements.filter_by_pages(1, 2)), 3)
-        self.__assert_original_element_in(elem1, doc.elements.filter_by_pages(1, 2))
-        self.__assert_original_element_in(elem2, doc.elements.filter_by_pages(1, 2))
-        self.__assert_original_element_in(elem3, doc.elements.filter_by_pages(1, 2))
+        self.assert_original_element_in(elem1, doc.elements.filter_by_pages(1, 2))
+        self.assert_original_element_in(elem2, doc.elements.filter_by_pages(1, 2))
+        self.assert_original_element_in(elem3, doc.elements.filter_by_pages(1, 2))
 
     def test_filter_by_section_name(self):
         self.doc.sectioning.create_section("foo", self.elem_list[0], self.elem_list[1])
@@ -240,10 +236,10 @@ class TestFiltering(TestCase):
         doc = PDFDocument(pages={1: page1, 2: page2})
         elem_list = doc.elements
 
-        pdf_elem1 = self.__extract_element_from_list(elem1, elem_list)
-        pdf_elem2 = self.__extract_element_from_list(elem2, elem_list)
-        pdf_elem3 = self.__extract_element_from_list(elem3, elem_list)
-        pdf_elem4 = self.__extract_element_from_list(elem4, elem_list)
+        pdf_elem1 = self.extract_element_from_list(elem1, elem_list)
+        pdf_elem2 = self.extract_element_from_list(elem2, elem_list)
+        pdf_elem3 = self.extract_element_from_list(elem3, elem_list)
+        pdf_elem4 = self.extract_element_from_list(elem4, elem_list)
 
         result = elem_list.to_the_right_of(pdf_elem1)
 
@@ -303,10 +299,10 @@ class TestFiltering(TestCase):
         doc = PDFDocument(pages={1: page1, 2: page2})
         elem_list = doc.elements
 
-        pdf_elem1 = self.__extract_element_from_list(elem1, elem_list)
-        pdf_elem2 = self.__extract_element_from_list(elem2, elem_list)
-        pdf_elem3 = self.__extract_element_from_list(elem3, elem_list)
-        pdf_elem4 = self.__extract_element_from_list(elem4, elem_list)
+        pdf_elem1 = self.extract_element_from_list(elem1, elem_list)
+        pdf_elem2 = self.extract_element_from_list(elem2, elem_list)
+        pdf_elem3 = self.extract_element_from_list(elem3, elem_list)
+        pdf_elem4 = self.extract_element_from_list(elem4, elem_list)
 
         result = elem_list.to_the_left_of(pdf_elem1)
 
@@ -369,12 +365,12 @@ class TestFiltering(TestCase):
         doc = PDFDocument(pages={1: page1, 2: page2, 3: page3})
         elem_list = doc.elements
 
-        pdf_elem3 = self.__extract_element_from_list(elem3, elem_list)
-        pdf_elem4 = self.__extract_element_from_list(elem4, elem_list)
-        pdf_elem5 = self.__extract_element_from_list(elem5, elem_list)
-        pdf_elem6 = self.__extract_element_from_list(elem6, elem_list)
-        pdf_elem7 = self.__extract_element_from_list(elem7, elem_list)
-        pdf_elem8 = self.__extract_element_from_list(elem8, elem_list)
+        pdf_elem3 = self.extract_element_from_list(elem3, elem_list)
+        pdf_elem4 = self.extract_element_from_list(elem4, elem_list)
+        pdf_elem5 = self.extract_element_from_list(elem5, elem_list)
+        pdf_elem6 = self.extract_element_from_list(elem6, elem_list)
+        pdf_elem7 = self.extract_element_from_list(elem7, elem_list)
+        pdf_elem8 = self.extract_element_from_list(elem8, elem_list)
 
         result = elem_list.below(pdf_elem3)
 
@@ -458,12 +454,12 @@ class TestFiltering(TestCase):
         doc = PDFDocument(pages={1: page1, 2: page2, 3: page3})
         elem_list = doc.elements
 
-        pdf_elem1 = self.__extract_element_from_list(elem1, elem_list)
-        pdf_elem2 = self.__extract_element_from_list(elem2, elem_list)
-        pdf_elem3 = self.__extract_element_from_list(elem3, elem_list)
-        pdf_elem4 = self.__extract_element_from_list(elem4, elem_list)
-        pdf_elem5 = self.__extract_element_from_list(elem5, elem_list)
-        pdf_elem6 = self.__extract_element_from_list(elem6, elem_list)
+        pdf_elem1 = self.extract_element_from_list(elem1, elem_list)
+        pdf_elem2 = self.extract_element_from_list(elem2, elem_list)
+        pdf_elem3 = self.extract_element_from_list(elem3, elem_list)
+        pdf_elem4 = self.extract_element_from_list(elem4, elem_list)
+        pdf_elem5 = self.extract_element_from_list(elem5, elem_list)
+        pdf_elem6 = self.extract_element_from_list(elem6, elem_list)
 
         result = elem_list.above(pdf_elem3)
 
@@ -547,14 +543,14 @@ class TestFiltering(TestCase):
         doc = PDFDocument(pages={1: page1, 2: page2, 3: page3})
         elem_list = doc.elements
 
-        pdf_elem1 = self.__extract_element_from_list(elem1, elem_list)
-        pdf_elem2 = self.__extract_element_from_list(elem2, elem_list)
-        pdf_elem3 = self.__extract_element_from_list(elem3, elem_list)
-        pdf_elem4 = self.__extract_element_from_list(elem4, elem_list)
-        pdf_elem5 = self.__extract_element_from_list(elem5, elem_list)
-        pdf_elem6 = self.__extract_element_from_list(elem6, elem_list)
-        pdf_elem7 = self.__extract_element_from_list(elem7, elem_list)
-        pdf_elem8 = self.__extract_element_from_list(elem8, elem_list)
+        pdf_elem1 = self.extract_element_from_list(elem1, elem_list)
+        pdf_elem2 = self.extract_element_from_list(elem2, elem_list)
+        pdf_elem3 = self.extract_element_from_list(elem3, elem_list)
+        pdf_elem4 = self.extract_element_from_list(elem4, elem_list)
+        pdf_elem5 = self.extract_element_from_list(elem5, elem_list)
+        pdf_elem6 = self.extract_element_from_list(elem6, elem_list)
+        pdf_elem7 = self.extract_element_from_list(elem7, elem_list)
+        pdf_elem8 = self.extract_element_from_list(elem8, elem_list)
 
         result = elem_list.vertically_in_line_with(pdf_elem3)
 
@@ -638,10 +634,10 @@ class TestFiltering(TestCase):
         doc = PDFDocument(pages={1: page1, 2: page2})
         elem_list = doc.elements
 
-        pdf_elem1 = self.__extract_element_from_list(elem1, elem_list)
-        pdf_elem2 = self.__extract_element_from_list(elem2, elem_list)
-        pdf_elem3 = self.__extract_element_from_list(elem3, elem_list)
-        pdf_elem4 = self.__extract_element_from_list(elem4, elem_list)
+        pdf_elem1 = self.extract_element_from_list(elem1, elem_list)
+        pdf_elem2 = self.extract_element_from_list(elem2, elem_list)
+        pdf_elem3 = self.extract_element_from_list(elem3, elem_list)
+        pdf_elem4 = self.extract_element_from_list(elem4, elem_list)
 
         result = elem_list.horizontally_in_line_with(pdf_elem1)
 
@@ -699,10 +695,10 @@ class TestFiltering(TestCase):
         doc = PDFDocument(pages={1: page1, 2: page2})
         elem_list = doc.elements
 
-        pdf_elem1 = self.__extract_element_from_list(elem1, elem_list)
-        pdf_elem2 = self.__extract_element_from_list(elem2, elem_list)
-        pdf_elem3 = self.__extract_element_from_list(elem3, elem_list)
-        pdf_elem4 = self.__extract_element_from_list(elem4, elem_list)
+        pdf_elem1 = self.extract_element_from_list(elem1, elem_list)
+        pdf_elem2 = self.extract_element_from_list(elem2, elem_list)
+        pdf_elem3 = self.extract_element_from_list(elem3, elem_list)
+        pdf_elem4 = self.extract_element_from_list(elem4, elem_list)
 
         result = elem_list.filter_partially_within_bounding_box(
             BoundingBox(0, 1, 0, 1), 1
@@ -780,7 +776,7 @@ class TestFiltering(TestCase):
         elem1 = FakePDFMinerTextElement()
         page = Page(elements=[elem1], width=100, height=100)
         doc = PDFDocument(pages={1: page})
-        pdf_elem_1 = self.__extract_element_from_list(elem1, doc.elements)
+        pdf_elem_1 = self.extract_element_from_list(elem1, doc.elements)
 
         result = doc.elements.extract_single_element()
         self.assertEqual(result, pdf_elem_1)
@@ -836,7 +832,7 @@ class TestFiltering(TestCase):
         self.assertEqual(repr(self.elem_list), "<ElementList of 6 elements>")
 
     def test_getitem(self):
-        self.__assert_original_element_equal(self.elem1, self.elem_list[0])
+        self.assert_original_element_equal(self.elem1, self.elem_list[0])
 
     def test_eq(self):
         with self.assertRaises(NotImplementedError):
@@ -899,16 +895,3 @@ class TestFiltering(TestCase):
 
         result = list_1 & list_2
         self.assertEqual(result, ElementList(self.doc, set([2])))
-
-    # Helper functions
-    def __assert_original_element_in(self, original_element, element_list):
-        pdf_element = self.__extract_element_from_list(original_element, element_list)
-        self.assertIn(pdf_element, element_list)
-
-    def __assert_original_element_equal(self, original_element, element):
-        self.assertEqual(original_element, element.original_element)
-
-    def __extract_element_from_list(self, original_element, element_list):
-        return [
-            elem for elem in element_list if elem.original_element == original_element
-        ][0]
