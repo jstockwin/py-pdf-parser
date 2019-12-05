@@ -199,7 +199,7 @@ class TestTables(BaseTestCase):
         )
 
     def test_add_header_to_table(self):
-        # Checks behaviour if header it is not provided
+        # Checks behaviour if header is not provided
         fake_header = ["fake_header_1", "fake_header_2"]
         table = [fake_header]
         result = add_header_to_table(table)
