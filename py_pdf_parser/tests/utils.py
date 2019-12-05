@@ -70,7 +70,7 @@ def create_pdf_element(
     font_name: str = "fake_font",
     font_size: int = 10,
     font_mapping: Optional[Dict[str, str]] = None,
-):
+) -> "PDFElement":
     return PDFElement(
         element=FakePDFMinerTextElement(
             bounding_box, text=text, font_name=font_name, font_size=font_size
@@ -81,7 +81,9 @@ def create_pdf_element(
     )
 
 
-def create_pdf_document(elements: List[LTComponent], font_mapping=None):
+def create_pdf_document(
+    elements: List[LTComponent], font_mapping=None
+) -> "PDFDocument":
     """
     Creates a simple (all elements on first page) PDF document with the given elements
     """
@@ -97,7 +99,7 @@ def create_section(
     unique_name: str = "fake_name_1",
     start_element: Optional["PDFElement"] = None,
     end_element: Optional["PDFElement"] = None,
-):
+) -> "Section":
     """
     Creates a simple section
     """
