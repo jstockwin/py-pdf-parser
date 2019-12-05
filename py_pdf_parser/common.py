@@ -12,6 +12,9 @@ class BoundingBox:
         y0 (int): The y coordinate of the bottom left corner.
         y1 (int): The y coordinate of the top right corner.
 
+    Raises:
+        InvalidCoordinatesError: if x1 is smaller than x0 or y1 is smaller than y0.
+
     Attributes:
         x0 (int): The x coordinate of the bottom left corner.
         x1 (int): The x coordinate of the top right corner.

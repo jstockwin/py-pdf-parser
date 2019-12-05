@@ -30,3 +30,10 @@ tests:
   volumes:
     - .:/py-pdf-parser
   command: bash -c "nosetests ."
+
+docs:
+  build: .
+  dockerfile: dockerfiles/Dockerfile_tests
+  volumes:
+    - .:/py-pdf-parser
+  command: make --directory docs html
