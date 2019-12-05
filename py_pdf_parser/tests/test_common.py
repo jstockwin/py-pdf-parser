@@ -4,7 +4,7 @@ from py_pdf_parser.tests.base import BaseTestCase
 
 
 class TestBoundingBox(BaseTestCase):
-    def test_create_boundinx_box(self):
+    def test_create_bounding_box(self):
         bbox = BoundingBox(0, 1, 0, 1)
         self.assertEqual(bbox.width, 1)
         self.assertEqual(bbox.height, 1)
