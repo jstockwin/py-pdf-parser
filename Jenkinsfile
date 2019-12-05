@@ -36,6 +36,11 @@ try {
         sh 'jenkins_scripts/stages/lint.sh'
     }
 
+    // Run tests
+    stage('Test') {
+        sh 'jenkins_scripts/stages/test.sh'
+    }
+
     // Cleanup old docker images
     stage('Cleanup slave node') {
         sh 'jenkins_scripts/stages/cleanup.sh'

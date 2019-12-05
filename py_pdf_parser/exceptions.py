@@ -31,3 +31,7 @@ class InvalidTableError(PDFParserError):
 
 class InvalidTableHeaderError(PDFParserError):
     pass
+
+
+class InvalidCoordinatesError(PDFParserError):
+    pass
