@@ -13,8 +13,11 @@ class Section:
     A continuous group of elements within a document.
 
     A section is intended to label a group of elements. Said elements must be continuous
-    in the document. You should not instantiate a Section class yourself, but should
-    call `create_section` from the `Sectioning` class below.
+    in the document.
+
+    Warning:
+        You should not instantiate a Section class yourself, but should call
+        `create_section` from the `Sectioning` class below.
 
     Args:
         document (PDFDocument): A reference to the document.
@@ -44,7 +47,10 @@ class Section:
     @property
     def elements(self) -> "ElementList":
         """
-        Returns an ElementList of all the elements in the section.
+        All the elements in the section.
+
+        Returns:
+            ElementList: All the elements in the section.
         """
         return self.document.elements.between(
             self.start_element, self.end_element, inclusive=True
@@ -70,7 +76,7 @@ class Section:
 
 class Sectioning:
     """
-    A sectioning utilities class, made available on all `PDFDocument`s as `.sectioning`.
+    A sectioning utilities class, made available on all PDFDocuments as ``.sectioning``.
     """
 
     document: "PDFDocument"
@@ -92,7 +98,13 @@ class Sectioning:
         ending at `end_element` (inclusive). The unique name will be set to name_<idx>
         where <idx> is the number of existing sections with that name.
 
-        Returns: The created `Section`.
+        Args:
+            name (str): The name of the new section.
+            start_element (PDFElement): The first element in the section.
+            end_element (PDFElement): The last element in the section.
+
+        Returns:
+            Section: The created section.
         """
         current_count = self.name_counts[name]
         unique_name = f"{name}_{current_count}"
@@ -105,6 +117,6 @@ class Sectioning:
     @property
     def sections(self) -> ValuesView[Section]:
         """
-        Returns the list of all created `Section`s.
+        Returns the list of all created Sections.
         """
         return self.sections_dict.values()

@@ -8,13 +8,6 @@ if TYPE_CHECKING:
 
 
 class ElementIterator(Iterator):
-    """
-    Iterates through the elements of an ElementList.
-
-    Elements will be returned in order of the elements in the document, left-to-right,
-    top-to-bottom (the same as you read).
-    """
-
     index: int
     document: "PDFDocument"
 
@@ -60,7 +53,14 @@ class ElementList(Iterable):
         document (PDFDocument): A reference to the PDF document
         indexes (set, optional): A set (or frozenset) of element indexes. Default to
             all elements in the document.
+
+    Attributes:
+        document (PDFDocument): A reference to the PDF document.
+        indexes (set, optional): A frozenset of element indexes.
     """
+
+    document: "PDFDocument"
+    indexes: Union[Set[int], FrozenSet[int]]
 
     def __init__(
         self,
@@ -75,16 +75,26 @@ class ElementList(Iterable):
 
     def filter_by_tag(self, tag: str) -> "ElementList":
         """
-        Returns an `ElementList` containing only those elements containing the given
-        tag.
+        Filter for elements containing only the given tag.
+
+        Args:
+            tag (str): The tag to filter for.
+
+        Returns:
+            ElementList: The filtered list.
         """
         new_indexes = set(element.index for element in self if tag in element.tags)
         return ElementList(self.document, new_indexes)
 
     def filter_by_tags(self, *tags: str) -> "ElementList":
         """
-        Returns an `ElementList` containing only those elements containing any of the
-        given tags.
+        Filter for elements containing any of the given tags.
+
+        Args:
+            *tags (str): The tags to filter for.
+
+        Returns:
+            ElementList: The filtered list.
         """
         new_indexes = set(
             element.index
@@ -95,13 +105,15 @@ class ElementList(Iterable):
 
     def filter_by_text_equal(self, text: str, stripped: bool = True) -> "ElementList":
         """
-        Returns an `ElementList` containing only those elements whose text is exactly
-        the given string.
+        Filter for elements whose text is exactly the given string.
 
         Args:
-            text (str): The text to be matched.
-            stripped (bool, optional): Whether to call .strip() on the element text
-                when looking for matches. Default: True.
+            text (str): The text to filter for.
+            stripped (bool, optional): Whether to strip the text of the element before
+                compaison. Default: True.
+
+        Returns:
+            ElementList: The filtered list.
         """
         if stripped:
             new_indexes = set(
@@ -114,29 +126,49 @@ class ElementList(Iterable):
 
     def filter_by_text_contains(self, text: str) -> "ElementList":
         """
-        Returns an `ElementList` containing only those elements whose text contains
-        the given string.
+        Filter for elements whose text contains the given string.
+
+        Args:
+            text (str): The text to filter for.
+
+        Returns:
+            ElementList: The filtered list.
         """
         new_indexes = set(element.index for element in self if text in element.text)
         return ElementList(self.document, new_indexes)
 
     def filter_by_font(self, font: str) -> "ElementList":
         """
-        Returns an `ElementList` containing only those elements with the given font.
+        Filter for elements containing only the given font.
+
+        Args:
+            font (str): The font to filter for.
+
+        Returns:
+            ElementList: The filtered list.
         """
         new_indexes = set(element.index for element in self if element.font == font)
         return ElementList(self.document, new_indexes)
 
     def exclude_ignored(self) -> "ElementList":
         """
-        Returns an `ElementList` with all of the ignored elements removed.
+        Removes all elements marked as ignored.
+
+        Returns:
+            ElementList: The filtered list.
         """
         new_indexes = set(element.index for element in self if not element.ignore)
         return ElementList(self.document, new_indexes)
 
     def filter_by_page(self, page_number: int) -> "ElementList":
         """
-        Returns an `ElementList` containing only those elements on the given page.
+        Filter for elements on the given page.
+
+        Args:
+            page (int): The page to filter for.
+
+        Returns:
+            ElementList: The filtered list.
         """
         page = self.document.get_page(page_number)
         new_indexes = set([element.index for element in page.elements])
@@ -144,8 +176,13 @@ class ElementList(Iterable):
 
     def filter_by_pages(self, *page_numbers: int) -> "ElementList":
         """
-        Returns an `ElementList` containing only those elements on any of the given
-        pages.
+        Filter for elements on any of the given pages.
+
+        Args:
+            *pages (int): The pages to filter for.
+
+        Returns:
+            ElementList: The filtered list.
         """
         new_indexes: Set[int] = set()
         for page_number in page_numbers:
@@ -155,8 +192,15 @@ class ElementList(Iterable):
 
     def filter_by_section_name(self, section_name: str) -> "ElementList":
         """
-        Returns an `ElementList` of elements contained in any section with the given
-        name. See the documentation for a `Section` for more information.
+        Filter for elements within any section with the given name.
+
+        See the sectioning documentation for more details.
+
+        Args:
+            section_name (str): The section name to filter for.
+
+        Returns:
+            ElementList: The filtered list.
         """
         new_indexes: Set[int] = set()
         for section in self.document.sectioning.sections:
@@ -166,8 +210,15 @@ class ElementList(Iterable):
 
     def filter_by_section_names(self, *section_names: str) -> "ElementList":
         """
-        Returns an `ElementList` of elements contained in any section with any of the
-        given section names. See the documentation for a `Section` for more information.
+        Filter for elements within any section with any of the given names.
+
+        See the sectioning documentation for more details.
+
+        Args:
+            *section_names (str): The section names to filter for.
+
+        Returns:
+            ElementList: The filtered list.
         """
         new_indexes: Set[int] = set()
         for section in self.document.sectioning.sections:
@@ -177,9 +228,19 @@ class ElementList(Iterable):
 
     def filter_by_section(self, section_str: str) -> "ElementList":
         """
-        Returns an `ElementList` of elements contained the given section. Note you need
-        to specifcy an exact section, not just the name (i.e. "foo_0" not just "foo").
-        See the documentation for a `Section` for more information.
+        Filter for elements within the given section.
+
+        See the sectioning documentation for more details.
+
+        Args:
+            section_name (str): The section to filter for.
+
+        Note:
+            You need to specify an exact section, not just the name (i.e. "foo_0" not
+            just "foo").
+
+        Returns:
+            ElementList: The filtered list.
         """
         section = self.document.sectioning.sections_dict[section_str]
         new_indexes = set([element.index for element in section.elements])
@@ -187,9 +248,19 @@ class ElementList(Iterable):
 
     def filter_by_sections(self, *section_strs: str) -> "ElementList":
         """
-        Returns an `ElementList` of elements contained any of the given sections. Note
-        you need to specify an exact section, not just the name (i.e. "foo_0" not just
-        "foo"). See the documentation for a `Section` for more information.
+        Filter for elements within any of the given sections.
+
+        See the sectioning documentation for more details.
+
+        Args:
+            *section_names (str): The sections to filter for.
+
+        Note:
+            You need to specify an exact section, not just the name (i.e. "foo_0" not
+            just "foo").
+
+        Returns:
+            ElementList: The filtered list.
         """
         new_indexes: Set[int] = set()
         for section_str in section_strs:
@@ -201,8 +272,7 @@ class ElementList(Iterable):
         self, element: "PDFElement", inclusive: bool = False
     ) -> "ElementList":
         """
-        Returns an `ElementList` of all elements which are to the right of the given
-        element.
+        Filter for elements which are to the right of the given element.
 
         If you draw a box from the right hand edge of the element to the right hand
         side of the page, all elements which are partially within this box are returned.
@@ -221,6 +291,9 @@ class ElementList(Iterable):
             element (PDFElement): The element in question.
             inclusive (bool, optional): Whether the include `element` in the returned
                 results. Default: False.
+
+        Returns:
+            ElementList: The filtered list.
         """
         page_number = element.page_number
         page = self.document.get_page(page_number)
@@ -239,8 +312,8 @@ class ElementList(Iterable):
         self, element: "PDFElement", inclusive: bool = False
     ) -> "ElementList":
         """
-        Returns an `ElementList` of all elements which are to the left of the given
-        element.
+        Filter for elements which are to the left of the given element.
+
 
         If you draw a box from the left hand edge of the element to the left hand
         side of the page, all elements which are partially within this box are returned.
@@ -259,6 +332,10 @@ class ElementList(Iterable):
             element (PDFElement): The element in question.
             inclusive (bool, optional): Whether the include `element` in the returned
                 results. Default: False.
+
+
+        Returns:
+            ElementList: The filtered list.
         """
         page_number = element.page_number
         bounding_box = BoundingBox(
@@ -273,7 +350,7 @@ class ElementList(Iterable):
         self, element: "PDFElement", inclusive: bool = False, all_pages: bool = False
     ) -> "ElementList":
         """
-        Returns an `ElementList` of all elements which are below the given element.
+        Returns all elements which are below the given element.
 
         If you draw a box from the bottom edge of the element to the bottom of the page,
         all elements which are partially within this box are returned. By default, only
@@ -297,6 +374,9 @@ class ElementList(Iterable):
                 results. Default: False.
             all_pages (bool, optional): Whether to included pages other than the page
                 which the element is on.
+
+        Returns:
+            ElementList: The filtered list.
         """
         page_number = element.page_number
         bounding_box = BoundingBox(
@@ -323,7 +403,7 @@ class ElementList(Iterable):
         self, element: "PDFElement", inclusive: bool = False, all_pages: bool = False
     ) -> "ElementList":
         """
-        Returns an `ElementList` of all elements which are above the given element.
+        Returns all elements which are above the given element.
 
         If you draw a box from the bottom edge of the element to the bottom of the page,
         all elements which are partially within this box are returned. By default, only
@@ -347,6 +427,9 @@ class ElementList(Iterable):
                 results. Default: False.
             all_pages (bool, optional): Whether to included pages other than the page
                 which the element is on.
+
+        Returns:
+            ElementList: The filtered list.
         """
         page_number = element.page_number
         page = self.document.get_page(page_number)
@@ -377,7 +460,7 @@ class ElementList(Iterable):
         self, element: "PDFElement", inclusive: bool = False, all_pages: bool = False
     ) -> "ElementList":
         """
-        Returns an `ElementList` of all elements which are vertically in line with the
+        Returns all elements which are vertically in line with the
         given element.
 
         If you extend the left and right edges of the element to the top and bottom of
@@ -398,6 +481,9 @@ class ElementList(Iterable):
                 results. Default: False.
             all_pages (bool, optional): Whether to included pages other than the page
                 which the element is on.
+
+        Returns:
+            ElementList: The filtered list.
         """
         page_number = element.page_number
         page = self.document.get_page(page_number)
@@ -425,8 +511,7 @@ class ElementList(Iterable):
         self, element: "PDFElement", inclusive: bool = False
     ) -> "ElementList":
         """
-        Returns an `ElementList` of all elements which are horizontally in line with the
-        given element.
+        Returns all elements which are horizontally in line with the given element.
 
         If you extend the top and bottom edges of the element to the left and right of
         the page, all elements which are partially within this box are returned.
@@ -443,6 +528,9 @@ class ElementList(Iterable):
             element (PDFElement): The element in question.
             inclusive (bool, optional): Whether the include `element` in the returned
                 results. Default: False.
+
+        Returns:
+            ElementList: The filtered list.
         """
         page_number = element.page_number
         page = self.document.get_page(page_number)
@@ -458,8 +546,14 @@ class ElementList(Iterable):
         self, bounding_box: BoundingBox, page_number: int
     ) -> "ElementList":
         """
-        Returns an ElementList of all elements on the given page which are partially
-        within the given bounding box.
+        Returns all elements on the given page which are partially within the given box.
+
+        Args:
+            bounding_box (BoundingBox): The bounding box to filter within.
+            page_number (int): The page which you'd like to filter within the box.
+
+        Returns:
+            ElementList: The filtered list.
         """
         new_indexes: Set[int] = set()
         for elem in self.filter_by_page(page_number):
@@ -469,7 +563,7 @@ class ElementList(Iterable):
 
     def before(self, element: "PDFElement", inclusive: bool = False) -> "ElementList":
         """
-        Returns an ElementList of all elements before the specified element.
+        Returns all elements before the specified element.
 
         By before, we mean preceding elements according to their index. The PDFDocument
         will order elements left to right, top to bottom (as you would normally read).
@@ -478,6 +572,9 @@ class ElementList(Iterable):
             element (PDFElement): The element in question.
             inclusive (bool, optional): Whether the include `element` in the returned
                 results. Default: False.
+
+        Returns:
+            ElementList: The filtered list.
         """
         new_indexes = set(range(0, element.index))
         if inclusive:
@@ -486,7 +583,7 @@ class ElementList(Iterable):
 
     def after(self, element: "PDFElement", inclusive: bool = False) -> "ElementList":
         """
-        Returns an ElementList of all elements after the specified element.
+        Returns all elements after the specified element.
 
         By after, we mean succeeding elements according to their index. The PDFDocument
         will order elements left to right, top to bottom (as you would normally read).
@@ -495,6 +592,9 @@ class ElementList(Iterable):
             element (PDFElement): The element in question.
             inclusive (bool, optional): Whether the include `element` in the returned
                 results. Default: False.
+
+        Returns:
+            ElementList: The filtered list.
         """
         new_indexes = set(range(element.index + 1, max(self.indexes) + 1))
         if inclusive:
@@ -508,7 +608,7 @@ class ElementList(Iterable):
         inclusive: bool = False,
     ):
         """
-        Returns an ElementList of all elements between the start and end elements.
+        Returns all elements between the start and end elements.
 
         This is done according to the element indexes. The PDFDocument will order
         elements left to right, top to bottom (as you would normally read).
@@ -521,6 +621,9 @@ class ElementList(Iterable):
             end_element (PDFElement): Returned elements will be before this element.
             inclusive (bool, optional): Whether the include `start_element` and
                 `end_element` in the returned results. Default: False.
+
+        Returns:
+            ElementList: The filtered list.
         """
         new_indexes = set(range(start_element.index + 1, end_element.index))
         if inclusive:
@@ -538,6 +641,9 @@ class ElementList(Iterable):
             NoElementFoundError: If there are no elements in the ElementList
             MultipleElementsFoundError: If there is more than one element in the
                 ElementList
+
+        Returns:
+            PDFElement: The single element remaining in the list.
         """
         if len(self.indexes) == 0:
             raise NoElementFoundError("There are no elements in the ElementList")
@@ -554,6 +660,12 @@ class ElementList(Iterable):
 
         Note:
             If the element is already in the ElementList, this does nothing.
+
+        Args:
+            element (PDFElement): The element to add.
+
+        Returns:
+            ElementList: A new list with the additional element.
         """
         return ElementList(self.document, self.indexes | set([element.index]))
 
@@ -562,7 +674,13 @@ class ElementList(Iterable):
         Explicitly adds the elements to the ElementList.
 
         Note:
-            If the elements are already in the ElementList, this does nothing.
+            If the elements is already in the ElementList, this does nothing.
+
+        Args:
+            *elements (PDFElement): The elements to add.
+
+        Returns:
+            ElementList: A new list with the additional elements.
         """
         return ElementList(
             self.document, self.indexes | set([element.index for element in elements])
@@ -574,6 +692,12 @@ class ElementList(Iterable):
 
         Note:
             If the element is not in the ElementList, this does nothing.
+
+        Args:
+            element (PDFElement): The element to remove.
+
+        Returns:
+            ElementList: A new list without the element.
         """
         return ElementList(self.document, self.indexes - set([element.index]))
 
@@ -583,6 +707,12 @@ class ElementList(Iterable):
 
         Note:
             If the elements are not in the ElementList, this does nothing.
+
+        Args:
+            *elements (PDFElement): The elements to remove.
+
+        Returns:
+            ElementList: A new list without the elements.
         """
         return ElementList(
             self.document, self.indexes - set([element.index for element in elements])
@@ -595,7 +725,8 @@ class ElementList(Iterable):
         """
         Returns an ElementIterator class that allows iterating through elements.
 
-        See the documentation for ElementIterator.
+        Elements will be returned in order of the elements in the document,
+        left-to-right, top-to-bottom (the same as you read).
         """
         return ElementIterator(self)
 
