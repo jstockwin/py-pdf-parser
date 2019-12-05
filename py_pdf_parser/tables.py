@@ -27,7 +27,14 @@ def extract_simple_table(elements: "ElementList") -> List[List[Optional["PDFElem
     If your table has empty cells, you can use `extract_table` instead. If you fail
     to satisfy any of the other conditions listed above, that case is not yet supported.
 
-    Returns a list of rows, which are lists of PDFElements.
+    Args:
+        elements (ElementList): A list of elements to extract into a table.
+
+    Raises:
+        TableExtractionError: If something goes wrong.
+
+    Returns:
+        list[list[PDFElement]]: a list of rows, which are lists of PDFElements.
     """
     first_row = elements.to_the_right_of(elements[0], inclusive=True)
     first_column = elements.below(elements[0], inclusive=True)
@@ -69,7 +76,14 @@ def extract_table(elements: "ElementList") -> List[List[Optional["PDFElement"]]]
     If you fail to satisfy any of the other conditions listed above, that case is not
     yet supported.
 
-    Returns a list of rows, which are lists of PDFElements.
+    Args:
+        elements (ElementList): A list of elements to extract into a table.
+
+    Raises:
+        TableExtractionError: If something goes wrong.
+
+    Returns:
+        list[list[PDFElement]]: a list of rows, which are lists of PDFElements.
     """
     table = []
     rows = set()
@@ -112,6 +126,15 @@ def extract_text_from_simple_table(elements: "ElementList") -> List[List[str]]:
     Given an ElementList, extracts a simple table (see `extract_simple_table`), but
     instead of the table containing PDFElements, it will extract the text from each
     element.
+
+    Args:
+        elements (ElementList): A list of elements to extract into a table.
+
+    Raises:
+        TableExtractionError: If something goes wrong.
+
+    Returns:
+        list[list[str]]: a list of rows, which are lists of text.
     """
     return _extract_text_from_table(extract_simple_table(elements))
 
@@ -120,6 +143,15 @@ def extract_text_from_table(elements: "ElementList") -> List[List[str]]:
     """
     Given an ElementList, extracts a simple table (see `extract_table`), but instead of
     the table containing PDFElements, it will extract the text from each element.
+
+    Args:
+        elements (ElementList): A list of elements to extract into a table.
+
+    Raises:
+        TableExtractionError: If something goes wrong.
+
+    Returns:
+        list[list[str]]: a list of rows, which are lists of text.
     """
     return _extract_text_from_table(extract_table(elements))
 
@@ -141,13 +173,14 @@ def add_header_to_table(
             the table will be used instead. Your header must be the same width as your
             table, and cannot contain the same entry multiple times.
 
-    Returns: A list of dictionaries, where each entry in the list is a row in the table,
-        and a row in the table is represented as a dictionary mapping the header to the
-        values.
-
     Raises:
         InvalidTableHeaderError: If the width of the header does not match the width of
             the table, or if the header contains duplicate entries.
+
+    Returns:
+        list[dict]: A list of dictionaries, where each entry in the list is a row in the
+        table, and a row in the table is represented as a dictionary mapping the header
+        to the values.
     """
     _validate_table_shape(table)
     header_provided = bool(header)
