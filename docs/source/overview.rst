@@ -10,14 +10,14 @@ interact with the elements on the PDF and slowly classify them by creating secti
 and adding tags to them. It also comes with a helpful visualisation tool which enables
 you to examine the current status of your elements.
 
-This page gives a breif overview of the PDF Parser, but there is also a full
+This page gives a brief overview of the PDF Parser, but there is also a full
 :doc:`reference/index` of all the functionality.
 
 Setup
 -----
 
 At the moment you will need to install it from github. You will also need to manually
-install matploylib and PyQt5 using apt. We are working on this.
+install matplotlib and PyQt5 using apt. We are working on this.
 
 Loading A PDF
 -------------
@@ -33,7 +33,7 @@ position, both on the page and within the document, and also have properties all
 you to access their font and text. For more information about ``PDFDocument`` and
 ``PDFElement``, see :doc:`reference/components`.
 
-Pay particulat attention to the ``la_params`` argument. These will need to be
+Pay particular attention to the ``la_params`` argument. These will need to be
 fine-tuned for your PDF. We suggest immediately visualising your PDF using the
 visualisation tool to see how the elements have been grouped. If multiple elements
 have been counted as one, or vice versa, you should be able to fix this by tweaking
