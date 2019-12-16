@@ -54,6 +54,9 @@ class PDFPage:
     def elements(self) -> "ElementList":
         """
         Returns an `ElementList` containing all elements on the page.
+
+        Returns:
+            ElementList: All the elements on the page.
         """
         return self.document.elements.between(
             self.start_element, self.end_element, inclusive=True
@@ -70,11 +73,11 @@ class PDFElement:
         element (LTComponent): A PDF Miner LTComponent.
         index (int): The index of the element within the document.
         page_number (int): The page number that the element is on.
-        font_mapping (dict): See the `PDFDocument` documentation.
+        font_mapping (dict, optional): See the `PDFDocument` documentation.
 
     Attributes:
         original_element (LTComponent): A reference to the original PDF Miner element.
-        tags (set): A list of tags (str) that have been added to the element.
+        tags (set[str]): A list of tags that have been added to the element.
         ignore (bool): A flag specifying whether the element has been ignored.
         bounding_box (BoundingBox): The box representing the location of the element.
     """
@@ -114,6 +117,9 @@ class PDFElement:
     def index(self) -> int:
         """
         The index of the element in the document, for internal use only.
+
+        Returns:
+            int: The index of the element.
         """
         return self.__index
 
@@ -121,6 +127,9 @@ class PDFElement:
     def page_number(self) -> int:
         """
         The page_number of the element in the document.
+
+        Returns:
+            int: The page number of the element.
         """
         return self.__page_number
 
@@ -131,6 +140,9 @@ class PDFElement:
 
         This will be taken from the pdf itself, using the first character in the
         element.
+
+        Returns:
+            str: The font name of the element.
         """
         if self.__font_name is not None:
             return self.__font_name
@@ -148,6 +160,9 @@ class PDFElement:
 
         This will be taken from the pdf itself, using the first character in the
         element.
+
+        Returns:
+            int: The font size of the element.
         """
         if self.__font_size is not None:
             return self.__font_size
@@ -169,6 +184,9 @@ class PDFElement:
         If you have provided a font_mapping, this is the string you should map. If
         the string is mapped in your font_mapping then the mapped value will be
         returned.
+
+        Returns:
+            str: The font of the element.
         """
         font = f"{self.font_name},{self.font_size}"
         return self.__font_mapping.get(font, font)
@@ -177,18 +195,31 @@ class PDFElement:
     def text(self) -> str:
         """
         The text contained in the element.
+
+        Returns:
+            str: The text contained in the element.
         """
         return self.original_element.get_text()
 
     def add_tag(self, new_tag: str):
         """
         Adds the `new_tag` to the tags set.
+
+        Args:
+            new_tag (str): The tag you would like to add.
         """
         self.tags.add(new_tag)
 
     def entirely_within(self, bounding_box: BoundingBox) -> bool:
         """
-        Returns whether each edge of the element is inside the bounding box.
+        Whether the entire element is within the bounding box.
+
+        Args:
+            bounding_box (BoundingBox): The bounding box to check whether the element
+                is within.
+
+        Returns:
+            bool: True if the element is entirely contained within the bounding box.
         """
         return all(
             [
@@ -201,7 +232,14 @@ class PDFElement:
 
     def partially_within(self, bounding_box: BoundingBox) -> bool:
         """
-        Whether any part of the element intersects with the given bounding box.
+        Whether any part of the element is within the bounding box.
+
+        Args:
+            bounding_box (BoundingBox): The bounding box to check whether the element
+                is partially within.
+
+        Returns:
+            bool: True if any part of the element is within the bounding box.
         """
         return all(
             [
@@ -230,9 +268,9 @@ class PDFDocument:
     these into `PDFElement` classes.
 
     Args:
-        pages (dict): A dictionary mapping page numbers (int) to pages, where pages are
-            a `Page` namedtuple (containing a width, height and a list of elements from
-            PDFMiner).
+        pages (dict[int, Page]): A dictionary mapping page numbers (int) to pages, where
+            pages are a `Page` namedtuple (containing a width, height and a list of
+            elements from PDFMiner).
         pdf_file_path (str, optional): A file path to the PDF file. This is optional,
             and is only used to display your pdf as a background image when using the
             visualise functions.
@@ -302,20 +340,35 @@ class PDFDocument:
     @property
     def elements(self) -> "ElementList":
         """
-        Returns an `ElementList` containing all elements in the document.
+        An ElementList containing all elements in the document.
+
+        Returns:
+            ElementList: All elements in the document.
         """
         return ElementList(self)
 
     @property
     def pages(self) -> List["PDFPage"]:
+        """
+        A list of all pages in the document.
+
+        Returns:
+            list[PDFPage]: All pages in the document.
+        """
         return [self.__pages[page_number] for page_number in sorted(self.__pages)]
 
     def get_page(self, page_number: int) -> "PDFPage":
         """
         Returns the `PDFPage` for the specified `page_number`.
 
+        Args:
+            page_number (int): The page number.
+
         Raises:
             PageNotFoundError: If `page_number` was not found.
+
+        Returns:
+            PDFPage: The requested page.
         """
         try:
             return self.__pages[page_number]

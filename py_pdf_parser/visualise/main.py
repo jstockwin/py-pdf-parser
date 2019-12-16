@@ -161,7 +161,8 @@ def visualise(
     Will open a Matplotlib window showing the current page. You can scroll to zoom,
     click to drag, and then use the arrow keys in the toolbar to change page.
 
-    Note: In order to show you the actual PDF behind the elements, your document
+    Warning:
+        In order to show you the actual PDF behind the elements, your document
         must have pdf_file_path set, and your PDF must be at the given path. If this is
         not set, the background will be white.
 
