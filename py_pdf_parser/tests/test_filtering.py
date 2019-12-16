@@ -116,6 +116,37 @@ class TestFiltering(BaseTestCase):
         self.assertEqual(len(doc.elements.filter_by_font("font_a")), 1)
         self.assert_original_element_in(elem1, doc.elements.filter_by_font("font_a"))
 
+    def test_filter_by_fonts(self):
+        elem1 = FakePDFMinerTextElement(font_name="foo", font_size=2)
+        elem2 = FakePDFMinerTextElement(font_name="bar", font_size=3)
+        elem3 = FakePDFMinerTextElement(font_name="baz", font_size=3)
+        doc = create_pdf_document([elem1, elem2, elem3])
+
+        self.assertEqual(len(doc.elements.filter_by_fonts("hello,1")), 0)
+
+        self.assertEqual(len(doc.elements.filter_by_fonts("foo,2", "bar,3")), 2)
+        self.assert_original_element_in(
+            elem1, doc.elements.filter_by_fonts("foo,2", "bar,3")
+        )
+        self.assert_original_element_in(
+            elem2, doc.elements.filter_by_fonts("foo,2", "bar,3")
+        )
+
+        doc = create_pdf_document(
+            [elem1, elem2, elem3],
+            font_mapping={"foo,2": "font_a", "bar,3": "font_b", "baz,3": "font_c"},
+        )
+        self.assertEqual(len(doc.elements.filter_by_font("hello,1")), 0)
+        self.assertEqual(len(doc.elements.filter_by_fonts("foo,2", "bar,3")), 0)
+
+        self.assertEqual(len(doc.elements.filter_by_fonts("font_a", "font_b")), 2)
+        self.assert_original_element_in(
+            elem1, doc.elements.filter_by_fonts("font_a", "font_b")
+        )
+        self.assert_original_element_in(
+            elem2, doc.elements.filter_by_fonts("font_a", "font_b")
+        )
+
     def test_exclude_ignored(self):
         self.assertEqual(len(self.elem_list.exclude_ignored()), len(self.elem_list))
 
