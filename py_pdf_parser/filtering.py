@@ -150,6 +150,19 @@ class ElementList(Iterable):
         new_indexes = set(element.index for element in self if element.font == font)
         return ElementList(self.document, new_indexes)
 
+    def filter_by_fonts(self, *fonts: str) -> "ElementList":
+        """
+        Filter for elements containing only the given font.
+
+        Args:
+            *fonts (str): The fonts to filter for.
+
+        Returns:
+            ElementList: The filtered list.
+        """
+        new_indexes = set(element.index for element in self if element.font in fonts)
+        return ElementList(self.document, new_indexes)
+
     def exclude_ignored(self) -> "ElementList":
         """
         Removes all elements marked as ignored.
