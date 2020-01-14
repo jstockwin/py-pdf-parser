@@ -23,4 +23,5 @@ setup(
         "wand==0.4.4",
         "PyYAML==5.1",
     ],
+    extras_require={"dev": ["pyqt5==5.14.1", "matplotlib==3.1.2", "pillow==7.0.0",]},
 )

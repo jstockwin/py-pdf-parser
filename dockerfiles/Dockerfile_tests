@@ -5,10 +5,7 @@ RUN adduser --disabled-password --gecos "" optimor
 RUN apt-get update && \
     apt-get -y install software-properties-common \
     python3-dev \
-    python3-pyqt5 \
-    python3-matplotlib \
     python3-pip \
-    libmagickwand-dev \
     python3-setuptools
 
 RUN pip3 install --upgrade pip
