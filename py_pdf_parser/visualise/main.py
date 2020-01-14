@@ -66,18 +66,8 @@ class PDFVisualiser:
 
     def visualise(self):
         self.__plot_current_page()
-
-        # setup toolbar
-        fig_manager = plt.get_current_fig_manager()
-        fig_manager.toolbar.actions()[0].triggered.connect(self.__page_home)
-        fig_manager.toolbar.actions()[1].triggered.connect(self.__previous_page)
-        fig_manager.toolbar.actions()[2].triggered.connect(self.__next_page)
-
-        # zoom/pan handling
-        zoom_pan_handler = ZoomPanFactory(self._ax)
-        zoom_pan_handler.zoom_factory(zoom_multiplier=1.1)
-        zoom_pan_handler.pan_factory()
-
+        self.__setup_toolbar()
+        self.__setup_zoom_pan_handling()
         plt.show()
 
     def __plot_current_page(self):
@@ -115,6 +105,24 @@ class PDFVisualiser:
 
         self._ax.format_coord = self.__get_annotations
 
+    def __setup_toolbar(self):
+        fig_manager = plt.get_current_fig_manager()
+        fig_manager.toolbar.actions()[0].triggered.connect(self.__page_home)
+        fig_manager.toolbar.actions()[1].triggered.connect(self.__previous_page)
+        fig_manager.toolbar.actions()[2].triggered.connect(self.__next_page)
+
+        # The "back" and "forward" buttons are disabled by default and they are also
+        # disabled by the set_history_buttons() method; to solve this, we override
+        # set_history_buttons() to do nothing and set both buttons to enabled.
+        fig_manager.toolbar.set_history_buttons = lambda: None
+        fig_manager.toolbar._actions["back"].setEnabled(True)
+        fig_manager.toolbar._actions["forward"].setEnabled(True)
+
+    def __setup_zoom_pan_handling(self):
+        zoom_pan_handler = ZoomPanFactory(self._ax)
+        zoom_pan_handler.zoom_factory(zoom_multiplier=1.1)
+        zoom_pan_handler.pan_factory()
+
     def __get_annotations(self, x, y) -> str:
         annotation = f"({x:.2f}, {y:.2f})"
         for element in self.elements.filter_by_page(self.current_page):
@@ -145,11 +153,13 @@ class PDFVisualiser:
         if self.current_page < self.document.number_of_pages:
             self.current_page += 1
             self.__plot_current_page()
+            self._fig.canvas.draw()
 
     def __previous_page(self):
         if self.current_page > 1:
             self.current_page += -1
             self.__plot_current_page()
+            self._fig.canvas.draw()
 
 
 def visualise(
