@@ -32,7 +32,7 @@ def load_file(
     path_to_file: str, la_params: Optional[Dict[str, str]] = None, **kwargs
 ) -> PDFDocument:
     """
-    Loads a file accoring to the specified file path.
+    Loads a file according to the specified file path.
 
     All other arguments are passed to `load`, see the documentation for `load`.
 
