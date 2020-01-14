@@ -8,12 +8,6 @@ echo '#######################################################################'
 clean_pyc () { echo 'cleaning .pyc files'; find . -name "*.pyc" -exec rm -f {} \; ; }
 trap clean_pyc EXIT
 
-echo ''
-echo '#######################################################################'
-echo '#             Running pip-sync for any missing dependencies           #'
-echo '#######################################################################'
-pip-sync $PROJECT_DIR/requirements_test.txt
-
 LINTERS_FAILED=0
 
 echo ''

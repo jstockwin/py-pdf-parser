@@ -3,8 +3,7 @@ FROM 069140875175.dkr.ecr.eu-west-1.amazonaws.com/ubuntu_base_image:phusion-0.11
 RUN apt-get update && \
     apt-get -y install software-properties-common \
     python3-dev \
-    python3-pip \
-    python3-setuptools
+    python3-pip
 
 RUN pip3 install --upgrade pip
 
