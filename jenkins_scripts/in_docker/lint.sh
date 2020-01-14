@@ -87,6 +87,13 @@ else
   LINTERS_FAILED=1
 fi
 
+echo ''
+echo '#######################################################################'
+echo '#                    Removing type checking caches                    #'
+echo '#######################################################################'
+rm -rf $PROJECT_DIR/.mypy_cache
+rm -rf $PROJECT_DIR/.pytype
+
 if [[ ("$LINTERS_FAILED" == 0) ]]; then
   echo '#######################################################################'
   echo '#                    Linters finished with success                    #'
