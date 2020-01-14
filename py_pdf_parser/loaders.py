@@ -29,7 +29,7 @@ class Page(NamedTuple):
 
 
 def load_file(
-    path_to_file: str, la_params: Optional[Dict[str, str]] = None, **kwargs
+    path_to_file: str, la_params: Optional[Dict] = None, **kwargs
 ) -> PDFDocument:
     """
     Loads a file according to the specified file path.
@@ -46,7 +46,7 @@ def load_file(
 def load(
     pdf_file: IO,
     pdf_file_path: Optional[str] = None,
-    la_params: Optional[Dict[str, str]] = None,
+    la_params: Optional[Dict] = None,
     **kwargs,
 ) -> PDFDocument:
     """
