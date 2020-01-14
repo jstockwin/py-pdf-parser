@@ -1,6 +1,6 @@
 shell:
   build: .
-  dockerfile: dockerfiles/Dockerfile
+  dockerfile: dockerfiles/Dockerfile_dev
   volumes:
     - .:/py-pdf-parser
     - /tmp/.X11-unix:/tmp/.X11-unix:rw
