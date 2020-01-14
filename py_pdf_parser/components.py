@@ -1,5 +1,7 @@
 from typing import Dict, List, Set, Optional, TYPE_CHECKING
 
+from collections import Counter
+
 from .common import BoundingBox
 from .exceptions import PageNotFoundError, NoElementsOnPageError
 from .filtering import ElementList
@@ -147,10 +149,15 @@ class PDFElement:
         if self.__font_name is not None:
             return self.__font_name
 
-        first_line = next(iter(self.original_element))
-        first_character = next(iter(first_line))
-
-        self.__font_name = first_character.fontname
+        counter = Counter(
+            [
+                character.fontname
+                for line in self.original_element
+                for character in line
+                if hasattr(character, "fontname")
+            ]
+        )
+        self.__font_name = counter.most_common(1)[0][0]
         return self.__font_name
 
     @property
@@ -167,10 +174,15 @@ class PDFElement:
         if self.__font_size is not None:
             return self.__font_size
 
-        first_line = next(iter(self.original_element))
-        first_character = next(iter(first_line))
-
-        self.__font_size = int(round(first_character.height, 0))
+        counter = Counter(
+            [
+                character.height
+                for line in self.original_element
+                for character in line
+                if hasattr(character, "height")
+            ]
+        )
+        self.__font_size = int(round(counter.most_common(1)[0][0], 0))
         return self.__font_size
 
     @property
