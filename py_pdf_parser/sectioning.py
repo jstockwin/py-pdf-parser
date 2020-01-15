@@ -1,4 +1,4 @@
-from typing import Dict, ValuesView, TYPE_CHECKING
+from typing import Dict, List, ValuesView, TYPE_CHECKING
 
 from collections import defaultdict
 
@@ -135,6 +135,15 @@ class Sectioning:
         section = Section(self.document, name, unique_name, start_element, end_element)
         self.sections_dict[unique_name] = section
         return section
+
+    def get_sections_with_name(self, name: str) -> List[Section]:
+        """
+        Returns a list of all sections with the given name.
+        """
+        return [
+            self.sections_dict[f"{name}_{idx}"]
+            for idx in range(0, self.name_counts[name])
+        ]
 
     @property
     def sections(self) -> ValuesView[Section]:
