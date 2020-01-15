@@ -225,6 +225,9 @@ class TestFiltering(BaseTestCase):
         self.assertIn(self.elem_list[0], self.elem_list.filter_by_section("foo_0"))
         self.assertIn(self.elem_list[1], self.elem_list.filter_by_section("foo_0"))
 
+        # Filtering for non-existent section should return empty ElementList
+        self.assertEqual(len(self.elem_list.filter_by_section("bar")), 0)
+
     def test_filter_by_sections(self):
         self.doc.sectioning.create_section("foo", self.elem_list[0], self.elem_list[1])
         self.doc.sectioning.create_section("foo", self.elem_list[3], self.elem_list[5])
