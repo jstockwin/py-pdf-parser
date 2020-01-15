@@ -116,3 +116,21 @@ class TestSectioning(BaseTestCase):
                 end_element=pdf_elem_1,
                 include_last_element=False,
             )
+
+    def test_get_sections_with_name(self):
+        elem_1 = FakePDFMinerTextElement()
+        elem_2 = FakePDFMinerTextElement()
+        document = create_pdf_document([elem_1, elem_2])
+
+        pdf_elem_1 = self.extract_element_from_list(elem_1, document.element_list)
+        pdf_elem_2 = self.extract_element_from_list(elem_2, document.element_list)
+
+        self.assertEqual(document.sectioning.get_sections_with_name("foo"), [])
+
+        section_1 = document.sectioning.create_section("foo", pdf_elem_1, pdf_elem_2)
+        section_2 = document.sectioning.create_section("foo", pdf_elem_1, pdf_elem_2)
+        document.sectioning.create_section("bar", pdf_elem_1, pdf_elem_2)
+
+        self.assertEqual(
+            document.sectioning.get_sections_with_name("foo"), [section_1, section_2]
+        )
