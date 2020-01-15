@@ -10,7 +10,6 @@ from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 
 from py_pdf_parser.components import PDFDocument
-from .zoom_pan_factory import ZoomPanFactory
 from .background import get_pdf_background
 
 if TYPE_CHECKING:
@@ -66,18 +65,7 @@ class PDFVisualiser:
 
     def visualise(self):
         self.__plot_current_page()
-
-        # setup toolbar
-        fig_manager = plt.get_current_fig_manager()
-        fig_manager.toolbar.actions()[0].triggered.connect(self.__page_home)
-        fig_manager.toolbar.actions()[1].triggered.connect(self.__previous_page)
-        fig_manager.toolbar.actions()[2].triggered.connect(self.__next_page)
-
-        # zoom/pan handling
-        zoom_pan_handler = ZoomPanFactory(self._ax)
-        zoom_pan_handler.zoom_factory(zoom_multiplier=1.1)
-        zoom_pan_handler.pan_factory()
-
+        self.__setup_toolbar()
         plt.show()
 
     def __plot_current_page(self):
@@ -115,6 +103,31 @@ class PDFVisualiser:
 
         self._ax.format_coord = self.__get_annotations
 
+    def __setup_toolbar(self):
+        fig_manager = plt.get_current_fig_manager()
+        style = fig_manager.toolbar.style()
+        fig_manager.toolbar.addSeparator()
+
+        first_page = fig_manager.toolbar.addAction(
+            style.standardIcon(style.SP_MediaSkipBackward), "First page"
+        )
+        first_page.triggered.connect(self.__first_page)
+
+        previous_page = fig_manager.toolbar.addAction(
+            style.standardIcon(style.SP_MediaSeekBackward), "Previous page"
+        )
+        previous_page.triggered.connect(self.__previous_page)
+
+        next_page = fig_manager.toolbar.addAction(
+            style.standardIcon(style.SP_MediaSeekForward), "Next page"
+        )
+        next_page.triggered.connect(self.__next_page)
+
+        last_page = fig_manager.toolbar.addAction(
+            style.standardIcon(style.SP_MediaSkipForward), "Last page"
+        )
+        last_page.triggered.connect(self.__last_page)
+
     def __get_annotations(self, x, y) -> str:
         annotation = f"({x:.2f}, {y:.2f})"
         for element in self.elements.filter_by_page(self.current_page):
@@ -136,20 +149,25 @@ class PDFVisualiser:
     def __initialise_plot(self, width: int, height: int) -> Tuple[Figure, Axes]:
         return plt.subplots(figsize=(height, width))
 
-    def __page_home(self):
-        if self.current_page != 1:
-            self.current_page = 1
-            self.__plot_current_page()
+    def __first_page(self):
+        self.__set_page(1)
+
+    def __last_page(self):
+        self.__set_page(self.document.number_of_pages)
 
     def __next_page(self):
-        if self.current_page < self.document.number_of_pages:
-            self.current_page += 1
-            self.__plot_current_page()
+        next_page = min(self.current_page + 1, self.document.number_of_pages)
+        self.__set_page(next_page)
 
     def __previous_page(self):
-        if self.current_page > 1:
-            self.current_page += -1
+        previous_page = max(self.current_page - 1, 1)
+        self.__set_page(previous_page)
+
+    def __set_page(self, page_number):
+        if self.current_page != page_number:
+            self.current_page = page_number
             self.__plot_current_page()
+            self._fig.canvas.draw()
 
 
 def visualise(
@@ -158,8 +176,8 @@ def visualise(
     """
     Visualises a PDFDocument, allowing you to inspect all the elements.
 
-    Will open a Matplotlib window showing the current page. You can scroll to zoom,
-    click to drag, and then use the arrow keys in the toolbar to change page.
+    Will open a Matplotlib window showing the page_number. You can use the black
+    buttons on the right of the toolbar to navigate through pages.
 
     Warning:
         In order to show you the actual PDF behind the elements, your document

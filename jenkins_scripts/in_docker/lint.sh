@@ -8,12 +8,6 @@ echo '#######################################################################'
 clean_pyc () { echo 'cleaning .pyc files'; find . -name "*.pyc" -exec rm -f {} \; ; }
 trap clean_pyc EXIT
 
-echo ''
-echo '#######################################################################'
-echo '#             Running pip-sync for any missing dependencies           #'
-echo '#######################################################################'
-pip-sync $PROJECT_DIR/requirements_test.txt
-
 LINTERS_FAILED=0
 
 echo ''
@@ -92,6 +86,13 @@ else
   echo '#######################################################################'
   LINTERS_FAILED=1
 fi
+
+echo ''
+echo '#######################################################################'
+echo '#                    Removing type checking caches                    #'
+echo '#######################################################################'
+rm -rf $PROJECT_DIR/.mypy_cache
+rm -rf $PROJECT_DIR/.pytype
 
 if [[ ("$LINTERS_FAILED" == 0) ]]; then
   echo '#######################################################################'

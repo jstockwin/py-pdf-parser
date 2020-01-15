@@ -36,7 +36,7 @@ class ElementList(Iterable):
     ElementLists together.
 
     We often implement pluralised versions of methods, which is a shortcut to applying
-    the or operator | to multiple ElementLists with the singular verion applied, for
+    the or operator | to multiple ElementLists with the singular version applied, for
     example `foo.filter_by_tags("bar", "baz")` is the same as
     `foo.filter_by_tag("bar") | foo.filter_by_tag("baz")`.
 
@@ -110,7 +110,7 @@ class ElementList(Iterable):
         Args:
             text (str): The text to filter for.
             stripped (bool, optional): Whether to strip the text of the element before
-                compaison. Default: True.
+                comparison. Default: True.
 
         Returns:
             ElementList: The filtered list.

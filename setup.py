@@ -23,4 +23,21 @@ setup(
         "wand==0.4.4",
         "PyYAML==5.1",
     ],
+    extras_require={
+        "dev": ["pyqt5==5.14.1", "matplotlib==3.1.2", "pillow==7.0.0",],
+        "test": [
+            "black==19.10b0",
+            "ddt==1.2.2",
+            "matplotlib==3.1.2",
+            "mock==3.0.5",
+            "mypy==0.761",
+            "nose==1.3.7",
+            "pillow==7.0.0",
+            "pycodestyle==2.5.0",
+            "pyqt5==5.14.1",
+            "pytype==2020.1.8",
+            "sphinx-rtd-theme==0.4.3",
+            "Sphinx==2.3.1",
+        ],
+    },
 )
