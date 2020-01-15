@@ -22,6 +22,11 @@ class TestFiltering(BaseTestCase):
         )
         self.elem_list = self.doc.elements
 
+    def test_add_tag_to_elements(self):
+        self.elem_list.add_tag_to_elements("foo")
+        for elem in self.elem_list:
+            self.assertIn("foo", elem.tags)
+
     def test_ignored_elements_are_excluded(self):
         self.assertEqual(len(self.doc.elements), len(self.elem_list))
 
