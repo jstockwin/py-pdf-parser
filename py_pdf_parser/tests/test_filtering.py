@@ -246,6 +246,17 @@ class TestFiltering(BaseTestCase):
             self.elem_list[5], self.elem_list.filter_by_sections("foo_0", "foo_1")
         )
 
+    def test_ignore_elements(self):
+        self.elem_list.ignore_elements()
+        self.assertTrue(self.elem_list[0].ignored)
+        self.assertTrue(self.elem_list[1].ignored)
+        self.assertTrue(self.elem_list[2].ignored)
+        self.assertTrue(self.elem_list[3].ignored)
+        self.assertTrue(self.elem_list[4].ignored)
+        self.assertTrue(self.elem_list[5].ignored)
+        self.assertEqual(0, len(self.doc.elements))
+        self.assertEqual(self.doc.ignored_indexes, set([0, 1, 2, 3, 4, 5]))
+
     @patch.object(PDFElement, "partially_within", autospec=True)
     def test_to_the_right_of(self, partially_within_mock):
         partially_within_mock.side_effect = (
