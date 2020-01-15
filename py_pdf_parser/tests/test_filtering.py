@@ -268,7 +268,7 @@ class TestFiltering(BaseTestCase):
     @patch.object(PDFElement, "partially_within", autospec=True)
     def test_to_the_right_of(self, partially_within_mock):
         partially_within_mock.side_effect = (
-            lambda self, bounding_box: self.text == "within"
+            lambda self, bounding_box: self.text() == "within"
         )
 
         elem1 = FakePDFMinerTextElement(
@@ -331,7 +331,7 @@ class TestFiltering(BaseTestCase):
     @patch.object(PDFElement, "partially_within", autospec=True)
     def test_to_the_left_of(self, partially_within_mock):
         partially_within_mock.side_effect = (
-            lambda self, bounding_box: self.text == "within"
+            lambda self, bounding_box: self.text() == "within"
         )
 
         elem1 = FakePDFMinerTextElement(
@@ -394,7 +394,7 @@ class TestFiltering(BaseTestCase):
     @patch.object(PDFElement, "partially_within", autospec=True)
     def test_below(self, partially_within_mock):
         partially_within_mock.side_effect = (
-            lambda self, bounding_box: self.text == "within"
+            lambda self, bounding_box: self.text() == "within"
         )
 
         elem1 = FakePDFMinerTextElement(text="within")
@@ -483,7 +483,7 @@ class TestFiltering(BaseTestCase):
     @patch.object(PDFElement, "partially_within", autospec=True)
     def test_above(self, partially_within_mock):
         partially_within_mock.side_effect = (
-            lambda self, bounding_box: self.text == "within"
+            lambda self, bounding_box: self.text() == "within"
         )
 
         elem1 = FakePDFMinerTextElement(text="within")
@@ -572,7 +572,7 @@ class TestFiltering(BaseTestCase):
     @patch.object(PDFElement, "partially_within", autospec=True)
     def test_vertically_in_line_with(self, partially_within_mock):
         partially_within_mock.side_effect = (
-            lambda self, bounding_box: self.text == "within"
+            lambda self, bounding_box: self.text() == "within"
         )
 
         elem1 = FakePDFMinerTextElement(text="within")
@@ -666,7 +666,7 @@ class TestFiltering(BaseTestCase):
     @patch.object(PDFElement, "partially_within", autospec=True)
     def test_horizontally_in_line_with(self, partially_within_mock):
         partially_within_mock.side_effect = (
-            lambda self, bounding_box: self.text == "within"
+            lambda self, bounding_box: self.text() == "within"
         )
 
         elem1 = FakePDFMinerTextElement(
@@ -729,7 +729,7 @@ class TestFiltering(BaseTestCase):
     @patch.object(PDFElement, "partially_within", autospec=True)
     def test_filter_partially_within_bounding_box(self, partially_within_mock):
         partially_within_mock.side_effect = (
-            lambda self, bounding_box: self.text == "within"
+            lambda self, bounding_box: self.text() == "within"
         )
 
         elem1 = FakePDFMinerTextElement(text="within")

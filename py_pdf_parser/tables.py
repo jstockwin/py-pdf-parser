@@ -121,7 +121,9 @@ def extract_table(elements: "ElementList") -> List[List[Optional["PDFElement"]]]
     return table
 
 
-def extract_text_from_simple_table(elements: "ElementList") -> List[List[str]]:
+def extract_text_from_simple_table(
+    elements: "ElementList", stripped: bool = True
+) -> List[List[str]]:
     """
     Given an ElementList, extracts a simple table (see `extract_simple_table`), but
     instead of the table containing PDFElements, it will extract the text from each
@@ -129,6 +131,8 @@ def extract_text_from_simple_table(elements: "ElementList") -> List[List[str]]:
 
     Args:
         elements (ElementList): A list of elements to extract into a table.
+        stripped (bool, optional): Whether to strip the text for each element of the
+                table. Default: True.
 
     Raises:
         TableExtractionError: If something goes wrong.
@@ -136,16 +140,20 @@ def extract_text_from_simple_table(elements: "ElementList") -> List[List[str]]:
     Returns:
         list[list[str]]: a list of rows, which are lists of text.
     """
-    return _extract_text_from_table(extract_simple_table(elements))
+    return _extract_text_from_table(extract_simple_table(elements), stripped)
 
 
-def extract_text_from_table(elements: "ElementList") -> List[List[str]]:
+def extract_text_from_table(
+    elements: "ElementList", stripped: bool = True
+) -> List[List[str]]:
     """
     Given an ElementList, extracts a simple table (see `extract_table`), but instead of
     the table containing PDFElements, it will extract the text from each element.
 
     Args:
         elements (ElementList): A list of elements to extract into a table.
+        stripped (bool, optional): Whether to strip the text for each element of the
+                table. Default: True.
 
     Raises:
         TableExtractionError: If something goes wrong.
@@ -153,7 +161,7 @@ def extract_text_from_table(elements: "ElementList") -> List[List[str]]:
     Returns:
         list[list[str]]: a list of rows, which are lists of text.
     """
-    return _extract_text_from_table(extract_table(elements))
+    return _extract_text_from_table(extract_table(elements), stripped)
 
 
 def add_header_to_table(
@@ -211,15 +219,17 @@ def add_header_to_table(
 
 
 def _extract_text_from_table(
-    table: List[List[Optional["PDFElement"]]],
+    table: List[List[Optional["PDFElement"]]], stripped: bool = True
 ) -> List[List[str]]:
     """
-    Given a table (of PDFElements or None), returns a table (of element.text or '').
+    Given a table (of PDFElements or None), returns a table (of element.text() or '').
     """
     _validate_table_shape(table)
     new_table = []
     for row in table:
-        new_row = [element.text if element is not None else "" for element in row]
+        new_row = [
+            element.text(stripped) if element is not None else "" for element in row
+        ]
         new_table.append(new_row)
     return new_table
 

@@ -48,8 +48,9 @@ class TestPDFElement(BaseTestCase):
         self.assertEqual(element.font, "test_font,2")
 
     def test_text(self):
-        element = create_pdf_element(text="test")
-        self.assertEqual(element.text, "test")
+        element = create_pdf_element(text=" test ")
+        self.assertEqual(element.text(), "test")
+        self.assertEqual(element.text(stripped=False), " test ")
 
     def test_add_tag(self):
         element = create_pdf_element()
