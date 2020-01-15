@@ -7,9 +7,7 @@ from py_pdf_parser.exceptions import (
 from py_pdf_parser.tables import (
     extract_simple_table,
     extract_table,
-    extract_text_from_simple_table,
-    extract_text_from_table,
-    _extract_text_from_table,
+    get_text_from_table,
     _validate_table_shape,
     add_header_to_table,
 )
@@ -132,7 +130,7 @@ class TestTables(BaseTestCase):
         document = create_pdf_document(elements=[elem_1, elem_2, elem_3, elem_4])
         elem_list = document.elements
 
-        result = extract_text_from_simple_table(elem_list)
+        result = extract_simple_table(elem_list, as_text=True)
         self.assertEqual(len(result), 2)
         self.assertEqual(len(result[0]), 2)
         self.assertEqual(len(result[1]), 2)
@@ -141,7 +139,7 @@ class TestTables(BaseTestCase):
             [["fake_text_1", "fake_text_2"], ["fake_text_3", "fake_text_4"]], result
         )
 
-        result = extract_text_from_simple_table(elem_list, stripped=False)
+        result = extract_simple_table(elem_list, as_text=True, stripped=False)
         self.assertListEqual(
             [["fake_text_1", "fake_text_2"], ["fake_text_3", "fake_text_4 "]], result
         )
@@ -168,7 +166,7 @@ class TestTables(BaseTestCase):
         document = create_pdf_document(elements=[elem_1, elem_2, elem_3, elem_4])
         elem_list = document.elements
 
-        result = extract_text_from_table(elem_list)
+        result = extract_table(elem_list, as_text=True)
         self.assertEqual(len(result), 2)
         self.assertEqual(len(result[0]), 2)
         self.assertEqual(len(result[1]), 2)
@@ -176,7 +174,7 @@ class TestTables(BaseTestCase):
             [["fake_text_1", "fake_text_2"], ["fake_text_3", "fake_text_4"]], result
         )
 
-        result = extract_text_from_table(elem_list, stripped=False)
+        result = extract_table(elem_list, as_text=True, stripped=False)
         self.assertListEqual(
             [["fake_text_1", "fake_text_2"], ["fake_text_3", "fake_text_4 "]], result
         )
@@ -196,7 +194,7 @@ class TestTables(BaseTestCase):
             elements=[elem_1, elem_2, elem_3, elem_4, elem_5, elem_6]
         )
         elem_list = document.elements
-        result = extract_text_from_table(elem_list)
+        result = extract_table(elem_list, as_text=True)
         self.assertEqual(len(result), 2)
         self.assertEqual(len(result[0]), 4)
         self.assertEqual(len(result[1]), 4)
@@ -208,7 +206,7 @@ class TestTables(BaseTestCase):
             result,
         )
 
-        result = extract_text_from_table(elem_list, stripped=False)
+        result = extract_table(elem_list, as_text=True, stripped=False)
         self.assertListEqual(
             [
                 ["fake_text_1", "fake_text_2", "", "fake_text_6"],
@@ -282,16 +280,19 @@ class TestTables(BaseTestCase):
         with self.assertRaises(InvalidTableHeaderError):
             result = add_header_to_table(table, header=too_small_fake_header)
 
-    def test__extract_text_from_table(self):
+    def test_get_text_from_table(self):
         # Checks that it works with very simple table with one element
-        element = create_pdf_element()
-        result = _extract_text_from_table([[element]])
+        element = create_pdf_element(text=" fake_text ")
+        result = get_text_from_table([[element]])
         self.assertEqual(result, [["fake_text"]])
 
-        result = _extract_text_from_table([[None]])
+        result = get_text_from_table([[element]], stripped=False)
+        self.assertEqual(result, [[" fake_text "]])
+
+        result = get_text_from_table([[None]])
         self.assertEqual(result, [[""]])
         # Checks that it works with table with multiple rows and columns
-        result = _extract_text_from_table([[element, None], [element, element]])
+        result = get_text_from_table([[element, None], [element, element]])
         self.assertListEqual(result, [["fake_text", ""], ["fake_text", "fake_text"]])
 
     def test_validate_table_shape(self):
