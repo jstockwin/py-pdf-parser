@@ -64,21 +64,20 @@ class FakePDFMinerTextElement(LTComponent):
 
 def create_pdf_element(
     bounding_box: "BoundingBox" = BoundingBox(0, 1, 0, 1),
-    index: int = 0,
-    page_number: int = 1,
     text: str = "fake_text",
     font_name: str = "fake_font",
     font_size: int = 10,
     font_mapping: Optional[Dict[str, str]] = None,
 ) -> "PDFElement":
-    return PDFElement(
-        element=FakePDFMinerTextElement(
-            bounding_box, text=text, font_name=font_name, font_size=font_size
-        ),
-        index=index,
-        page_number=page_number,
+    document = create_pdf_document(
+        elements=[
+            FakePDFMinerTextElement(
+                bounding_box, text=text, font_name=font_name, font_size=font_size
+            )
+        ],
         font_mapping=font_mapping,
     )
+    return document.elements[0]
 
 
 def create_pdf_document(
