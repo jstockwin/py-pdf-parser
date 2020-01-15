@@ -3,7 +3,7 @@ from typing import Dict, List, ValuesView, TYPE_CHECKING
 from collections import defaultdict
 
 from .filtering import ElementList
-from .exceptions import InvalidSectionError
+from .exceptions import InvalidSectionError, SectionNotFoundError
 
 if TYPE_CHECKING:
     from .components import PDFDocument, PDFElement
@@ -144,6 +144,20 @@ class Sectioning:
             self.sections_dict[f"{name}_{idx}"]
             for idx in range(0, self.name_counts[name])
         ]
+
+    def get_section(self, unique_name: str) -> Section:
+        """
+        Returns the section with the given unique name.
+
+        Raises:
+            SectionNotFoundError: If there is no section with the given unique_name.
+        """
+        try:
+            return self.sections_dict[unique_name]
+        except KeyError:
+            raise SectionNotFoundError(
+                f"Could not find section with name {unique_name}"
+            )
 
     @property
     def sections(self) -> ValuesView[Section]:

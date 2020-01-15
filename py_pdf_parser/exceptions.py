@@ -25,6 +25,10 @@ class InvalidSectionError(PDFParserError):
     pass
 
 
+class SectionNotFoundError(PDFParserError):
+    pass
+
+
 # Tables
 class TableExtractionError(PDFParserError):
     pass
