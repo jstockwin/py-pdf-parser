@@ -275,6 +275,14 @@ class ElementList(Iterable):
             new_indexes |= set([element.index for element in section.elements])
         return self.__intersect_indexes_with_self(new_indexes)
 
+    def ignore_elements(self) -> None:
+        """
+        Marks all the elements in the ElementList as ignored.
+        """
+        self.document.ignored_indexes = self.document.ignored_indexes.union(
+            self.indexes
+        )
+
     def to_the_right_of(
         self, element: "PDFElement", inclusive: bool = False
     ) -> "ElementList":
