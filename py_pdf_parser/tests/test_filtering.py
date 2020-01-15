@@ -22,6 +22,13 @@ class TestFiltering(BaseTestCase):
         )
         self.elem_list = self.doc.elements
 
+    def test_ignored_elements_are_excluded(self):
+        self.assertEqual(len(self.doc.elements), len(self.elem_list))
+
+        self.elem_list[0].ignore()
+        self.assertEqual(len(self.doc.elements), len(self.elem_list) - 1)
+        self.assertNotIn(self.elem_list[0], self.doc.elements)
+
     def test_filter_by_tag(self):
         self.assertEqual(len(self.elem_list.filter_by_tag("foo")), 0)
 
@@ -146,13 +153,6 @@ class TestFiltering(BaseTestCase):
         self.assert_original_element_in(
             elem2, doc.elements.filter_by_fonts("font_a", "font_b")
         )
-
-    def test_exclude_ignored(self):
-        self.assertEqual(len(self.elem_list.exclude_ignored()), len(self.elem_list))
-
-        self.elem_list[0].ignore = True
-        self.assertEqual(len(self.elem_list.exclude_ignored()), len(self.elem_list) - 1)
-        self.assertNotIn(self.elem_list[0], self.elem_list.exclude_ignored())
 
     def test_filter_by_page(self):
         elem1 = FakePDFMinerTextElement()

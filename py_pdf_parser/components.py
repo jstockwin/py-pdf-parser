@@ -72,21 +72,22 @@ class PDFElement:
     You should not instantiate this yourself, but should let the `PDFDocument` do this.
 
     Args:
+        document (PDFDocument): A reference to the `PDFDocument.
         element (LTComponent): A PDF Miner LTComponent.
-        index (int): The index of the element within the document.
+        index (int): The index of the element within the document. This is intended for
+            internal use only.
         page_number (int): The page number that the element is on.
         font_mapping (dict, optional): See the `PDFDocument` documentation.
 
     Attributes:
         original_element (LTComponent): A reference to the original PDF Miner element.
         tags (set[str]): A list of tags that have been added to the element.
-        ignore (bool): A flag specifying whether the element has been ignored.
         bounding_box (BoundingBox): The box representing the location of the element.
     """
 
+    document: "PDFDocument"
     original_element: "LTComponent"
     tags: Set[str]
-    ignore: bool
     bounding_box: BoundingBox
     __font_name: Optional[str] = None
     __font_size: Optional[int] = None
@@ -96,18 +97,19 @@ class PDFElement:
 
     def __init__(
         self,
+        document: "PDFDocument",
         element: "LTComponent",
         index: int,
         page_number: int,
         font_mapping: Optional[Dict[str, str]] = None,
     ):
+        self.document = document
         self.__font_mapping = {}
         self.original_element = element
         self.__index = index
         self.__page_number = page_number
 
         self.tags = set()
-        self.ignore = False
 
         self.bounding_box = BoundingBox(
             x0=element.x0, x1=element.x1, y0=element.y0, y1=element.y1
@@ -204,6 +206,13 @@ class PDFElement:
         return self.__font_mapping.get(font, font)
 
     @property
+    def ignored(self) -> bool:
+        """
+        A flag specifying whether the element has been ignored.
+        """
+        return self.index in self.document.ignored_indexes
+
+    @property
     def text(self) -> str:
         """
         The text contained in the element.
@@ -242,6 +251,16 @@ class PDFElement:
             ]
         )
 
+    def ignore(self):
+        """
+        Marks the element as ignored.
+
+        The element will no longer be returned in any newly instantiated `ElementList`.
+        Note that this includes calling any new filter functions on an existing
+        `ElementList`, since doing so always returns a new `ElementList`.
+        """
+        self.document.ignored_indexes.add(self.index)
+
     def partially_within(self, bounding_box: BoundingBox) -> bool:
         """
         Whether any part of the element is within the bounding box.
@@ -265,7 +284,7 @@ class PDFElement:
     def __repr__(self):
         return (
             f"<PDFElement tags: {self.tags}, font: '{self.font}'"
-            f"{', ignored' if self.ignore else ''}>"
+            f"{', ignored' if self.ignored else ''}>"
         )
 
 
@@ -294,6 +313,9 @@ class PDFDocument:
 
     Attributes:
         element_list (list): A list of all the `PDFElements` in the document.
+        ignored_indexes (set): A set containing the indexes of all the `PDFElements`
+            which have been ignored. The the documentation for the `ignore` method
+            on `PDFElement`. This property is intended for internal use only.
         pages (list): A list of all `PDFPages` in the document.
         number_of_pages (int): The total number of pages in the document.
         page_file_path (str, optional): The pdf file path, if provided.
@@ -303,6 +325,7 @@ class PDFDocument:
 
     # Element list will contain all elements, sorted from top to bottom, left to right.
     element_list: List[PDFElement]
+    ignored_indexes: Set[int]
     number_of_pages: int
     pdf_file_path: Optional[str]
     sectioning: "Sectioning"
@@ -317,12 +340,14 @@ class PDFDocument:
         self.element_list = []
         self.__pages = {}
         self.sectioning = Sectioning(self)
+        self.ignored_indexes = set()
         idx = 0
         for page_number, page in sorted(pages.items()):
             first_element = None
             for element in sorted(page.elements, key=lambda elem: (-elem.y0, elem.x0)):
                 pdf_element = PDFElement(
-                    element,
+                    document=self,
+                    element=element,
                     index=idx,
                     page_number=page_number,
                     font_mapping=font_mapping,
