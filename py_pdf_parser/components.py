@@ -150,12 +150,12 @@ class PDFElement:
             return self.__font_name
 
         counter = Counter(
-            [
+            (
                 character.fontname
                 for line in self.original_element
                 for character in line
                 if hasattr(character, "fontname")
-            ]
+            )
         )
         self.__font_name = counter.most_common(1)[0][0]
         return self.__font_name
@@ -175,12 +175,12 @@ class PDFElement:
             return self.__font_size
 
         counter = Counter(
-            [
+            (
                 character.height
                 for line in self.original_element
                 for character in line
                 if hasattr(character, "height")
-            ]
+            )
         )
         self.__font_size = int(round(counter.most_common(1)[0][0], 0))
         return self.__font_size
