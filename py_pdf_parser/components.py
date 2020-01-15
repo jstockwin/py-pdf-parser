@@ -195,16 +195,6 @@ class PDFElement:
         """
         return self._index in self.document.ignored_indexes
 
-    @property
-    def text(self) -> str:
-        """
-        The text contained in the element.
-
-        Returns:
-            str: The text contained in the element.
-        """
-        return self.original_element.get_text()
-
     def add_tag(self, new_tag: str):
         """
         Adds the `new_tag` to the tags set.
@@ -263,6 +253,20 @@ class PDFElement:
                 bounding_box.y1 >= self.bounding_box.y0,
             ]
         )
+
+    def text(self, stripped: bool = True) -> str:
+        """
+        The text contained in the element.
+
+        Args:
+            stripped (bool, optional): Whether to strip the text of the element.
+                Default: True.
+
+        Returns:
+            str: The text contained in the element.
+        """
+        txt = self.original_element.get_text()
+        return txt.strip() if stripped else txt
 
     def __repr__(self):
         return (

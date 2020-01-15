@@ -133,14 +133,9 @@ class ElementList(Iterable):
         Returns:
             ElementList: The filtered list.
         """
-        if stripped:
-            new_indexes = set(
-                element._index for element in self if element.text.strip() == text
-            )
-        else:
-            new_indexes = set(
-                element._index for element in self if element.text == text
-            )
+        new_indexes = set(
+            element._index for element in self if element.text(stripped) == text
+        )
 
         return ElementList(self.document, new_indexes)
 
@@ -154,7 +149,7 @@ class ElementList(Iterable):
         Returns:
             ElementList: The filtered list.
         """
-        new_indexes = set(element._index for element in self if text in element.text)
+        new_indexes = set(element._index for element in self if text in element.text())
         return ElementList(self.document, new_indexes)
 
     def filter_by_font(self, font: str) -> "ElementList":

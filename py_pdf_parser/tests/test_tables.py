@@ -126,7 +126,7 @@ class TestTables(BaseTestCase):
             bounding_box=BoundingBox(0, 5, 0, 5), text="fake_text_3"
         )
         elem_4 = FakePDFMinerTextElement(
-            bounding_box=BoundingBox(6, 10, 0, 5), text="fake_text_4"
+            bounding_box=BoundingBox(6, 10, 0, 5), text="fake_text_4 "
         )
 
         document = create_pdf_document(elements=[elem_1, elem_2, elem_3, elem_4])
@@ -139,6 +139,11 @@ class TestTables(BaseTestCase):
 
         self.assertListEqual(
             [["fake_text_1", "fake_text_2"], ["fake_text_3", "fake_text_4"]], result
+        )
+
+        result = extract_text_from_simple_table(elem_list, stripped=False)
+        self.assertListEqual(
+            [["fake_text_1", "fake_text_2"], ["fake_text_3", "fake_text_4 "]], result
         )
 
     def test_extract_text_from_table(self):
@@ -157,18 +162,23 @@ class TestTables(BaseTestCase):
             bounding_box=BoundingBox(0, 5, 0, 5), text="fake_text_3"
         )
         elem_4 = FakePDFMinerTextElement(
-            bounding_box=BoundingBox(6, 10, 0, 5), text="fake_text_4"
+            bounding_box=BoundingBox(6, 10, 0, 5), text="fake_text_4 "
         )
 
         document = create_pdf_document(elements=[elem_1, elem_2, elem_3, elem_4])
         elem_list = document.elements
 
-        result = extract_text_from_simple_table(elem_list)
+        result = extract_text_from_table(elem_list)
         self.assertEqual(len(result), 2)
         self.assertEqual(len(result[0]), 2)
         self.assertEqual(len(result[1]), 2)
         self.assertListEqual(
             [["fake_text_1", "fake_text_2"], ["fake_text_3", "fake_text_4"]], result
+        )
+
+        result = extract_text_from_table(elem_list, stripped=False)
+        self.assertListEqual(
+            [["fake_text_1", "fake_text_2"], ["fake_text_3", "fake_text_4 "]], result
         )
 
         # Checks that text from the following table is correctly extracted
@@ -194,6 +204,15 @@ class TestTables(BaseTestCase):
             [
                 ["fake_text_1", "fake_text_2", "", "fake_text_6"],
                 ["fake_text_3", "fake_text_4", "fake_text_5", ""],
+            ],
+            result,
+        )
+
+        result = extract_text_from_table(elem_list, stripped=False)
+        self.assertListEqual(
+            [
+                ["fake_text_1", "fake_text_2", "", "fake_text_6"],
+                ["fake_text_3", "fake_text_4 ", "fake_text_5", ""],
             ],
             result,
         )
