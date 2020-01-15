@@ -1,5 +1,7 @@
 from typing import Union, Set, FrozenSet, Optional, Iterable, Iterator, TYPE_CHECKING
 
+import re
+
 from .common import BoundingBox
 from .exceptions import (
     NoElementFoundError,
@@ -150,6 +152,33 @@ class ElementList(Iterable):
             ElementList: The filtered list.
         """
         new_indexes = set(element._index for element in self if text in element.text())
+        return ElementList(self.document, new_indexes)
+
+    def filter_by_regex(
+        self,
+        regex: str,
+        regex_flags: Union[int, re.RegexFlag] = 0,
+        stripped: bool = True,
+    ):
+        """
+        Filter for elements given a regular expression.
+
+        Args:
+            regex (str): The regex to filter for.
+            regex_flags (str, optional): Regex flags compatible with the re module.
+                Default: 0.
+            stripped (bool, optional): Whether to strip the text of the element before
+                comparison. Default: True.
+
+        Returns:
+            ElementList: The filtered list.
+        """
+        new_indexes = set(
+            element.index
+            for element in self
+            if re.match(regex, element.text(stripped), flags=regex_flags)
+        )
+
         return ElementList(self.document, new_indexes)
 
     def filter_by_font(self, font: str) -> "ElementList":
