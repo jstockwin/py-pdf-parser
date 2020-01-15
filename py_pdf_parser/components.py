@@ -91,7 +91,6 @@ class PDFElement:
     bounding_box: BoundingBox
     __font_name: Optional[str] = None
     __font_size: Optional[int] = None
-    __font_mapping: Dict[str, str]
     __index: int
     __page_number: int
 
@@ -101,10 +100,8 @@ class PDFElement:
         element: "LTComponent",
         index: int,
         page_number: int,
-        font_mapping: Optional[Dict[str, str]] = None,
     ):
         self.document = document
-        self.__font_mapping = {}
         self.original_element = element
         self.__index = index
         self.__page_number = page_number
@@ -114,8 +111,6 @@ class PDFElement:
         self.bounding_box = BoundingBox(
             x0=element.x0, x1=element.x1, y0=element.y0, y1=element.y1
         )
-        if font_mapping is not None:
-            self.__font_mapping = font_mapping
 
     @property
     def index(self) -> int:
@@ -203,7 +198,7 @@ class PDFElement:
             str: The font of the element.
         """
         font = f"{self.font_name},{self.font_size}"
-        return self.__font_mapping.get(font, font)
+        return self.document.font_mapping.get(font, font)
 
     @property
     def ignored(self) -> bool:
@@ -329,6 +324,7 @@ class PDFDocument:
     number_of_pages: int
     pdf_file_path: Optional[str]
     sectioning: "Sectioning"
+    __font_mapping: Dict[str, str]
     __pages: Dict[int, PDFPage]
 
     def __init__(
@@ -341,16 +337,13 @@ class PDFDocument:
         self.__pages = {}
         self.sectioning = Sectioning(self)
         self.ignored_indexes = set()
+        self.__font_mapping = font_mapping if font_mapping is not None else {}
         idx = 0
         for page_number, page in sorted(pages.items()):
             first_element = None
             for element in sorted(page.elements, key=lambda elem: (-elem.y0, elem.x0)):
                 pdf_element = PDFElement(
-                    document=self,
-                    element=element,
-                    index=idx,
-                    page_number=page_number,
-                    font_mapping=font_mapping,
+                    document=self, element=element, index=idx, page_number=page_number
                 )
                 self.element_list.append(pdf_element)
                 idx += 1
@@ -383,6 +376,13 @@ class PDFDocument:
             ElementList: All elements in the document.
         """
         return ElementList(self)
+
+    @property
+    def font_mapping(self) -> Dict[str, str]:
+        """
+        The font mapping in use by this document.
+        """
+        return self.__font_mapping
 
     @property
     def pages(self) -> List["PDFPage"]:
