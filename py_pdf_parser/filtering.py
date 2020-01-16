@@ -81,6 +81,16 @@ class ElementList(Iterable):
             self.indexes = frozenset(range(0, len(document.element_list)))
         self.indexes = self.indexes - self.document.ignored_indexes
 
+    def add_tag_to_elements(self, tag: str) -> None:
+        """
+        Adds a tag to all elements in the list.
+
+        Args:
+            tag (str): The tag you would like to add.
+        """
+        for element in self:
+            element.add_tag(tag)
+
     def filter_by_tag(self, tag: str) -> "ElementList":
         """
         Filter for elements containing only the given tag.
