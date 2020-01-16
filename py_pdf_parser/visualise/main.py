@@ -37,6 +37,10 @@ class PDFVisualiser:
     current_page: int
     _fig: Figure
     _ax: Axes
+    __first_page_button = None
+    __previous_page_button = None
+    __next_page_button = None
+    __last_page_button = None
 
     def __init__(
         self,
@@ -64,8 +68,8 @@ class PDFVisualiser:
         )
 
     def visualise(self):
-        self.__plot_current_page()
         self.__setup_toolbar()
+        self.__plot_current_page()
         plt.show()
 
     def __plot_current_page(self):
@@ -104,6 +108,8 @@ class PDFVisualiser:
 
         self._ax.format_coord = self.__get_annotations
 
+        self.__reset_toolbar()
+
     def __plot_element(self, element, style):
         bbox = element.bounding_box
         rect = matplotlib.patches.Rectangle(
@@ -116,25 +122,33 @@ class PDFVisualiser:
         style = fig_manager.toolbar.style()
         fig_manager.toolbar.addSeparator()
 
-        first_page = fig_manager.toolbar.addAction(
+        self.__first_page_button = fig_manager.toolbar.addAction(
             style.standardIcon(style.SP_MediaSkipBackward), "First page"
         )
-        first_page.triggered.connect(self.__first_page)
+        self.__first_page_button.triggered.connect(self.__first_page)
 
-        previous_page = fig_manager.toolbar.addAction(
+        self.__previous_page_button = fig_manager.toolbar.addAction(
             style.standardIcon(style.SP_MediaSeekBackward), "Previous page"
         )
-        previous_page.triggered.connect(self.__previous_page)
+        self.__previous_page_button.triggered.connect(self.__previous_page)
 
-        next_page = fig_manager.toolbar.addAction(
+        self.__next_page_button = fig_manager.toolbar.addAction(
             style.standardIcon(style.SP_MediaSeekForward), "Next page"
         )
-        next_page.triggered.connect(self.__next_page)
+        self.__next_page_button.triggered.connect(self.__next_page)
 
-        last_page = fig_manager.toolbar.addAction(
+        self.__last_page_button = fig_manager.toolbar.addAction(
             style.standardIcon(style.SP_MediaSkipForward), "Last page"
         )
-        last_page.triggered.connect(self.__last_page)
+        self.__last_page_button.triggered.connect(self.__last_page)
+
+    def __reset_toolbar(self):
+        not_first_page = self.current_page != 1
+        not_last_page = self.current_page != self.document.number_of_pages
+        self.__first_page_button.setEnabled(not_first_page)
+        self.__previous_page_button.setEnabled(not_first_page)
+        self.__next_page_button.setEnabled(not_last_page)
+        self.__last_page_button.setEnabled(not_last_page)
 
     def __get_annotations(self, x, y) -> str:
         annotation = f"({x:.2f}, {y:.2f})"
