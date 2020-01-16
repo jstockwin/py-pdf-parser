@@ -111,7 +111,7 @@ class Sectioning:
             end_element (PDFElement): The last element in the section.
             include_last_element (bool): Whether the end_element should be included in
                 the section, or only the elements which are strictly before the end
-                element. Defult: True (i.e. include end_element).
+                element. Default: True (i.e. include end_element).
 
         Returns:
             Section: The created section.
