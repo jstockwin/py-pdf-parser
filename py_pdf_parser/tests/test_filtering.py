@@ -301,7 +301,7 @@ class TestFiltering(BaseTestCase):
         self.assertTrue(self.elem_list[4].ignored)
         self.assertTrue(self.elem_list[5].ignored)
         self.assertEqual(0, len(self.doc.elements))
-        self.assertEqual(self.doc.ignored_indexes, set([0, 1, 2, 3, 4, 5]))
+        self.assertEqual(self.doc._ignored_indexes, set([0, 1, 2, 3, 4, 5]))
 
     @patch.object(PDFElement, "partially_within", autospec=True)
     def test_to_the_right_of(self, partially_within_mock):

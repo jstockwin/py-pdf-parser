@@ -12,9 +12,9 @@ class TestSection(BaseTestCase):
         elem_3 = FakePDFMinerTextElement()
         document = create_pdf_document([elem_1, elem_2, elem_3])
 
-        pdf_elem_1 = self.extract_element_from_list(elem_1, document.element_list)
-        pdf_elem_2 = self.extract_element_from_list(elem_2, document.element_list)
-        pdf_elem_3 = self.extract_element_from_list(elem_3, document.element_list)
+        pdf_elem_1 = self.extract_element_from_list(elem_1, document._element_list)
+        pdf_elem_2 = self.extract_element_from_list(elem_2, document._element_list)
+        pdf_elem_3 = self.extract_element_from_list(elem_3, document._element_list)
 
         section = create_section(
             document, start_element=pdf_elem_1, end_element=pdf_elem_2
@@ -30,9 +30,9 @@ class TestSection(BaseTestCase):
         elem_3 = FakePDFMinerTextElement()
         document = create_pdf_document([elem_1, elem_2, elem_3])
 
-        pdf_elem_1 = self.extract_element_from_list(elem_1, document.element_list)
-        pdf_elem_2 = self.extract_element_from_list(elem_2, document.element_list)
-        pdf_elem_3 = self.extract_element_from_list(elem_3, document.element_list)
+        pdf_elem_1 = self.extract_element_from_list(elem_1, document._element_list)
+        pdf_elem_2 = self.extract_element_from_list(elem_2, document._element_list)
+        pdf_elem_3 = self.extract_element_from_list(elem_3, document._element_list)
 
         section_1 = create_section(
             document, start_element=pdf_elem_1, end_element=pdf_elem_2
@@ -51,8 +51,8 @@ class TestSection(BaseTestCase):
         elem_2 = FakePDFMinerTextElement()
         document = create_pdf_document([elem_1, elem_2])
 
-        pdf_elem_1 = self.extract_element_from_list(elem_1, document.element_list)
-        pdf_elem_2 = self.extract_element_from_list(elem_2, document.element_list)
+        pdf_elem_1 = self.extract_element_from_list(elem_1, document._element_list)
+        pdf_elem_2 = self.extract_element_from_list(elem_2, document._element_list)
         with self.assertRaises(InvalidSectionError):
             create_section(document, start_element=pdf_elem_2, end_element=pdf_elem_1)
 
@@ -64,9 +64,9 @@ class TestSectioning(BaseTestCase):
         elem_3 = FakePDFMinerTextElement()
         document = create_pdf_document([elem_1, elem_2, elem_3])
 
-        pdf_elem_1 = self.extract_element_from_list(elem_1, document.element_list)
-        pdf_elem_2 = self.extract_element_from_list(elem_2, document.element_list)
-        pdf_elem_3 = self.extract_element_from_list(elem_3, document.element_list)
+        pdf_elem_1 = self.extract_element_from_list(elem_1, document._element_list)
+        pdf_elem_2 = self.extract_element_from_list(elem_2, document._element_list)
+        pdf_elem_3 = self.extract_element_from_list(elem_3, document._element_list)
 
         sectioning = Sectioning(document)
         sectioning.create_section(
@@ -122,8 +122,8 @@ class TestSectioning(BaseTestCase):
         elem_2 = FakePDFMinerTextElement()
         document = create_pdf_document([elem_1, elem_2])
 
-        pdf_elem_1 = self.extract_element_from_list(elem_1, document.element_list)
-        pdf_elem_2 = self.extract_element_from_list(elem_2, document.element_list)
+        pdf_elem_1 = self.extract_element_from_list(elem_1, document._element_list)
+        pdf_elem_2 = self.extract_element_from_list(elem_2, document._element_list)
 
         self.assertEqual(document.sectioning.get_sections_with_name("foo"), [])
 
@@ -140,8 +140,8 @@ class TestSectioning(BaseTestCase):
         elem_2 = FakePDFMinerTextElement()
         document = create_pdf_document([elem_1, elem_2])
 
-        pdf_elem_1 = self.extract_element_from_list(elem_1, document.element_list)
-        pdf_elem_2 = self.extract_element_from_list(elem_2, document.element_list)
+        pdf_elem_1 = self.extract_element_from_list(elem_1, document._element_list)
+        pdf_elem_2 = self.extract_element_from_list(elem_2, document._element_list)
 
         with self.assertRaises(SectionNotFoundError):
             document.sectioning.get_section("foo")
