@@ -14,13 +14,6 @@ from utils import create_pdf_element, FakePDFMinerTextElement
 class TestPDFElement(BaseTestCase):
     element_bbox = BoundingBox(2, 5, 2, 5)
 
-    def test_index(self):
-        element = create_pdf_element()
-        self.assertEqual(element.index, 0)
-
-        with self.assertRaises(AttributeError):
-            element.index = 1
-
     def test_page_number(self):
         element = create_pdf_element()
         self.assertEqual(element.page_number, 1)
@@ -192,7 +185,7 @@ class TestPDFDocument(BaseTestCase):
 
         # Checks indexes were assigned properly
         self.assertEqual(
-            [elem.index for elem in document.element_list], [0, 1, 2, 3, 4, 5, 6, 7]
+            [elem._index for elem in document.element_list], [0, 1, 2, 3, 4, 5, 6, 7]
         )
 
         # Checks number of pages is correct
