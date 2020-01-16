@@ -89,7 +89,7 @@ class PDFVisualiser:
 
         for element in self.elements.filter_by_page(self.current_page):
             style = STYLES["untagged"]
-            if element.ignore:
+            if element.ignored:
                 style = STYLES["ignored"]
             elif element.tags:
                 style = STYLES["tagged"]
