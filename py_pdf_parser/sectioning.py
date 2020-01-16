@@ -131,7 +131,7 @@ class Sectioning:
                     "element in the document and include_last_element is False"
                 )
             # We simply drop the index by one to get the element before
-            end_element = self.document.element_list[end_element._index - 1]
+            end_element = self.document._element_list[end_element._index - 1]
         section = Section(self.document, name, unique_name, start_element, end_element)
         self.sections_dict[unique_name] = section
         return section

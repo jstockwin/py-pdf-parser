@@ -110,8 +110,8 @@ def create_section(
     Creates a simple section
     """
     if start_element is None:
-        start_element = document.element_list[0]
+        start_element = document._element_list[0]
     if end_element is None:
-        end_element = document.element_list[-1]
+        end_element = document._element_list[-1]
 
     return Section(document, name, unique_name, start_element, end_element)

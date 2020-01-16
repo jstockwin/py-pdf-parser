@@ -193,7 +193,7 @@ class PDFElement:
         """
         A flag specifying whether the element has been ignored.
         """
-        return self._index in self.document.ignored_indexes
+        return self._index in self.document._ignored_indexes
 
     def add_tag(self, new_tag: str):
         """
@@ -232,7 +232,7 @@ class PDFElement:
         Note that this includes calling any new filter functions on an existing
         `ElementList`, since doing so always returns a new `ElementList`.
         """
-        self.document.ignored_indexes.add(self._index)
+        self.document._ignored_indexes.add(self._index)
 
     def partially_within(self, bounding_box: BoundingBox) -> bool:
         """
@@ -299,24 +299,19 @@ class PDFDocument:
             new names.
 
     Attributes:
-        element_list (list): A list of all the `PDFElements` in the document.
-        ignored_indexes (set): A set containing the indexes of all the `PDFElements`
-            which have been ignored. The the documentation for the `ignore` method
-            on `PDFElement`. This property is intended for internal use only.
         pages (list): A list of all `PDFPages` in the document.
         number_of_pages (int): The total number of pages in the document.
-        page_file_path (str, optional): The pdf file path, if provided.
         sectioning: Gives access to the sectioning utilities. See the documentation for
             the `Sectioning` class.
     """
 
-    # Element list will contain all elements, sorted from top to bottom, left to right.
-    element_list: List[PDFElement]
-    ignored_indexes: Set[int]
     number_of_pages: int
-    pdf_file_path: Optional[str]
     sectioning: "Sectioning"
+    # _element_list will contain all elements, sorted from top to bottom, left to right.
+    _element_list: List[PDFElement]
+    _ignored_indexes: Set[int]
     _font_mapping: Dict[str, str]
+    _pdf_file_path: Optional[str]
     __pages: Dict[int, PDFPage]
 
     def __init__(
@@ -325,11 +320,11 @@ class PDFDocument:
         pdf_file_path: Optional[str] = None,
         font_mapping: Optional[Dict[str, str]] = None,
     ):
-        self.element_list = []
-        self.__pages = {}
         self.sectioning = Sectioning(self)
-        self.ignored_indexes = set()
+        self._element_list = []
         self._font_mapping = font_mapping if font_mapping is not None else {}
+        self._ignored_indexes = set()
+        self.__pages = {}
         idx = 0
         for page_number, page in sorted(pages.items()):
             first_element = None
@@ -337,7 +332,7 @@ class PDFDocument:
                 pdf_element = PDFElement(
                     document=self, element=element, index=idx, page_number=page_number
                 )
-                self.element_list.append(pdf_element)
+                self._element_list.append(pdf_element)
                 idx += 1
                 if first_element is None:
                     first_element = pdf_element
@@ -356,7 +351,7 @@ class PDFDocument:
                 end_element=pdf_element,
             )
 
-        self.pdf_file_path = pdf_file_path
+        self._pdf_file_path = pdf_file_path
         self.number_of_pages = len(pages)
 
     @property
