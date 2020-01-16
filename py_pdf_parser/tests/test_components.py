@@ -15,14 +15,14 @@ class TestPDFElement(BaseTestCase):
     element_bbox = BoundingBox(2, 5, 2, 5)
 
     def test_index(self):
-        element = create_pdf_element(index=1)
-        self.assertEqual(element.index, 1)
+        element = create_pdf_element()
+        self.assertEqual(element.index, 0)
 
         with self.assertRaises(AttributeError):
-            element.index = 2
+            element.index = 1
 
     def test_page_number(self):
-        element = create_pdf_element(page_number=1)
+        element = create_pdf_element()
         self.assertEqual(element.page_number, 1)
 
         with self.assertRaises(AttributeError):
@@ -80,7 +80,7 @@ class TestPDFElement(BaseTestCase):
             repr(element), "<PDFElement tags: {'foo'}, font: 'test_font,2'>"
         )
 
-        element.ignore = True
+        element.ignore()
         self.assertEqual(
             repr(element), "<PDFElement tags: {'foo'}, font: 'test_font,2', ignored>"
         )
@@ -132,7 +132,7 @@ class TestPDFElement(BaseTestCase):
         BoundingBox(1, 6, 0, 1),  # This box is underneath the element
         BoundingBox(1, 6, 6, 7),  # This box is above the element
         BoundingBox(0, 1, 1, 6),  # This box is to the left of the element
-        BoundingBox(6, 7, 1, 6),  # This box is to the lerightft of the element
+        BoundingBox(6, 7, 1, 6),  # This box is to the right of the element
         BoundingBox(3, 4, 3, 4),  # This box is enclosed inside the element
     )
     def test_entirely_within_false(self, bounding_box):

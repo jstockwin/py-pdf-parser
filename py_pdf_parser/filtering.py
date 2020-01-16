@@ -45,13 +45,16 @@ class ElementList(Iterable):
     `foo.filter_by_tag("bar") & foo.filter_by_tag("baz")`. Note that this is not the
     case for methods which do not filter, e.g. `add_element`.
 
+    Ignored elements will be excluded on instantiation. Each time you chain a new filter
+    a new ElementList is returned. Note this will remove newly-ignored elements.
+
     Note:
         As ElementList is implemented using sets internally, you will not be able to
         have an element in an ElementList multiple times.
 
     Args:
         document (PDFDocument): A reference to the PDF document
-        indexes (set, optional): A set (or frozenset) of element indexes. Default to
+        indexes (set, optional): A set (or frozenset) of element indexes. Defaults to
             all elements in the document.
 
     Attributes:
@@ -72,6 +75,7 @@ class ElementList(Iterable):
             self.indexes = frozenset(indexes)
         else:
             self.indexes = frozenset(range(0, len(document.element_list)))
+        self.indexes = self.indexes - self.document.ignored_indexes
 
     def filter_by_tag(self, tag: str) -> "ElementList":
         """
@@ -161,16 +165,6 @@ class ElementList(Iterable):
             ElementList: The filtered list.
         """
         new_indexes = set(element.index for element in self if element.font in fonts)
-        return ElementList(self.document, new_indexes)
-
-    def exclude_ignored(self) -> "ElementList":
-        """
-        Removes all elements marked as ignored.
-
-        Returns:
-            ElementList: The filtered list.
-        """
-        new_indexes = set(element.index for element in self if not element.ignore)
         return ElementList(self.document, new_indexes)
 
     def filter_by_page(self, page_number: int) -> "ElementList":
@@ -280,6 +274,14 @@ class ElementList(Iterable):
             section = self.document.sectioning.sections_dict[section_str]
             new_indexes |= set([element.index for element in section.elements])
         return self.__intersect_indexes_with_self(new_indexes)
+
+    def ignore_elements(self) -> None:
+        """
+        Marks all the elements in the ElementList as ignored.
+        """
+        self.document.ignored_indexes = self.document.ignored_indexes.union(
+            self.indexes
+        )
 
     def to_the_right_of(
         self, element: "PDFElement", inclusive: bool = False

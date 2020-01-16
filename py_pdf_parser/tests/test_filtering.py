@@ -22,6 +22,13 @@ class TestFiltering(BaseTestCase):
         )
         self.elem_list = self.doc.elements
 
+    def test_ignored_elements_are_excluded(self):
+        self.assertEqual(len(self.doc.elements), len(self.elem_list))
+
+        self.elem_list[0].ignore()
+        self.assertEqual(len(self.doc.elements), len(self.elem_list) - 1)
+        self.assertNotIn(self.elem_list[0], self.doc.elements)
+
     def test_filter_by_tag(self):
         self.assertEqual(len(self.elem_list.filter_by_tag("foo")), 0)
 
@@ -147,13 +154,6 @@ class TestFiltering(BaseTestCase):
             elem2, doc.elements.filter_by_fonts("font_a", "font_b")
         )
 
-    def test_exclude_ignored(self):
-        self.assertEqual(len(self.elem_list.exclude_ignored()), len(self.elem_list))
-
-        self.elem_list[0].ignore = True
-        self.assertEqual(len(self.elem_list.exclude_ignored()), len(self.elem_list) - 1)
-        self.assertNotIn(self.elem_list[0], self.elem_list.exclude_ignored())
-
     def test_filter_by_page(self):
         elem1 = FakePDFMinerTextElement()
         elem2 = FakePDFMinerTextElement()
@@ -245,6 +245,17 @@ class TestFiltering(BaseTestCase):
         self.assertIn(
             self.elem_list[5], self.elem_list.filter_by_sections("foo_0", "foo_1")
         )
+
+    def test_ignore_elements(self):
+        self.elem_list.ignore_elements()
+        self.assertTrue(self.elem_list[0].ignored)
+        self.assertTrue(self.elem_list[1].ignored)
+        self.assertTrue(self.elem_list[2].ignored)
+        self.assertTrue(self.elem_list[3].ignored)
+        self.assertTrue(self.elem_list[4].ignored)
+        self.assertTrue(self.elem_list[5].ignored)
+        self.assertEqual(0, len(self.doc.elements))
+        self.assertEqual(self.doc.ignored_indexes, set([0, 1, 2, 3, 4, 5]))
 
     @patch.object(PDFElement, "partially_within", autospec=True)
     def test_to_the_right_of(self, partially_within_mock):
