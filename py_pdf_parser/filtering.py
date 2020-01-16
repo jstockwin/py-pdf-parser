@@ -1,7 +1,11 @@
 from typing import Union, Set, FrozenSet, Optional, Iterable, Iterator, TYPE_CHECKING
 
 from .common import BoundingBox
-from .exceptions import NoElementFoundError, MultipleElementsFoundError
+from .exceptions import (
+    NoElementFoundError,
+    MultipleElementsFoundError,
+    SectionNotFoundError,
+)
 
 if TYPE_CHECKING:
     from .components import PDFDocument, PDFElement
@@ -103,7 +107,7 @@ class ElementList(Iterable):
         new_indexes = set(
             element.index
             for element in self
-            if any([tag in element.tags for tag in tags])
+            if any(tag in element.tags for tag in tags)
         )
         return ElementList(self.document, new_indexes)
 
@@ -178,7 +182,7 @@ class ElementList(Iterable):
             ElementList: The filtered list.
         """
         page = self.document.get_page(page_number)
-        new_indexes = set([element.index for element in page.elements])
+        new_indexes = set(element.index for element in page.elements)
         return self.__intersect_indexes_with_self(new_indexes)
 
     def filter_by_pages(self, *page_numbers: int) -> "ElementList":
@@ -194,7 +198,7 @@ class ElementList(Iterable):
         new_indexes: Set[int] = set()
         for page_number in page_numbers:
             page = self.document.get_page(page_number)
-            new_indexes |= set([element.index for element in page.elements])
+            new_indexes |= set(element.index for element in page.elements)
         return self.__intersect_indexes_with_self(new_indexes)
 
     def filter_by_section_name(self, section_name: str) -> "ElementList":
@@ -210,9 +214,8 @@ class ElementList(Iterable):
             ElementList: The filtered list.
         """
         new_indexes: Set[int] = set()
-        for section in self.document.sectioning.sections:
-            if section.name == section_name:
-                new_indexes |= set([element.index for element in section.elements])
+        for section in self.document.sectioning.get_sections_with_name(section_name):
+            new_indexes |= set(element.index for element in section.elements)
         return self.__intersect_indexes_with_self(new_indexes)
 
     def filter_by_section_names(self, *section_names: str) -> "ElementList":
@@ -228,9 +231,11 @@ class ElementList(Iterable):
             ElementList: The filtered list.
         """
         new_indexes: Set[int] = set()
-        for section in self.document.sectioning.sections:
-            if any([section.name == section_name for section_name in section_names]):
-                new_indexes |= set([element.index for element in section.elements])
+        for section_name in section_names:
+            for section in self.document.sectioning.get_sections_with_name(
+                section_name
+            ):
+                new_indexes |= set(element.index for element in section.elements)
         return self.__intersect_indexes_with_self(new_indexes)
 
     def filter_by_section(self, section_str: str) -> "ElementList":
@@ -249,9 +254,13 @@ class ElementList(Iterable):
         Returns:
             ElementList: The filtered list.
         """
-        section = self.document.sectioning.sections_dict[section_str]
-        new_indexes = set([element.index for element in section.elements])
-        return self.__intersect_indexes_with_self(new_indexes)
+        try:
+            section = self.document.sectioning.get_section(section_str)
+            new_indexes = set(element.index for element in section.elements)
+            return self.__intersect_indexes_with_self(new_indexes)
+        except SectionNotFoundError:
+            # Section doesn't exist - return empty ElementList.
+            return self.__intersect_indexes_with_self(set())
 
     def filter_by_sections(self, *section_strs: str) -> "ElementList":
         """
@@ -271,8 +280,12 @@ class ElementList(Iterable):
         """
         new_indexes: Set[int] = set()
         for section_str in section_strs:
-            section = self.document.sectioning.sections_dict[section_str]
-            new_indexes |= set([element.index for element in section.elements])
+            try:
+                section = self.document.sectioning.sections_dict[section_str]
+                new_indexes |= set(element.index for element in section.elements)
+            except SectionNotFoundError:
+                # This section doesn't exist. That's fine, keep checking the other ones.
+                pass
         return self.__intersect_indexes_with_self(new_indexes)
 
     def ignore_elements(self) -> None:
@@ -730,7 +743,7 @@ class ElementList(Iterable):
             ElementList: A new list without the elements.
         """
         return ElementList(
-            self.document, self.indexes - set([element.index for element in elements])
+            self.document, self.indexes - set(element.index for element in elements)
         )
 
     def __intersect_indexes_with_self(self, new_indexes: Set[int]) -> "ElementList":

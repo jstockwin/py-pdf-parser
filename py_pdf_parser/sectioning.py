@@ -1,8 +1,9 @@
-from typing import Dict, ValuesView, TYPE_CHECKING
+from typing import Dict, List, ValuesView, TYPE_CHECKING
 
 from collections import defaultdict
 
 from .filtering import ElementList
+from .exceptions import InvalidSectionError, SectionNotFoundError
 
 if TYPE_CHECKING:
     from .components import PDFDocument, PDFElement
@@ -35,6 +36,8 @@ class Section:
     end_element: "PDFElement"
 
     def __init__(self, document, name, unique_name, start_element, end_element):
+        if start_element.index > end_element.index:
+            raise InvalidSectionError("end_element must come after start_element")
         self.document = document
         self.name = name
         self.unique_name = unique_name
@@ -89,7 +92,11 @@ class Sectioning:
         self.document = document
 
     def create_section(
-        self, name: str, start_element: "PDFElement", end_element: "PDFElement"
+        self,
+        name: str,
+        start_element: "PDFElement",
+        end_element: "PDFElement",
+        include_last_element: bool = True,
     ):
         """
         Creates a new section with the specified name.
@@ -102,17 +109,55 @@ class Sectioning:
             name (str): The name of the new section.
             start_element (PDFElement): The first element in the section.
             end_element (PDFElement): The last element in the section.
+            include_last_element (bool): Whether the end_element should be included in
+                the section, or only the elements which are strictly before the end
+                element. Default: True (i.e. include end_element).
 
         Returns:
             Section: The created section.
+
+        Raises:
+            InvalidSectionError: If a the created section would be invalid. This is
+                usually because the end_element comes after the start element.
         """
         current_count = self.name_counts[name]
         unique_name = f"{name}_{current_count}"
         self.name_counts[name] += 1
 
+        if not include_last_element:
+            if end_element.index == 0:
+                raise InvalidSectionError(
+                    "Section would contain no elements as end_element is the first "
+                    "element in the document and include_last_element is False"
+                )
+            # We simply drop the index by one to get the element before
+            end_element = self.document.element_list[end_element.index - 1]
         section = Section(self.document, name, unique_name, start_element, end_element)
         self.sections_dict[unique_name] = section
         return section
+
+    def get_sections_with_name(self, name: str) -> List[Section]:
+        """
+        Returns a list of all sections with the given name.
+        """
+        return [
+            self.sections_dict[f"{name}_{idx}"]
+            for idx in range(0, self.name_counts[name])
+        ]
+
+    def get_section(self, unique_name: str) -> Section:
+        """
+        Returns the section with the given unique name.
+
+        Raises:
+            SectionNotFoundError: If there is no section with the given unique_name.
+        """
+        try:
+            return self.sections_dict[unique_name]
+        except KeyError as err:
+            raise SectionNotFoundError(
+                f"Could not find section with name {unique_name}"
+            ) from err
 
     @property
     def sections(self) -> ValuesView[Section]:
