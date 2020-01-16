@@ -87,21 +87,29 @@ class PDFVisualiser:
             self._ax.set_xlim([0, page.width])
             self._ax.set_ylim([0, page.height])
 
-        for element in self.elements.filter_by_page(self.current_page):
-            style = STYLES["untagged"]
-            if element.ignored:
-                style = STYLES["ignored"]
-            elif element.tags:
-                style = STYLES["tagged"]
-            bbox = element.bounding_box
-            rect = matplotlib.patches.Rectangle(
-                (bbox.x0, bbox.y0), bbox.width, bbox.height, **style
-            )
+        page = self.document.get_page(self.current_page)
+        for element in page.elements:
+            style = STYLES["tagged"] if element.tags else STYLES["untagged"]
+            self.__plot_element(element, style)
 
-            # Draw rectangle
-            self._ax.add_patch(rect)
+        # We'd like to draw greyed out rectangles around the ignored elements, but these
+        # are excluded from ElementLists, so we need to do this manually.
+        page_indexes = set(
+            range(page.start_element._index, page.end_element._index + 1)
+        )
+        ignored_indexes_on_page = page_indexes & self.document.ignored_indexes
+        for index in ignored_indexes_on_page:
+            element = self.document.element_list[index]
+            self.__plot_element(element, STYLES["ignored"])
 
         self._ax.format_coord = self.__get_annotations
+
+    def __plot_element(self, element, style):
+        bbox = element.bounding_box
+        rect = matplotlib.patches.Rectangle(
+            (bbox.x0, bbox.y0), bbox.width, bbox.height, **style
+        )
+        self._ax.add_patch(rect)
 
     def __setup_toolbar(self):
         fig_manager = plt.get_current_fig_manager()
