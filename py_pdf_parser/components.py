@@ -74,10 +74,8 @@ class PDFElement:
     Args:
         document (PDFDocument): A reference to the `PDFDocument.
         element (LTComponent): A PDF Miner LTComponent.
-        index (int): The index of the element within the document. This is intended for
-            internal use only.
+        index (int): The index of the element within the document.
         page_number (int): The page number that the element is on.
-        font_mapping (dict, optional): See the `PDFDocument` documentation.
 
     Attributes:
         original_element (LTComponent): A reference to the original PDF Miner element.
@@ -89,9 +87,9 @@ class PDFElement:
     original_element: "LTComponent"
     tags: Set[str]
     bounding_box: BoundingBox
+    _index: int
     __font_name: Optional[str] = None
     __font_size: Optional[int] = None
-    __index: int
     __page_number: int
 
     def __init__(
@@ -103,7 +101,7 @@ class PDFElement:
     ):
         self.document = document
         self.original_element = element
-        self.__index = index
+        self._index = index
         self.__page_number = page_number
 
         self.tags = set()
@@ -111,16 +109,6 @@ class PDFElement:
         self.bounding_box = BoundingBox(
             x0=element.x0, x1=element.x1, y0=element.y0, y1=element.y1
         )
-
-    @property
-    def index(self) -> int:
-        """
-        The index of the element in the document, for internal use only.
-
-        Returns:
-            int: The index of the element.
-        """
-        return self.__index
 
     @property
     def page_number(self) -> int:
@@ -198,14 +186,14 @@ class PDFElement:
             str: The font of the element.
         """
         font = f"{self.font_name},{self.font_size}"
-        return self.document.font_mapping.get(font, font)
+        return self.document._font_mapping.get(font, font)
 
     @property
     def ignored(self) -> bool:
         """
         A flag specifying whether the element has been ignored.
         """
-        return self.index in self.document.ignored_indexes
+        return self._index in self.document.ignored_indexes
 
     @property
     def text(self) -> str:
@@ -254,7 +242,7 @@ class PDFElement:
         Note that this includes calling any new filter functions on an existing
         `ElementList`, since doing so always returns a new `ElementList`.
         """
-        self.document.ignored_indexes.add(self.index)
+        self.document.ignored_indexes.add(self._index)
 
     def partially_within(self, bounding_box: BoundingBox) -> bool:
         """
@@ -324,7 +312,7 @@ class PDFDocument:
     number_of_pages: int
     pdf_file_path: Optional[str]
     sectioning: "Sectioning"
-    __font_mapping: Dict[str, str]
+    _font_mapping: Dict[str, str]
     __pages: Dict[int, PDFPage]
 
     def __init__(
@@ -337,7 +325,7 @@ class PDFDocument:
         self.__pages = {}
         self.sectioning = Sectioning(self)
         self.ignored_indexes = set()
-        self.__font_mapping = font_mapping if font_mapping is not None else {}
+        self._font_mapping = font_mapping if font_mapping is not None else {}
         idx = 0
         for page_number, page in sorted(pages.items()):
             first_element = None
@@ -376,13 +364,6 @@ class PDFDocument:
             ElementList: All elements in the document.
         """
         return ElementList(self)
-
-    @property
-    def font_mapping(self) -> Dict[str, str]:
-        """
-        The font mapping in use by this document.
-        """
-        return self.__font_mapping
 
     @property
     def pages(self) -> List["PDFPage"]:
