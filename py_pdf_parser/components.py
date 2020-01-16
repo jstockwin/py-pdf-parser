@@ -384,5 +384,5 @@ class PDFDocument:
         """
         try:
             return self.__pages[page_number]
-        except KeyError:
-            raise PageNotFoundError(f"Could not find page {page_number}")
+        except KeyError as err:
+            raise PageNotFoundError(f"Could not find page {page_number}") from err
