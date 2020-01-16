@@ -36,7 +36,7 @@ class Section:
     end_element: "PDFElement"
 
     def __init__(self, document, name, unique_name, start_element, end_element):
-        if start_element.index > end_element.index:
+        if start_element._index > end_element._index:
             raise InvalidSectionError("end_element must come after start_element")
         self.document = document
         self.name = name
@@ -125,13 +125,13 @@ class Sectioning:
         self.name_counts[name] += 1
 
         if not include_last_element:
-            if end_element.index == 0:
+            if end_element._index == 0:
                 raise InvalidSectionError(
                     "Section would contain no elements as end_element is the first "
                     "element in the document and include_last_element is False"
                 )
             # We simply drop the index by one to get the element before
-            end_element = self.document.element_list[end_element.index - 1]
+            end_element = self.document.element_list[end_element._index - 1]
         section = Section(self.document, name, unique_name, start_element, end_element)
         self.sections_dict[unique_name] = section
         return section
