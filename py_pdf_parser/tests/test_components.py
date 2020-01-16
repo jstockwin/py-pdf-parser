@@ -180,13 +180,13 @@ class TestPDFDocument(BaseTestCase):
             el_page_2_bottom_right,
         ]
         self.assertEqual(
-            [elem.original_element for elem in document.element_list],
+            [elem.original_element for elem in document._element_list],
             expected_ordered_list,
         )
 
         # Checks indexes were assigned properly
         self.assertEqual(
-            [elem._index for elem in document.element_list], [0, 1, 2, 3, 4, 5, 6, 7]
+            [elem._index for elem in document._element_list], [0, 1, 2, 3, 4, 5, 6, 7]
         )
 
         # Checks number of pages is correct
@@ -194,7 +194,7 @@ class TestPDFDocument(BaseTestCase):
 
         # Checks pages were assigned properly
         self.assertEqual(
-            [elem.page_number for elem in document.element_list],
+            [elem.page_number for elem in document._element_list],
             [1, 1, 1, 1, 2, 2, 2, 2],
         )
 

@@ -24,7 +24,7 @@ class ElementIterator(Iterator):
 
     def __next__(self):
         index = next(self.indexes)
-        return self.document.element_list[index]
+        return self.document._element_list[index]
 
 
 class ElementList(Iterable):
@@ -80,8 +80,8 @@ class ElementList(Iterable):
         if indexes is not None:
             self.indexes = frozenset(indexes)
         else:
-            self.indexes = frozenset(range(0, len(document.element_list)))
-        self.indexes = self.indexes - self.document.ignored_indexes
+            self.indexes = frozenset(range(0, len(document._element_list)))
+        self.indexes = self.indexes - self.document._ignored_indexes
 
     def add_tag_to_elements(self, tag: str) -> None:
         """
@@ -328,7 +328,7 @@ class ElementList(Iterable):
         """
         Marks all the elements in the ElementList as ignored.
         """
-        self.document.ignored_indexes = self.document.ignored_indexes.union(
+        self.document._ignored_indexes = self.document._ignored_indexes.union(
             self.indexes
         )
 
@@ -716,7 +716,7 @@ class ElementList(Iterable):
                 f"There are {len(self.indexes)} elements in the ElementList"
             )
 
-        return self.document.element_list[list(self.indexes)[0]]
+        return self.document._element_list[list(self.indexes)[0]]
 
     def add_element(self, element: "PDFElement") -> "ElementList":
         """
@@ -811,7 +811,7 @@ class ElementList(Iterable):
         left-to-right, top-to-bottom (the same you you read).
         """
         element_index = sorted(self.indexes)[index]
-        return self.document.element_list[element_index]
+        return self.document._element_list[element_index]
 
     def __eq__(self, other: object) -> bool:
         """
