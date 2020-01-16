@@ -108,6 +108,51 @@ class TestTables(BaseTestCase):
         with self.assertRaises(TableExtractionError):
             result = extract_table(elem_list)
 
+    def test_extract_table_from_different_pages(self):
+        # Checks that simple 2*2 tables are correctly extracted from different pages
+        #
+        # Page 1:
+        #       elem_p1_1      elem_p1_2
+        #       elem_p1_3      elem_p1_4
+        #
+        # Page 2:
+        #       elem_p2_1      elem_p2_2
+        #       elem_p2_3      elem_p2_4
+        #
+        elem_p1_1 = FakePDFMinerTextElement(bounding_box=BoundingBox(0, 5, 6, 10))
+        elem_p1_2 = FakePDFMinerTextElement(bounding_box=BoundingBox(6, 10, 6, 10))
+        elem_p1_3 = FakePDFMinerTextElement(bounding_box=BoundingBox(0, 5, 0, 5))
+        elem_p1_4 = FakePDFMinerTextElement(bounding_box=BoundingBox(6, 10, 0, 5))
+
+        elem_p2_1 = FakePDFMinerTextElement(bounding_box=BoundingBox(0, 5, 6, 10))
+        elem_p2_2 = FakePDFMinerTextElement(bounding_box=BoundingBox(6, 10, 6, 10))
+        elem_p2_3 = FakePDFMinerTextElement(bounding_box=BoundingBox(0, 5, 0, 5))
+        elem_p2_4 = FakePDFMinerTextElement(bounding_box=BoundingBox(6, 10, 0, 5))
+
+        document = create_pdf_document(
+            elements={
+                1: [elem_p1_1, elem_p1_2, elem_p1_3, elem_p1_4],
+                2: [elem_p2_1, elem_p2_2, elem_p2_3, elem_p2_4],
+            }
+        )
+        elem_list = document.elements
+
+        result = extract_table(elem_list)
+        self.assertEqual(len(result), 4)
+        self.assertEqual(len(result[0]), 2)
+        self.assertEqual(len(result[1]), 2)
+        self.assertEqual(len(result[2]), 2)
+        self.assertEqual(len(result[3]), 2)
+        self.assert_original_element_list_list_equal(
+            [
+                [elem_p1_1, elem_p1_2],
+                [elem_p1_3, elem_p1_4],
+                [elem_p2_1, elem_p2_2],
+                [elem_p2_3, elem_p2_4],
+            ],
+            result,
+        )
+
     def test_extract_text_from_simple_table(self):
         # Checks that text from simple 2*2 table is correctly extracted
         #
