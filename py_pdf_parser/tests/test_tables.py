@@ -184,7 +184,7 @@ class TestTables(BaseTestCase):
             [["fake_text_1", "fake_text_2"], ["fake_text_3", "fake_text_4"]], result
         )
 
-        result = extract_simple_table(elem_list, as_text=True, stripped=False)
+        result = extract_simple_table(elem_list, as_text=True, strip_text=False)
         self.assertListEqual(
             [["fake_text_1", "fake_text_2"], ["fake_text_3", "fake_text_4 "]], result
         )
@@ -219,7 +219,7 @@ class TestTables(BaseTestCase):
             [["fake_text_1", "fake_text_2"], ["fake_text_3", "fake_text_4"]], result
         )
 
-        result = extract_table(elem_list, as_text=True, stripped=False)
+        result = extract_table(elem_list, as_text=True, strip_text=False)
         self.assertListEqual(
             [["fake_text_1", "fake_text_2"], ["fake_text_3", "fake_text_4 "]], result
         )
@@ -251,7 +251,7 @@ class TestTables(BaseTestCase):
             result,
         )
 
-        result = extract_table(elem_list, as_text=True, stripped=False)
+        result = extract_table(elem_list, as_text=True, strip_text=False)
         self.assertListEqual(
             [
                 ["fake_text_1", "fake_text_2", "", "fake_text_6"],
@@ -331,7 +331,7 @@ class TestTables(BaseTestCase):
         result = get_text_from_table([[element]])
         self.assertEqual(result, [["fake_text"]])
 
-        result = get_text_from_table([[element]], stripped=False)
+        result = get_text_from_table([[element]], strip_text=False)
         self.assertEqual(result, [[" fake_text "]])
 
         result = get_text_from_table([[None]])

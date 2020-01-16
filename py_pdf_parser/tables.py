@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 def extract_simple_table(
-    elements: "ElementList", as_text: bool = False, stripped: bool = True
+    elements: "ElementList", as_text: bool = False, strip_text: bool = True
 ) -> List[List]:
     """
     Returns elements structured as a table.
@@ -33,14 +33,15 @@ def extract_simple_table(
         elements (ElementList): A list of elements to extract into a table.
         as_text (bool, optional): Whether to extract the text from each element instead
             of the PDFElement itself. Default: False.
-        stripped (bool, optional): Whether to strip the text for each element of the
+        strip_text (bool, optional): Whether to strip the text for each element of the
                 table (Only relevant if as_text is True). Default: True.
 
     Raises:
         TableExtractionError: If something goes wrong.
 
     Returns:
-        list[list]: a list of rows, which are lists of PDFElements or strings.
+        list[list]: a list of rows, which are lists of PDFElements or strings
+            (depending on the value of as_text).
     """
     first_row = elements.to_the_right_of(elements[0], inclusive=True)
     first_column = elements.below(elements[0], inclusive=True)
@@ -56,7 +57,7 @@ def extract_simple_table(
                 row.append(element.extract_single_element())
             except NoElementFoundError as err:
                 raise TableExtractionError(
-                    "Element not found, there appears to be a gap in the table."
+                    "Element not found, there appears to be a gap in the table. "
                     "Please try extract_table() instead."
                 ) from err
         table.append(row)
@@ -70,14 +71,14 @@ def extract_simple_table(
         )
 
     if as_text:
-        return get_text_from_table(table, stripped=stripped)
+        return get_text_from_table(table, strip_text=strip_text)
 
     _validate_table_shape(table)
     return table
 
 
 def extract_table(
-    elements: "ElementList", as_text: bool = False, stripped: bool = True
+    elements: "ElementList", as_text: bool = False, strip_text: bool = True
 ) -> List[List]:
     """
     Returns elements structured as a table.
@@ -94,14 +95,15 @@ def extract_table(
         elements (ElementList): A list of elements to extract into a table.
         as_text (bool, optional): Whether to extract the text from each element instead
             of the PDFElement itself. Default: False.
-        stripped (bool, optional): Whether to strip the text for each element of the
+        strip_text (bool, optional): Whether to strip the text for each element of the
                 table (Only relevant if as_text is True). Default: True.
 
     Raises:
         TableExtractionError: If something goes wrong.
 
     Returns:
-        list[list]: a list of rows, which are lists of PDFElements or strings.
+        list[list]: a list of rows, which are lists of PDFElements or strings
+            (depending on the value of as_text).
     """
     table = []
     rows = set()
@@ -139,7 +141,7 @@ def extract_table(
         table.append(table_row)
 
     if as_text:
-        return get_text_from_table(table, stripped=stripped)
+        return get_text_from_table(table, strip_text=strip_text)
 
     _validate_table_shape(table)
     return table
@@ -200,14 +202,14 @@ def add_header_to_table(
 
 
 def get_text_from_table(
-    table: List[List[Optional["PDFElement"]]], stripped: bool = True
+    table: List[List[Optional["PDFElement"]]], strip_text: bool = True
 ) -> List[List[str]]:
     """
     Given a table (of PDFElements or None), returns a table (of element.text() or '').
 
     Args:
-        table: The table (a list of lists of strings).
-        stripped (bool, optional): Whether to strip the text for each element of the
+        table: The table (a list of lists of PDFElements).
+        strip_text (bool, optional): Whether to strip the text for each element of the
                 table. Default: True.
 
     Returns:
@@ -217,7 +219,7 @@ def get_text_from_table(
     new_table = []
     for row in table:
         new_row = [
-            element.text(stripped) if element is not None else "" for element in row
+            element.text(strip_text) if element is not None else "" for element in row
         ]
         new_table.append(new_row)
     return new_table

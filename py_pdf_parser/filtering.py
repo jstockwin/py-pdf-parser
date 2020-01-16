@@ -174,7 +174,7 @@ class ElementList(Iterable):
             ElementList: The filtered list.
         """
         new_indexes = set(
-            element.index
+            element._index
             for element in self
             if re.match(regex, element.text(stripped), flags=regex_flags)
         )
