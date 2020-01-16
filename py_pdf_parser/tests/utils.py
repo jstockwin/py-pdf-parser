@@ -1,4 +1,4 @@
-from typing import NamedTuple, Dict, List, Optional
+from typing import NamedTuple, Dict, List, Optional, Union
 
 from py_pdf_parser.components import PDFElement, PDFDocument
 from py_pdf_parser.sectioning import Section
@@ -81,15 +81,22 @@ def create_pdf_element(
 
 
 def create_pdf_document(
-    elements: List[LTComponent], font_mapping=None
+    elements: Union[List[LTComponent], Dict[int, List[LTComponent]]], font_mapping=None
 ) -> "PDFDocument":
     """
-    Creates a simple (all elements on first page) PDF document with the given elements
+    Creates a PDF document with the given elements.
+    "elements" can be a list of elements (in which case a document with a single page
+    will be created) or a dictionary mapping page number to its list of elements.
     """
-    return PDFDocument(
-        pages={1: Page(elements=elements, width=100, height=100)},
-        font_mapping=font_mapping,
-    )
+    if not isinstance(elements, dict):
+        pages = {1: Page(elements=elements, width=100, height=100)}
+    else:
+        pages = {
+            page_number: Page(elements=elements_list, width=100, height=100)
+            for page_number, elements_list in elements.items()
+        }
+
+    return PDFDocument(pages=pages, font_mapping=font_mapping)
 
 
 def create_section(
