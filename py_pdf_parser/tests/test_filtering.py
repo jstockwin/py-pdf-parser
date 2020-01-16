@@ -1,3 +1,5 @@
+import re
+
 from mock import patch, call
 
 from py_pdf_parser.components import PDFDocument, PDFElement
@@ -110,6 +112,42 @@ class TestFiltering(BaseTestCase):
         self.assert_original_element_in(
             elem3, doc.elements.filter_by_text_contains("foo")
         )
+
+    def test_filter_by_regex(self):
+        elem1 = FakePDFMinerTextElement(text="foo 1")
+        elem2 = FakePDFMinerTextElement(text="foo")
+        elem3 = FakePDFMinerTextElement(text="foo 987 ")
+        elem4 = FakePDFMinerTextElement(text=" Foo 100")
+        doc = create_pdf_document([elem1, elem2, elem3, elem4])
+
+        self.assertEqual(len(doc.elements.filter_by_regex(r"^\d+$")), 0)
+
+        filter_result = doc.elements.filter_by_regex(r"^foo \d+$")
+        self.assertEqual(len(filter_result), 2)
+        self.assert_original_element_in(elem1, filter_result)
+        self.assert_original_element_in(elem3, filter_result)
+
+        # Test with a regex flag to ignore the case
+        filter_result = doc.elements.filter_by_regex(
+            r"^foo \d+$", regex_flags=re.IGNORECASE
+        )
+        self.assertEqual(len(filter_result), 3)
+        self.assert_original_element_in(elem1, filter_result)
+        self.assert_original_element_in(elem3, filter_result)
+        self.assert_original_element_in(elem4, filter_result)
+
+        # Test with non stripped text
+        filter_result = doc.elements.filter_by_regex(r"^foo \d+$", stripped=False)
+        self.assertEqual(len(filter_result), 1)
+        self.assert_original_element_in(elem1, filter_result)
+
+        # Test with a regex flag to ignore the case and non stripped text, while giving
+        # a regex with an empty space
+        filter_result = doc.elements.filter_by_regex(
+            r"^ foo \d+$", regex_flags=re.IGNORECASE, stripped=False
+        )
+        self.assertEqual(len(filter_result), 1)
+        self.assert_original_element_in(elem4, filter_result)
 
     def test_filter_by_font(self):
         elem1 = FakePDFMinerTextElement(font_name="foo", font_size=2)
@@ -268,7 +306,7 @@ class TestFiltering(BaseTestCase):
     @patch.object(PDFElement, "partially_within", autospec=True)
     def test_to_the_right_of(self, partially_within_mock):
         partially_within_mock.side_effect = (
-            lambda self, bounding_box: self.text == "within"
+            lambda self, bounding_box: self.text() == "within"
         )
 
         elem1 = FakePDFMinerTextElement(
@@ -331,7 +369,7 @@ class TestFiltering(BaseTestCase):
     @patch.object(PDFElement, "partially_within", autospec=True)
     def test_to_the_left_of(self, partially_within_mock):
         partially_within_mock.side_effect = (
-            lambda self, bounding_box: self.text == "within"
+            lambda self, bounding_box: self.text() == "within"
         )
 
         elem1 = FakePDFMinerTextElement(
@@ -394,7 +432,7 @@ class TestFiltering(BaseTestCase):
     @patch.object(PDFElement, "partially_within", autospec=True)
     def test_below(self, partially_within_mock):
         partially_within_mock.side_effect = (
-            lambda self, bounding_box: self.text == "within"
+            lambda self, bounding_box: self.text() == "within"
         )
 
         elem1 = FakePDFMinerTextElement(text="within")
@@ -483,7 +521,7 @@ class TestFiltering(BaseTestCase):
     @patch.object(PDFElement, "partially_within", autospec=True)
     def test_above(self, partially_within_mock):
         partially_within_mock.side_effect = (
-            lambda self, bounding_box: self.text == "within"
+            lambda self, bounding_box: self.text() == "within"
         )
 
         elem1 = FakePDFMinerTextElement(text="within")
@@ -572,7 +610,7 @@ class TestFiltering(BaseTestCase):
     @patch.object(PDFElement, "partially_within", autospec=True)
     def test_vertically_in_line_with(self, partially_within_mock):
         partially_within_mock.side_effect = (
-            lambda self, bounding_box: self.text == "within"
+            lambda self, bounding_box: self.text() == "within"
         )
 
         elem1 = FakePDFMinerTextElement(text="within")
@@ -666,7 +704,7 @@ class TestFiltering(BaseTestCase):
     @patch.object(PDFElement, "partially_within", autospec=True)
     def test_horizontally_in_line_with(self, partially_within_mock):
         partially_within_mock.side_effect = (
-            lambda self, bounding_box: self.text == "within"
+            lambda self, bounding_box: self.text() == "within"
         )
 
         elem1 = FakePDFMinerTextElement(
@@ -729,7 +767,7 @@ class TestFiltering(BaseTestCase):
     @patch.object(PDFElement, "partially_within", autospec=True)
     def test_filter_partially_within_bounding_box(self, partially_within_mock):
         partially_within_mock.side_effect = (
-            lambda self, bounding_box: self.text == "within"
+            lambda self, bounding_box: self.text() == "within"
         )
 
         elem1 = FakePDFMinerTextElement(text="within")

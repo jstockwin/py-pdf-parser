@@ -14,7 +14,9 @@ if TYPE_CHECKING:
     from .components import PDFElement
 
 
-def extract_simple_table(elements: "ElementList") -> List[List[Optional["PDFElement"]]]:
+def extract_simple_table(
+    elements: "ElementList", as_text: bool = False, strip_text: bool = True
+) -> List[List]:
     """
     Returns elements structured as a table.
 
@@ -29,27 +31,35 @@ def extract_simple_table(elements: "ElementList") -> List[List[Optional["PDFElem
 
     Args:
         elements (ElementList): A list of elements to extract into a table.
+        as_text (bool, optional): Whether to extract the text from each element instead
+            of the PDFElement itself. Default: False.
+        strip_text (bool, optional): Whether to strip the text for each element of the
+                table (Only relevant if as_text is True). Default: True.
 
     Raises:
         TableExtractionError: If something goes wrong.
 
     Returns:
-        list[list[PDFElement]]: a list of rows, which are lists of PDFElements.
+        list[list]: a list of rows, which are lists of PDFElements or strings
+            (depending on the value of as_text).
     """
     first_row = elements.to_the_right_of(elements[0], inclusive=True)
     first_column = elements.below(elements[0], inclusive=True)
 
-    table: List[List[Optional["PDFElement"]]] = []
+    table: List[List] = []
     for left_hand_element in first_column:
-        row: List[Optional["PDFElement"]] = []
+        row: List = []
         for top_element in first_row:
             element = elements.to_the_right_of(left_hand_element, inclusive=True).below(
                 top_element, inclusive=True
             )
             try:
                 row.append(element.extract_single_element())
-            except NoElementFoundError:
-                row.append(None)
+            except NoElementFoundError as err:
+                raise TableExtractionError(
+                    "Element not found, there appears to be a gap in the table. "
+                    "Please try extract_table() instead."
+                ) from err
         table.append(row)
 
     table_size = sum(len(row) for row in table)
@@ -60,17 +70,22 @@ def extract_simple_table(elements: "ElementList") -> List[List[Optional["PDFElem
             "extract_simple_table."
         )
 
+    if as_text:
+        return get_text_from_table(table, strip_text=strip_text)
+
     _validate_table_shape(table)
     return table
 
 
-def extract_table(elements: "ElementList") -> List[List[Optional["PDFElement"]]]:
+def extract_table(
+    elements: "ElementList", as_text: bool = False, strip_text: bool = True
+) -> List[List]:
     """
     Returns elements structured as a table.
 
     Given an ElementList, tries to extract a structured table by examining which
     elements are aligned. There must be a clear gap between each row and between each
-    column which contains no elements, and a single cell cannot contian multiple
+    column which contains no elements, and a single cell cannot contain multiple
     elements.
 
     If you fail to satisfy any of the other conditions listed above, that case is not
@@ -78,12 +93,17 @@ def extract_table(elements: "ElementList") -> List[List[Optional["PDFElement"]]]
 
     Args:
         elements (ElementList): A list of elements to extract into a table.
+        as_text (bool, optional): Whether to extract the text from each element instead
+            of the PDFElement itself. Default: False.
+        strip_text (bool, optional): Whether to strip the text for each element of the
+                table (Only relevant if as_text is True). Default: True.
 
     Raises:
         TableExtractionError: If something goes wrong.
 
     Returns:
-        list[list[PDFElement]]: a list of rows, which are lists of PDFElements.
+        list[list]: a list of rows, which are lists of PDFElements or strings
+            (depending on the value of as_text).
     """
     table = []
     rows = set()
@@ -91,7 +111,7 @@ def extract_table(elements: "ElementList") -> List[List[Optional["PDFElement"]]]
     for element in elements:
         row = elements.horizontally_in_line_with(element, inclusive=True)
         rows.add(row)
-        col = elements.vertically_in_line_with(element, inclusive=True)
+        col = elements.vertically_in_line_with(element, inclusive=True, all_pages=True)
         cols.add(col)
 
     # Check no element is in multiple rows or columns
@@ -101,10 +121,13 @@ def extract_table(elements: "ElementList") -> List[List[Optional["PDFElement"]]]
         raise TableExtractionError("An element is in multiple columns")
 
     sorted_rows = sorted(
-        rows, key=lambda row: min([elem.bounding_box.y0 for elem in row]), reverse=True
+        rows,
+        key=lambda row: min(
+            (elem.page_number, -(elem.bounding_box.y0)) for elem in row
+        ),
     )
     sorted_cols = sorted(
-        cols, key=lambda col: min([elem.bounding_box.x0 for elem in col])
+        cols, key=lambda col: min(elem.bounding_box.x0 for elem in col)
     )
 
     for row in sorted_rows:
@@ -117,43 +140,11 @@ def extract_table(elements: "ElementList") -> List[List[Optional["PDFElement"]]]
             table_row.append(element)
         table.append(table_row)
 
+    if as_text:
+        return get_text_from_table(table, strip_text=strip_text)
+
     _validate_table_shape(table)
     return table
-
-
-def extract_text_from_simple_table(elements: "ElementList") -> List[List[str]]:
-    """
-    Given an ElementList, extracts a simple table (see `extract_simple_table`), but
-    instead of the table containing PDFElements, it will extract the text from each
-    element.
-
-    Args:
-        elements (ElementList): A list of elements to extract into a table.
-
-    Raises:
-        TableExtractionError: If something goes wrong.
-
-    Returns:
-        list[list[str]]: a list of rows, which are lists of text.
-    """
-    return _extract_text_from_table(extract_simple_table(elements))
-
-
-def extract_text_from_table(elements: "ElementList") -> List[List[str]]:
-    """
-    Given an ElementList, extracts a simple table (see `extract_table`), but instead of
-    the table containing PDFElements, it will extract the text from each element.
-
-    Args:
-        elements (ElementList): A list of elements to extract into a table.
-
-    Raises:
-        TableExtractionError: If something goes wrong.
-
-    Returns:
-        list[list[str]]: a list of rows, which are lists of text.
-    """
-    return _extract_text_from_table(extract_table(elements))
 
 
 def add_header_to_table(
@@ -210,16 +201,26 @@ def add_header_to_table(
     return new_table
 
 
-def _extract_text_from_table(
-    table: List[List[Optional["PDFElement"]]],
+def get_text_from_table(
+    table: List[List[Optional["PDFElement"]]], strip_text: bool = True
 ) -> List[List[str]]:
     """
-    Given a table (of PDFElements or None), returns a table (of element.text or '').
+    Given a table (of PDFElements or None), returns a table (of element.text() or '').
+
+    Args:
+        table: The table (a list of lists of PDFElements).
+        strip_text (bool, optional): Whether to strip the text for each element of the
+                table. Default: True.
+
+    Returns:
+        list[list[str]]: a list of rows, which are lists of strings.
     """
     _validate_table_shape(table)
     new_table = []
     for row in table:
-        new_row = [element.text if element is not None else "" for element in row]
+        new_row = [
+            element.text(strip_text) if element is not None else "" for element in row
+        ]
         new_table.append(new_row)
     return new_table
 
