@@ -154,10 +154,10 @@ class Sectioning:
         """
         try:
             return self.sections_dict[unique_name]
-        except KeyError:
+        except KeyError as err:
             raise SectionNotFoundError(
                 f"Could not find section with name {unique_name}"
-            )
+            ) from err
 
     @property
     def sections(self) -> ValuesView[Section]:
