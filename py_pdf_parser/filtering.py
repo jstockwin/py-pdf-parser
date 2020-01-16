@@ -101,7 +101,7 @@ class ElementList(Iterable):
         Returns:
             ElementList: The filtered list.
         """
-        new_indexes = set(element.index for element in self if tag in element.tags)
+        new_indexes = set(element._index for element in self if tag in element.tags)
         return ElementList(self.document, new_indexes)
 
     def filter_by_tags(self, *tags: str) -> "ElementList":
@@ -115,7 +115,7 @@ class ElementList(Iterable):
             ElementList: The filtered list.
         """
         new_indexes = set(
-            element.index
+            element._index
             for element in self
             if any(tag in element.tags for tag in tags)
         )
@@ -135,10 +135,12 @@ class ElementList(Iterable):
         """
         if stripped:
             new_indexes = set(
-                element.index for element in self if element.text.strip() == text
+                element._index for element in self if element.text.strip() == text
             )
         else:
-            new_indexes = set(element.index for element in self if element.text == text)
+            new_indexes = set(
+                element._index for element in self if element.text == text
+            )
 
         return ElementList(self.document, new_indexes)
 
@@ -152,7 +154,7 @@ class ElementList(Iterable):
         Returns:
             ElementList: The filtered list.
         """
-        new_indexes = set(element.index for element in self if text in element.text)
+        new_indexes = set(element._index for element in self if text in element.text)
         return ElementList(self.document, new_indexes)
 
     def filter_by_font(self, font: str) -> "ElementList":
@@ -165,7 +167,7 @@ class ElementList(Iterable):
         Returns:
             ElementList: The filtered list.
         """
-        new_indexes = set(element.index for element in self if element.font == font)
+        new_indexes = set(element._index for element in self if element.font == font)
         return ElementList(self.document, new_indexes)
 
     def filter_by_fonts(self, *fonts: str) -> "ElementList":
@@ -178,7 +180,7 @@ class ElementList(Iterable):
         Returns:
             ElementList: The filtered list.
         """
-        new_indexes = set(element.index for element in self if element.font in fonts)
+        new_indexes = set(element._index for element in self if element.font in fonts)
         return ElementList(self.document, new_indexes)
 
     def filter_by_page(self, page_number: int) -> "ElementList":
@@ -192,7 +194,7 @@ class ElementList(Iterable):
             ElementList: The filtered list.
         """
         page = self.document.get_page(page_number)
-        new_indexes = set(element.index for element in page.elements)
+        new_indexes = set(element._index for element in page.elements)
         return self.__intersect_indexes_with_self(new_indexes)
 
     def filter_by_pages(self, *page_numbers: int) -> "ElementList":
@@ -208,7 +210,7 @@ class ElementList(Iterable):
         new_indexes: Set[int] = set()
         for page_number in page_numbers:
             page = self.document.get_page(page_number)
-            new_indexes |= set(element.index for element in page.elements)
+            new_indexes |= set(element._index for element in page.elements)
         return self.__intersect_indexes_with_self(new_indexes)
 
     def filter_by_section_name(self, section_name: str) -> "ElementList":
@@ -225,7 +227,7 @@ class ElementList(Iterable):
         """
         new_indexes: Set[int] = set()
         for section in self.document.sectioning.get_sections_with_name(section_name):
-            new_indexes |= set(element.index for element in section.elements)
+            new_indexes |= set(element._index for element in section.elements)
         return self.__intersect_indexes_with_self(new_indexes)
 
     def filter_by_section_names(self, *section_names: str) -> "ElementList":
@@ -245,7 +247,7 @@ class ElementList(Iterable):
             for section in self.document.sectioning.get_sections_with_name(
                 section_name
             ):
-                new_indexes |= set(element.index for element in section.elements)
+                new_indexes |= set(element._index for element in section.elements)
         return self.__intersect_indexes_with_self(new_indexes)
 
     def filter_by_section(self, section_str: str) -> "ElementList":
@@ -266,7 +268,7 @@ class ElementList(Iterable):
         """
         try:
             section = self.document.sectioning.get_section(section_str)
-            new_indexes = set(element.index for element in section.elements)
+            new_indexes = set(element._index for element in section.elements)
             return self.__intersect_indexes_with_self(new_indexes)
         except SectionNotFoundError:
             # Section doesn't exist - return empty ElementList.
@@ -292,7 +294,7 @@ class ElementList(Iterable):
         for section_str in section_strs:
             try:
                 section = self.document.sectioning.sections_dict[section_str]
-                new_indexes |= set(element.index for element in section.elements)
+                new_indexes |= set(element._index for element in section.elements)
             except SectionNotFoundError:
                 # This section doesn't exist. That's fine, keep checking the other ones.
                 pass
@@ -596,7 +598,7 @@ class ElementList(Iterable):
         new_indexes: Set[int] = set()
         for elem in self.filter_by_page(page_number):
             if elem.partially_within(bounding_box):
-                new_indexes.add(elem.index)
+                new_indexes.add(elem._index)
         return self.__intersect_indexes_with_self(new_indexes)
 
     def before(self, element: "PDFElement", inclusive: bool = False) -> "ElementList":
@@ -614,9 +616,9 @@ class ElementList(Iterable):
         Returns:
             ElementList: The filtered list.
         """
-        new_indexes = set(range(0, element.index))
+        new_indexes = set(range(0, element._index))
         if inclusive:
-            new_indexes.add(element.index)
+            new_indexes.add(element._index)
         return self.__intersect_indexes_with_self(new_indexes)
 
     def after(self, element: "PDFElement", inclusive: bool = False) -> "ElementList":
@@ -634,9 +636,9 @@ class ElementList(Iterable):
         Returns:
             ElementList: The filtered list.
         """
-        new_indexes = set(range(element.index + 1, max(self.indexes) + 1))
+        new_indexes = set(range(element._index + 1, max(self.indexes) + 1))
         if inclusive:
-            new_indexes.add(element.index)
+            new_indexes.add(element._index)
         return self.__intersect_indexes_with_self(new_indexes)
 
     def between(
@@ -663,9 +665,9 @@ class ElementList(Iterable):
         Returns:
             ElementList: The filtered list.
         """
-        new_indexes = set(range(start_element.index + 1, end_element.index))
+        new_indexes = set(range(start_element._index + 1, end_element._index))
         if inclusive:
-            new_indexes = new_indexes.union([start_element.index, end_element.index])
+            new_indexes = new_indexes.union([start_element._index, end_element._index])
         return self.__intersect_indexes_with_self(new_indexes)
 
     def extract_single_element(self) -> "PDFElement":
@@ -705,7 +707,7 @@ class ElementList(Iterable):
         Returns:
             ElementList: A new list with the additional element.
         """
-        return ElementList(self.document, self.indexes | set([element.index]))
+        return ElementList(self.document, self.indexes | set([element._index]))
 
     def add_elements(self, *elements: "PDFElement") -> "ElementList":
         """
@@ -721,7 +723,7 @@ class ElementList(Iterable):
             ElementList: A new list with the additional elements.
         """
         return ElementList(
-            self.document, self.indexes | set([element.index for element in elements])
+            self.document, self.indexes | set([element._index for element in elements])
         )
 
     def remove_element(self, element: "PDFElement") -> "ElementList":
@@ -737,7 +739,7 @@ class ElementList(Iterable):
         Returns:
             ElementList: A new list without the element.
         """
-        return ElementList(self.document, self.indexes - set([element.index]))
+        return ElementList(self.document, self.indexes - set([element._index]))
 
     def remove_elements(self, *elements: "PDFElement") -> "ElementList":
         """
@@ -753,7 +755,7 @@ class ElementList(Iterable):
             ElementList: A new list without the elements.
         """
         return ElementList(
-            self.document, self.indexes - set(element.index for element in elements)
+            self.document, self.indexes - set(element._index for element in elements)
         )
 
     def __intersect_indexes_with_self(self, new_indexes: Set[int]) -> "ElementList":
@@ -772,7 +774,7 @@ class ElementList(Iterable):
         """
         Returns True if the element is in the ElementList, otherwise False.
         """
-        return element.index in self.indexes
+        return element._index in self.indexes
 
     def __repr__(self):
         return f"<ElementList of {len(self.indexes)} elements>"
