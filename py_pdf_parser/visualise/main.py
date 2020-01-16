@@ -44,9 +44,9 @@ class PDFVisualiser:
         current_page: int = 1,
         elements: "ElementList" = None,
     ):
-        if not document.pdf_file_path:
+        if not document._pdf_file_path:
             logger.warning(
-                "PDFDocument does not have pdf_file_path set and so we cannot "
+                "PDFDocument does not initialised with pdf_file_path and so we cannot "
                 "add the PDF background for visualisation. Please use load_file "
                 "instead of load, or specify pdf_file_path manually"
             )
@@ -73,9 +73,9 @@ class PDFVisualiser:
 
         # draw PDF image as background
         page = self.document.get_page(self.current_page)
-        if self.document.pdf_file_path is not None:
+        if self.document._pdf_file_path is not None:
             background = get_pdf_background(
-                self.document.pdf_file_path, self.current_page
+                self.document._pdf_file_path, self.current_page
             )
             plt.imshow(
                 background,
@@ -97,9 +97,9 @@ class PDFVisualiser:
         page_indexes = set(
             range(page.start_element._index, page.end_element._index + 1)
         )
-        ignored_indexes_on_page = page_indexes & self.document.ignored_indexes
+        ignored_indexes_on_page = page_indexes & self.document._ignored_indexes
         for index in ignored_indexes_on_page:
-            element = self.document.element_list[index]
+            element = self.document._element_list[index]
             self.__plot_element(element, STYLES["ignored"])
 
         self._ax.format_coord = self.__get_annotations
@@ -189,8 +189,8 @@ def visualise(
 
     Warning:
         In order to show you the actual PDF behind the elements, your document
-        must have pdf_file_path set, and your PDF must be at the given path. If this is
-        not set, the background will be white.
+        must be initialised with pdf_file_path, and your PDF must be at the given path.
+        If this is not done, the background will be white.
 
     Args:
         document (PDFDocument): The pdf document to visualise.
