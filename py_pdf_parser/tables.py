@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, List, Dict, Optional
+from typing import TYPE_CHECKING, Any, List, Set, Dict, Optional
 
 from itertools import chain
 
@@ -78,7 +78,11 @@ def extract_simple_table(
 
 
 def extract_table(
-    elements: "ElementList", as_text: bool = False, strip_text: bool = True
+    elements: "ElementList",
+    as_text: bool = False,
+    strip_text: bool = True,
+    fix_element_in_multiple_rows: bool = False,
+    fix_element_in_multiple_cols: bool = False,
 ) -> List[List]:
     """
     Returns elements structured as a table.
@@ -96,7 +100,17 @@ def extract_table(
         as_text (bool, optional): Whether to extract the text from each element instead
             of the PDFElement itself. Default: False.
         strip_text (bool, optional): Whether to strip the text for each element of the
-                table (Only relevant if as_text is True). Default: True.
+            table (Only relevant if as_text is True). Default: True.
+        fix_element_in_multiple_rows (bool, optional): If a table element is in line
+            with elements in multiple rows, a TableExtractionError will be raised unless
+            this argument is set to True. When True, any elements detected in multiple
+            rows will be placed into the first row. This is only recommended if you
+            expect this to be the case in your table. Default: False.
+        fix_element_in_multiple_cols (bool, optional): If a table element is in line
+            with elements in multiple cols, a TableExtractionError will be raised unless
+            this argument is set to True. When True, any elements detected in multiple
+            cols will be placed into the first col. This is only recommended if you
+            expect this to be the case in your table. Default: False.
 
     Raises:
         TableExtractionError: If something goes wrong.
@@ -115,6 +129,10 @@ def extract_table(
         cols.add(col)
 
     # Check no element is in multiple rows or columns
+    if fix_element_in_multiple_rows:
+        _fix_rows(rows, elements)
+    if fix_element_in_multiple_cols:
+        _fix_cols(cols, elements)
     if sum([len(row) for row in rows]) != len(set(chain.from_iterable(rows))):
         raise TableExtractionError("An element is in multiple rows")
     if sum([len(col) for col in cols]) != len(set(chain.from_iterable(cols))):
@@ -122,12 +140,13 @@ def extract_table(
 
     sorted_rows = sorted(
         rows,
-        key=lambda row: min(
-            (elem.page_number, -(elem.bounding_box.y0)) for elem in row
+        key=lambda row: (
+            row[0].page_number,
+            max(-(elem.bounding_box.y1) for elem in row),
         ),
     )
     sorted_cols = sorted(
-        cols, key=lambda col: min(elem.bounding_box.x0 for elem in col)
+        cols, key=lambda col: max(elem.bounding_box.x0 for elem in col)
     )
 
     for row in sorted_rows:
@@ -238,3 +257,79 @@ def _validate_table_shape(table: List[List[Any]]):
                 f"Table not rectangular, row 0 has {first_row_len} elements but row "
                 f"{idx + 1} has {len(row)}."
             )
+
+
+def _fix_rows(rows: Set["ElementList"], elements) -> None:
+    """
+    Sometimes an element may span over multiple rows. For example:
+    ---------
+    | A | B |
+    ----|   |
+    | C |   |
+    ---------
+    In this, case, when extract_table scans for element in line with A it will pick up
+    A and B. When it scans B it will get A, B and C, and when it scans C it will get B
+    and C. This results in three distinct rows, AB, ABC, BC. This function will fix
+    this by putting any merged cells into the top row, resulting in one row AB and the
+    other with just C.
+
+    To do this, we check which element is in multiple rows, get which rows it is in,
+    and then remove it from the lower rows. This should fix the problem. It can result
+    in empty rows (since in my example we begin with 3 'rows' when there are only
+    really 2), but these can simply be removed.
+    """
+    if sum([len(row) for row in rows]) == len(set(chain.from_iterable(rows))):
+        # No elements are in multiple rows, return.
+        return
+
+    for element in elements:
+        num_rows = sum(element in row for row in rows)
+        if num_rows == 1:
+            continue
+        # If we reach here, we've found an element in multiple rows.
+
+        rows_with_element = [row for row in rows if element in row]
+        sorted_rows_with_element = sorted(
+            rows_with_element,
+            key=lambda row: (
+                row[0].page_number,
+                max(-(elem.bounding_box.y1) for elem in row),
+            ),
+        )
+        # Remove the element from all but the first row.
+        for row in sorted_rows_with_element[1:]:
+            rows.remove(row)
+            new_row = row.remove_element(element)
+            if new_row:
+                rows.add(new_row)
+
+
+def _fix_cols(cols: Set["ElementList"], elements) -> None:
+    """
+    The same as _fix_rows, but when an element is in multiple columns, for example
+    ---------
+    | A | B |
+    --------|
+    |   C   |
+    ---------
+    """
+    if sum([len(col) for col in cols]) == len(set(chain.from_iterable(cols))):
+        # No elements are in multiple cols, return.
+        return
+    for element in elements:
+        num_cols = sum(element in col for col in cols)
+        if num_cols == 1:
+            continue
+        # If we reach here, we've found an element in multiple cols.
+
+        cols_with_element = [col for col in cols if element in col]
+        sorted_cols_with_element = sorted(
+            cols_with_element, key=lambda col: max(elem.bounding_box.x0 for elem in col)
+        )
+        # Remove the element from all but the first col.
+        for col in sorted_cols_with_element[1:]:
+            cols.remove(col)
+            new_col = col.remove_element(element)
+            if new_col:
+                cols.add(new_col)
+    return
