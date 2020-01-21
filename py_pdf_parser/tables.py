@@ -259,7 +259,7 @@ def _validate_table_shape(table: List[List[Any]]):
             )
 
 
-def _fix_rows(rows: Set["ElementList"], elements) -> None:
+def _fix_rows(rows: Set["ElementList"], elements: "ElementList") -> None:
     """
     Sometimes an element may span over multiple rows. For example:
     ---------
@@ -304,7 +304,7 @@ def _fix_rows(rows: Set["ElementList"], elements) -> None:
                 rows.add(new_row)
 
 
-def _fix_cols(cols: Set["ElementList"], elements) -> None:
+def _fix_cols(cols: Set["ElementList"], elements: "ElementList") -> None:
     """
     The same as _fix_rows, but when an element is in multiple columns, for example
     ---------
