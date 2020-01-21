@@ -325,6 +325,74 @@ class TestTables(BaseTestCase):
         with self.assertRaises(InvalidTableHeaderError):
             result = add_header_to_table(table, header=too_small_fake_header)
 
+    def test_fix_element_in_multiple_rows(self):
+        # Checks that the following table is correctly extracted:
+        # ---------
+        # | 1 | 2 |
+        # ----|   |
+        # | 3 |   |
+        # ---------
+
+        elem_1 = FakePDFMinerTextElement(
+            bounding_box=BoundingBox(0, 5, 6, 10), text="fake_text_1"
+        )
+        elem_2 = FakePDFMinerTextElement(
+            bounding_box=BoundingBox(6, 10, 0, 10), text="fake_text_2"
+        )
+        elem_3 = FakePDFMinerTextElement(
+            bounding_box=BoundingBox(0, 5, 0, 5), text="fake_text_3"
+        )
+
+        document = create_pdf_document(elements=[elem_1, elem_2, elem_3])
+        elem_list = document.elements
+
+        with self.assertRaises(TableExtractionError):
+            result = extract_table(elem_list, as_text=True)
+
+        result = extract_table(
+            elem_list, as_text=True, fix_element_in_multiple_rows=True
+        )
+        self.assertEqual(len(result), 2)
+        self.assertEqual(len(result[0]), 2)
+        self.assertEqual(len(result[1]), 2)
+        self.assertListEqual(
+            [["fake_text_1", "fake_text_2"], ["fake_text_3", ""]], result
+        )
+
+    def test_fix_element_in_multiple_cols(self):
+        # Checks that the following table is correctly extracted:
+        # ---------
+        # | 1     |
+        # --------|
+        # | 2 | 3 |
+        # ---------
+
+        elem_1 = FakePDFMinerTextElement(
+            bounding_box=BoundingBox(0, 10, 6, 10), text="fake_text_1"
+        )
+        elem_2 = FakePDFMinerTextElement(
+            bounding_box=BoundingBox(0, 5, 0, 5), text="fake_text_2"
+        )
+        elem_3 = FakePDFMinerTextElement(
+            bounding_box=BoundingBox(6, 10, 0, 5), text="fake_text_3"
+        )
+
+        document = create_pdf_document(elements=[elem_1, elem_2, elem_3])
+        elem_list = document.elements
+
+        with self.assertRaises(TableExtractionError):
+            result = extract_table(elem_list, as_text=True)
+
+        result = extract_table(
+            elem_list, as_text=True, fix_element_in_multiple_cols=True
+        )
+        self.assertEqual(len(result), 2)
+        self.assertEqual(len(result[0]), 2)
+        self.assertEqual(len(result[1]), 2)
+        self.assertListEqual(
+            [["fake_text_1", ""], ["fake_text_2", "fake_text_3"]], result
+        )
+
     def test_get_text_from_table(self):
         # Checks that it works with very simple table with one element
         element = create_pdf_element(text=" fake_text ")
