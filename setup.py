@@ -38,6 +38,10 @@ setup(
             "pytype==2020.1.8",
             "sphinx-rtd-theme==0.4.3",
             "Sphinx==2.3.1",
+            # This is a sub-dependency but is pinned because the next version doesn't
+            # install correctly. See:
+            # https://github.com/scikit-build/ninja-python-distributions/issues/27
+            "ninja==1.9.0",
         ],
     },
 )
