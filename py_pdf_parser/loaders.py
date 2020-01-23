@@ -54,21 +54,11 @@ def load(
 
     Args:
         pdf_file (io): The PDF file.
-        la_params (dict): The layout parameters passed to PDF Miner for analysis. These
-            are not obviously documented by PDF Miner, but we give our understanding
-            (which is taken from
-            https://github.com/obeattie/pdfminer/wiki/pdfminer.layout)
-            below. Note the numerical values are specified as a proportion of the length
-            of each character in question.
-            `direction`: 'V' denotes vertical text direction, anything else denotes
-            horizontal. Default: None.
-            `line_overlap`: The amount lines can overlap. Default 0.5.
-            `char_margin`: Characters whose distance is closer than this are grouped
-            into one word. Default 1.0.
-            `line_margin`: Two lines whose distance is closer than the value here are
-            grouped as a text box. Default 0.5.
-            `word_margin`: Two words whose distance is closer than this value are
-            grouped as a text box. Default 0.1.
+        la_params (dict): The layout parameters passed to PDF Miner for analysis. See
+            the PDFMiner documentation here:
+            https://pdfminersix.readthedocs.io/en/latest/api/composable.html#laparams.
+            Note that py_pdf_parser will re-order the elements it receives from PDFMiner
+            so options relating to element ordering will have no effect.
         pdf_file_path (str, optional): Passed to `PDFDocument`. See the documentation
             for `PDFDocument`.
         kwargs: Passed to `PDFDocument`. See the documentation for `PDFDocument`.
