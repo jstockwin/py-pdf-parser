@@ -52,6 +52,31 @@ class TestTables(BaseTestCase):
         with self.assertRaises(TableExtractionError):
             extract_simple_table(elem_list)
 
+    def test_extract_simple_table_with_tolerance(self):
+        # Checks that simple 2*2 table is correctly extracted
+        #
+        #       elem_1      elem_2
+        #       elem_3      elem_4
+        # But with elem_4 slightly overlapping elem_2, counteracted by setting tolerance
+        elem_1 = FakePDFMinerTextElement(bounding_box=BoundingBox(0, 5, 6, 10))
+        elem_2 = FakePDFMinerTextElement(bounding_box=BoundingBox(6, 10, 6, 10))
+        elem_3 = FakePDFMinerTextElement(bounding_box=BoundingBox(0, 5, 0, 5))
+        elem_4 = FakePDFMinerTextElement(bounding_box=BoundingBox(6, 10, 0, 6.1))
+
+        document = create_pdf_document(elements=[elem_1, elem_2, elem_3, elem_4])
+        elem_list = document.elements
+
+        with self.assertRaises(TableExtractionError):
+            extract_simple_table(elem_list)
+
+        result = extract_simple_table(elem_list, tolerance=0.2)
+        self.assertEqual(len(result), 2)
+        self.assertEqual(len(result[0]), 2)
+        self.assertEqual(len(result[1]), 2)
+        self.assert_original_element_list_list_equal(
+            [[elem_1, elem_2], [elem_3, elem_4]], result
+        )
+
     def test_extract_table(self):
         # Checks that simple 2*2 table is correctly extracted
         #
@@ -151,6 +176,32 @@ class TestTables(BaseTestCase):
                 [elem_p2_3, elem_p2_4],
             ],
             result,
+        )
+
+    def test_extract_table_with_tolerance(self):
+        # Checks that simple 2*2 table is correctly extracted
+        #
+        #       elem_1      elem_2
+        #       elem_3      elem_4
+        #
+        # But with elem_4 slightly overlapping elem_2, counteracted by setting tolerance
+        elem_1 = FakePDFMinerTextElement(bounding_box=BoundingBox(0, 5, 6, 10))
+        elem_2 = FakePDFMinerTextElement(bounding_box=BoundingBox(6, 10, 6, 10))
+        elem_3 = FakePDFMinerTextElement(bounding_box=BoundingBox(0, 5, 0, 5))
+        elem_4 = FakePDFMinerTextElement(bounding_box=BoundingBox(6, 10, 0, 6.1))
+
+        document = create_pdf_document(elements=[elem_1, elem_2, elem_3, elem_4])
+        elem_list = document.elements
+
+        with self.assertRaises(TableExtractionError):
+            extract_table(elem_list)
+
+        result = extract_table(elem_list, tolerance=0.2)
+        self.assertEqual(len(result), 2)
+        self.assertEqual(len(result[0]), 2)
+        self.assertEqual(len(result[1]), 2)
+        self.assert_original_element_list_list_equal(
+            [[elem_1, elem_2], [elem_3, elem_4]], result
         )
 
     def test_extract_text_from_simple_table(self):
