@@ -189,6 +189,9 @@ class TestPDFDocument(BaseTestCase):
             [elem._index for elem in document._element_list], [0, 1, 2, 3, 4, 5, 6, 7]
         )
 
+        # Checks page numbers is correct
+        self.assertEqual(document.page_numbers, [1, 2])
+
         # Checks number of pages is correct
         self.assertEqual(document.number_of_pages, 2)
 
