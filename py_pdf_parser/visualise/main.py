@@ -172,17 +172,21 @@ class PDFVisualiser:
         return plt.subplots(figsize=(height, width))
 
     def __first_page(self):
-        self.__set_page(1)
+        self.__set_page(min(self.document.page_numbers))
 
     def __last_page(self):
-        self.__set_page(self.document.number_of_pages)
+        self.__set_page(max(self.document.page_numbers))
 
     def __next_page(self):
-        next_page = min(self.current_page + 1, self.document.number_of_pages)
+        current_page_idx = self.document.page_numbers.index(self.current_page)
+        next_page_idx = min(current_page_idx + 1, self.document.number_of_pages)
+        next_page = self.document.page_numbers[next_page_idx]
         self.__set_page(next_page)
 
     def __previous_page(self):
-        previous_page = max(self.current_page - 1, 1)
+        current_page_idx = self.document.page_numbers.index(self.current_page)
+        previous_page_idx = max(current_page_idx - 1, 0)
+        previous_page = self.document.page_numbers[previous_page_idx]
         self.__set_page(previous_page)
 
     def __set_page(self, page_number):

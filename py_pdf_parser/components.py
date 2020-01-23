@@ -301,11 +301,13 @@ class PDFDocument:
     Attributes:
         pages (list): A list of all `PDFPages` in the document.
         number_of_pages (int): The total number of pages in the document.
+        page_numbers (list(int)): A list of available page numbers.
         sectioning: Gives access to the sectioning utilities. See the documentation for
             the `Sectioning` class.
     """
 
     number_of_pages: int
+    page_numbers: List[int]
     sectioning: "Sectioning"
     # _element_list will contain all elements, sorted from top to bottom, left to right.
     _element_list: List[PDFElement]
@@ -353,6 +355,7 @@ class PDFDocument:
 
         self._pdf_file_path = pdf_file_path
         self.number_of_pages = len(pages)
+        self.page_numbers = [page.page_number for page in self.pages]
 
     @property
     def elements(self) -> "ElementList":
