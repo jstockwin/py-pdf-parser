@@ -5,6 +5,7 @@ from itertools import chain
 from .exceptions import (
     TableExtractionError,
     NoElementFoundError,
+    MultipleElementsFoundError,
     InvalidTableError,
     InvalidTableHeaderError,
 )
@@ -15,7 +16,10 @@ if TYPE_CHECKING:
 
 
 def extract_simple_table(
-    elements: "ElementList", as_text: bool = False, strip_text: bool = True
+    elements: "ElementList",
+    as_text: bool = False,
+    strip_text: bool = True,
+    tolerance: float = 0.0,
 ) -> List[List]:
     """
     Returns elements structured as a table.
@@ -35,6 +39,8 @@ def extract_simple_table(
             of the PDFElement itself. Default: False.
         strip_text (bool, optional): Whether to strip the text for each element of the
                 table (Only relevant if as_text is True). Default: True.
+        tolerance (int, optional): For elements to be counted as in the same row or
+            column, they must overlap by at least `tolerance`. Default: 0.
 
     Raises:
         TableExtractionError: If something goes wrong.
@@ -43,22 +49,29 @@ def extract_simple_table(
         list[list]: a list of rows, which are lists of PDFElements or strings
             (depending on the value of as_text).
     """
-    first_row = elements.to_the_right_of(elements[0], inclusive=True)
-    first_column = elements.below(elements[0], inclusive=True)
+    first_row = elements.to_the_right_of(
+        elements[0], inclusive=True, tolerance=tolerance
+    )
+    first_column = elements.below(elements[0], inclusive=True, tolerance=tolerance)
 
     table: List[List] = []
     for left_hand_element in first_column:
         row: List = []
         for top_element in first_row:
-            element = elements.to_the_right_of(left_hand_element, inclusive=True).below(
-                top_element, inclusive=True
-            )
+            element = elements.to_the_right_of(
+                left_hand_element, inclusive=True, tolerance=tolerance
+            ).below(top_element, inclusive=True, tolerance=tolerance)
             try:
                 row.append(element.extract_single_element())
             except NoElementFoundError as err:
                 raise TableExtractionError(
                     "Element not found, there appears to be a gap in the table. "
                     "Please try extract_table() instead."
+                ) from err
+            except MultipleElementsFoundError as err:
+                raise TableExtractionError(
+                    "Multiple elements appear to be in the place of one cell in the "
+                    "table. Please try extract_table() instead."
                 ) from err
         table.append(row)
 
@@ -83,6 +96,7 @@ def extract_table(
     strip_text: bool = True,
     fix_element_in_multiple_rows: bool = False,
     fix_element_in_multiple_cols: bool = False,
+    tolerance: float = 0.0,
 ) -> List[List]:
     """
     Returns elements structured as a table.
@@ -111,6 +125,8 @@ def extract_table(
             this argument is set to True. When True, any elements detected in multiple
             cols will be placed into the first col. This is only recommended if you
             expect this to be the case in your table. Default: False.
+        tolerance (int, optional): For elements to be counted as in the same row or
+            column, they must overlap by at least `tolerance`. Default: 0.
 
     Raises:
         TableExtractionError: If something goes wrong.
@@ -123,9 +139,13 @@ def extract_table(
     rows = set()
     cols = set()
     for element in elements:
-        row = elements.horizontally_in_line_with(element, inclusive=True)
+        row = elements.horizontally_in_line_with(
+            element, inclusive=True, tolerance=tolerance
+        )
         rows.add(row)
-        col = elements.vertically_in_line_with(element, inclusive=True, all_pages=True)
+        col = elements.vertically_in_line_with(
+            element, inclusive=True, all_pages=True, tolerance=tolerance
+        )
         cols.add(col)
 
     # Check no element is in multiple rows or columns
@@ -156,6 +176,11 @@ def extract_table(
                 element = (row & col).extract_single_element()
             except NoElementFoundError:
                 element = None
+            except MultipleElementsFoundError as err:
+                raise TableExtractionError(
+                    "Multiple elements appear to be in the place of one cell in the "
+                    "table. It could be worth trying to add a tolerance."
+                ) from err
             table_row.append(element)
         table.append(table_row)
 
