@@ -333,7 +333,7 @@ class ElementList(Iterable):
         )
 
     def to_the_right_of(
-        self, element: "PDFElement", inclusive: bool = False
+        self, element: "PDFElement", inclusive: bool = False, tolerance: float = 0.0
     ) -> "ElementList":
         """
         Filter for elements which are to the right of the given element.
@@ -355,6 +355,8 @@ class ElementList(Iterable):
             element (PDFElement): The element in question.
             inclusive (bool, optional): Whether the include `element` in the returned
                 results. Default: False.
+            tolerance (int, optional): To be counted as to the right, the elements must
+                overlap by at least `tolerance` on the Y axis. Default 0.
 
         Returns:
             ElementList: The filtered list.
@@ -364,8 +366,8 @@ class ElementList(Iterable):
         bounding_box = BoundingBox(
             element.bounding_box.x1,
             page.width,
-            element.bounding_box.y0,
-            element.bounding_box.y1,
+            element.bounding_box.y0 + tolerance,
+            element.bounding_box.y1 - tolerance,
         )
         results = self.filter_partially_within_bounding_box(bounding_box, page_number)
         if not inclusive:
@@ -373,7 +375,7 @@ class ElementList(Iterable):
         return results
 
     def to_the_left_of(
-        self, element: "PDFElement", inclusive: bool = False
+        self, element: "PDFElement", inclusive: bool = False, tolerance: float = 0.0
     ) -> "ElementList":
         """
         Filter for elements which are to the left of the given element.
@@ -396,6 +398,8 @@ class ElementList(Iterable):
             element (PDFElement): The element in question.
             inclusive (bool, optional): Whether the include `element` in the returned
                 results. Default: False.
+            tolerance (int, optional): To be counted as to the left, the elements must
+                overlap by at least `tolerance` on the Y axis. Default 0.
 
 
         Returns:
@@ -403,7 +407,10 @@ class ElementList(Iterable):
         """
         page_number = element.page_number
         bounding_box = BoundingBox(
-            0, element.bounding_box.x0, element.bounding_box.y0, element.bounding_box.y1
+            0,
+            element.bounding_box.x0,
+            element.bounding_box.y0 + tolerance,
+            element.bounding_box.y1 - tolerance,
         )
         results = self.filter_partially_within_bounding_box(bounding_box, page_number)
         if not inclusive:
@@ -411,7 +418,11 @@ class ElementList(Iterable):
         return results
 
     def below(
-        self, element: "PDFElement", inclusive: bool = False, all_pages: bool = False
+        self,
+        element: "PDFElement",
+        inclusive: bool = False,
+        all_pages: bool = False,
+        tolerance: float = 0.0,
     ) -> "ElementList":
         """
         Returns all elements which are below the given element.
@@ -438,13 +449,18 @@ class ElementList(Iterable):
                 results. Default: False.
             all_pages (bool, optional): Whether to included pages other than the page
                 which the element is on.
+            tolerance (int, optional): To be counted as below, the elements must
+                overlap by at least `tolerance` on the X axis. Default 0.
 
         Returns:
             ElementList: The filtered list.
         """
         page_number = element.page_number
         bounding_box = BoundingBox(
-            element.bounding_box.x0, element.bounding_box.x1, 0, element.bounding_box.y0
+            element.bounding_box.x0 + tolerance,
+            element.bounding_box.x1 - tolerance,
+            0,
+            element.bounding_box.y0,
         )
         results = self.filter_partially_within_bounding_box(bounding_box, page_number)
         if all_pages:
@@ -454,7 +470,10 @@ class ElementList(Iterable):
                 # We're on a page which is located below our element, so the bounding
                 # box should be the length of the entire page.
                 bounding_box = BoundingBox(
-                    element.bounding_box.x0, element.bounding_box.x1, 0, page.height
+                    element.bounding_box.x0 + tolerance,
+                    element.bounding_box.x1 - tolerance,
+                    0,
+                    page.height,
                 )
                 results = results | self.filter_partially_within_bounding_box(
                     bounding_box, page.page_number
@@ -464,7 +483,11 @@ class ElementList(Iterable):
         return results
 
     def above(
-        self, element: "PDFElement", inclusive: bool = False, all_pages: bool = False
+        self,
+        element: "PDFElement",
+        inclusive: bool = False,
+        all_pages: bool = False,
+        tolerance: float = 0.0,
     ) -> "ElementList":
         """
         Returns all elements which are above the given element.
@@ -491,6 +514,8 @@ class ElementList(Iterable):
                 results. Default: False.
             all_pages (bool, optional): Whether to included pages other than the page
                 which the element is on.
+            tolerance (int, optional): To be counted as above, the elements must
+                overlap by at least `tolerance` on the X axis. Default 0.
 
         Returns:
             ElementList: The filtered list.
@@ -498,8 +523,8 @@ class ElementList(Iterable):
         page_number = element.page_number
         page = self.document.get_page(page_number)
         bounding_box = BoundingBox(
-            element.bounding_box.x0,
-            element.bounding_box.x1,
+            element.bounding_box.x0 + tolerance,
+            element.bounding_box.x1 - tolerance,
             element.bounding_box.y1,
             page.height,
         )
@@ -511,7 +536,10 @@ class ElementList(Iterable):
                 # We're on a page which is located above our element, so the bounding
                 # box should be the length of the entire page.
                 bounding_box = BoundingBox(
-                    element.bounding_box.x0, element.bounding_box.x1, 0, page.height
+                    element.bounding_box.x0 + tolerance,
+                    element.bounding_box.x1 - tolerance,
+                    0,
+                    page.height,
                 )
                 results = results | self.filter_partially_within_bounding_box(
                     bounding_box, page.page_number
@@ -521,7 +549,11 @@ class ElementList(Iterable):
         return results
 
     def vertically_in_line_with(
-        self, element: "PDFElement", inclusive: bool = False, all_pages: bool = False
+        self,
+        element: "PDFElement",
+        inclusive: bool = False,
+        all_pages: bool = False,
+        tolerance: float = 0.0,
     ) -> "ElementList":
         """
         Returns all elements which are vertically in line with the
@@ -545,6 +577,8 @@ class ElementList(Iterable):
                 results. Default: False.
             all_pages (bool, optional): Whether to included pages other than the page
                 which the element is on.
+            tolerance (int, optional): To be counted as in line with, the elements must
+                overlap by at least `tolerance` on the X axis. Default 0.
 
         Returns:
             ElementList: The filtered list.
@@ -552,7 +586,10 @@ class ElementList(Iterable):
         page_number = element.page_number
         page = self.document.get_page(page_number)
         bounding_box = BoundingBox(
-            element.bounding_box.x0, element.bounding_box.x1, 0, page.height
+            element.bounding_box.x0 + tolerance,
+            element.bounding_box.x1 - tolerance,
+            0,
+            page.height,
         )
         results = self.filter_partially_within_bounding_box(bounding_box, page_number)
         if all_pages:
@@ -561,7 +598,10 @@ class ElementList(Iterable):
                     # Already handled page containing element
                     continue
                 bounding_box = BoundingBox(
-                    element.bounding_box.x0, element.bounding_box.x1, 0, page.height
+                    element.bounding_box.x0 + tolerance,
+                    element.bounding_box.x1 - tolerance,
+                    0,
+                    page.height,
                 )
                 results = results | self.filter_partially_within_bounding_box(
                     bounding_box, page.page_number
@@ -572,7 +612,7 @@ class ElementList(Iterable):
         return results
 
     def horizontally_in_line_with(
-        self, element: "PDFElement", inclusive: bool = False
+        self, element: "PDFElement", inclusive: bool = False, tolerance: float = 0.0
     ) -> "ElementList":
         """
         Returns all elements which are horizontally in line with the given element.
@@ -592,6 +632,8 @@ class ElementList(Iterable):
             element (PDFElement): The element in question.
             inclusive (bool, optional): Whether the include `element` in the returned
                 results. Default: False.
+            tolerance (int, optional): To be counted as in line with, the elements must
+                overlap by at least `tolerance` on the Y axis. Default 0.
 
         Returns:
             ElementList: The filtered list.
@@ -599,7 +641,10 @@ class ElementList(Iterable):
         page_number = element.page_number
         page = self.document.get_page(page_number)
         bounding_box = BoundingBox(
-            0, page.width, element.bounding_box.y0, element.bounding_box.y1
+            0,
+            page.width,
+            element.bounding_box.y0 + tolerance,
+            element.bounding_box.y1 - tolerance,
         )
         results = self.filter_partially_within_bounding_box(bounding_box, page_number)
         if not inclusive:

@@ -366,6 +366,22 @@ class TestFiltering(BaseTestCase):
         self.assertIn(pdf_elem2, result)
         self.assertIn(pdf_elem4, result)
 
+        # Test specifying tolerance
+        expected_bbox = BoundingBox(51, 100, 50.1, 50.9)
+
+        partially_within_mock.reset_mock()
+        result = elem_list.to_the_right_of(pdf_elem1, tolerance=0.1)
+
+        partially_within_mock.assert_has_calls(
+            [
+                call(pdf_elem1, expected_bbox),
+                call(pdf_elem2, expected_bbox),
+                call(pdf_elem3, expected_bbox),
+                call(pdf_elem4, expected_bbox),
+            ],
+            any_order=True,
+        )
+
     @patch.object(PDFElement, "partially_within", autospec=True)
     def test_to_the_left_of(self, partially_within_mock):
         partially_within_mock.side_effect = (
@@ -428,6 +444,22 @@ class TestFiltering(BaseTestCase):
         self.assertIn(pdf_elem1, result)
         self.assertIn(pdf_elem2, result)
         self.assertIn(pdf_elem4, result)
+
+        # Test specifying tolerance
+        expected_bbox = BoundingBox(0, 50, 50.1, 50.9)
+
+        partially_within_mock.reset_mock()
+        result = elem_list.to_the_left_of(pdf_elem1, tolerance=0.1)
+
+        partially_within_mock.assert_has_calls(
+            [
+                call(pdf_elem1, expected_bbox),
+                call(pdf_elem2, expected_bbox),
+                call(pdf_elem3, expected_bbox),
+                call(pdf_elem4, expected_bbox),
+            ],
+            any_order=True,
+        )
 
     @patch.object(PDFElement, "partially_within", autospec=True)
     def test_below(self, partially_within_mock):
@@ -518,6 +550,22 @@ class TestFiltering(BaseTestCase):
         self.assertIn(pdf_elem6, result)
         self.assertIn(pdf_elem8, result)
 
+        # Test specifying tolerance
+        expected_bbox = BoundingBox(50.1, 50.9, 0, 50)
+
+        partially_within_mock.reset_mock()
+        result = elem_list.below(pdf_elem3, tolerance=0.1)
+
+        partially_within_mock.assert_has_calls(
+            [
+                call(pdf_elem3, expected_bbox),
+                call(pdf_elem4, expected_bbox),
+                call(pdf_elem5, expected_bbox),
+                call(pdf_elem6, expected_bbox),
+            ],
+            any_order=True,
+        )
+
     @patch.object(PDFElement, "partially_within", autospec=True)
     def test_above(self, partially_within_mock):
         partially_within_mock.side_effect = (
@@ -606,6 +654,22 @@ class TestFiltering(BaseTestCase):
         self.assertIn(pdf_elem1, result)
         self.assertIn(pdf_elem4, result)
         self.assertIn(pdf_elem6, result)
+
+        # Test specifying tolerance
+        expected_bbox = BoundingBox(50.1, 50.9, 51, 100)
+
+        partially_within_mock.reset_mock()
+        result = elem_list.above(pdf_elem3, tolerance=0.1)
+
+        partially_within_mock.assert_has_calls(
+            [
+                call(pdf_elem3, expected_bbox),
+                call(pdf_elem4, expected_bbox),
+                call(pdf_elem5, expected_bbox),
+                call(pdf_elem6, expected_bbox),
+            ],
+            any_order=True,
+        )
 
     @patch.object(PDFElement, "partially_within", autospec=True)
     def test_vertically_in_line_with(self, partially_within_mock):
@@ -701,6 +765,22 @@ class TestFiltering(BaseTestCase):
         self.assertIn(pdf_elem6, result)
         self.assertIn(pdf_elem8, result)
 
+        # Test specifying tolerance
+        expected_bbox = BoundingBox(50.1, 50.9, 0, 100)
+
+        partially_within_mock.reset_mock()
+        result = elem_list.vertically_in_line_with(pdf_elem3, tolerance=0.1)
+
+        partially_within_mock.assert_has_calls(
+            [
+                call(pdf_elem3, expected_bbox),
+                call(pdf_elem4, expected_bbox),
+                call(pdf_elem5, expected_bbox),
+                call(pdf_elem6, expected_bbox),
+            ],
+            any_order=True,
+        )
+
     @patch.object(PDFElement, "partially_within", autospec=True)
     def test_horizontally_in_line_with(self, partially_within_mock):
         partially_within_mock.side_effect = (
@@ -763,6 +843,22 @@ class TestFiltering(BaseTestCase):
         self.assertIn(pdf_elem1, result)
         self.assertIn(pdf_elem2, result)
         self.assertIn(pdf_elem4, result)
+
+        # Test specifying tolerance
+        expected_bbox = BoundingBox(0, 100, 50.1, 50.9)
+
+        partially_within_mock.reset_mock()
+        result = elem_list.horizontally_in_line_with(pdf_elem1, tolerance=0.1)
+
+        partially_within_mock.assert_has_calls(
+            [
+                call(pdf_elem1, expected_bbox),
+                call(pdf_elem2, expected_bbox),
+                call(pdf_elem3, expected_bbox),
+                call(pdf_elem4, expected_bbox),
+            ],
+            any_order=True,
+        )
 
     @patch.object(PDFElement, "partially_within", autospec=True)
     def test_filter_partially_within_bounding_box(self, partially_within_mock):
