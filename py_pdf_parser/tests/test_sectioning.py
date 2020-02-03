@@ -1,3 +1,5 @@
+import types
+
 from py_pdf_parser.exceptions import InvalidSectionError, SectionNotFoundError
 from py_pdf_parser.sectioning import Sectioning
 from py_pdf_parser.tests.base import BaseTestCase
@@ -125,14 +127,25 @@ class TestSectioning(BaseTestCase):
         pdf_elem_1 = self.extract_element_from_list(elem_1, document._element_list)
         pdf_elem_2 = self.extract_element_from_list(elem_2, document._element_list)
 
-        self.assertEqual(document.sectioning.get_sections_with_name("foo"), [])
+        self.assertTrue(
+            isinstance(
+                document.sectioning.get_sections_with_name("foo"), types.GeneratorType
+            )
+        )
+        self.assertEqual(list(document.sectioning.get_sections_with_name("foo")), [])
 
         section_1 = document.sectioning.create_section("foo", pdf_elem_1, pdf_elem_2)
         section_2 = document.sectioning.create_section("foo", pdf_elem_1, pdf_elem_2)
         document.sectioning.create_section("bar", pdf_elem_1, pdf_elem_2)
 
+        self.assertTrue(
+            isinstance(
+                document.sectioning.get_sections_with_name("foo"), types.GeneratorType
+            )
+        )
         self.assertEqual(
-            document.sectioning.get_sections_with_name("foo"), [section_1, section_2]
+            list(document.sectioning.get_sections_with_name("foo")),
+            [section_1, section_2],
         )
 
     def test_get_section(self):
@@ -146,7 +159,12 @@ class TestSectioning(BaseTestCase):
         with self.assertRaises(SectionNotFoundError):
             document.sectioning.get_section("foo")
 
-        self.assertEqual(document.sectioning.get_sections_with_name("foo"), [])
+        self.assertTrue(
+            isinstance(
+                document.sectioning.get_sections_with_name("foo"), types.GeneratorType
+            )
+        )
+        self.assertEqual(list(document.sectioning.get_sections_with_name("foo")), [])
 
         section_1 = document.sectioning.create_section("foo", pdf_elem_1, pdf_elem_2)
         section_2 = document.sectioning.create_section("foo", pdf_elem_1, pdf_elem_2)
