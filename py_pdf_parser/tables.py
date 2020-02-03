@@ -230,7 +230,7 @@ def add_header_to_table(
             f"Header length of {len(header)} does not match the width of the table "
             f"({len(table[0])})"
         )
-    elif len(header) != len(set(header)):
+    if len(header) != len(set(header)):
         raise InvalidTableHeaderError("Header contains repeated elements")
     new_table = []
     for row in table:
