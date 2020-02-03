@@ -593,7 +593,8 @@ class ElementList(Iterable):
         )
         results = self.filter_partially_within_bounding_box(bounding_box, page_number)
         if all_pages:
-            for page in self.document.pages:
+            for page_num in range(self[0].page_number, self[-1].page_number + 1):
+                page = self.document.get_page(page_num)
                 if page.page_number == page_number:
                     # Already handled page containing element
                     continue
