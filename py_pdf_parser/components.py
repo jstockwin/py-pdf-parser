@@ -72,7 +72,7 @@ class PDFElement:
     You should not instantiate this yourself, but should let the `PDFDocument` do this.
 
     Args:
-        document (PDFDocument): A reference to the `PDFDocument.
+        document (PDFDocument): A reference to the `PDFDocument`.
         element (LTComponent): A PDF Miner LTComponent.
         index (int): The index of the element within the document.
         page_number (int): The page number that the element is on.
