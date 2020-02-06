@@ -1,4 +1,13 @@
-from typing import Union, Set, FrozenSet, Optional, Iterable, Iterator, TYPE_CHECKING
+from typing import (
+    overload,
+    Union,
+    Set,
+    FrozenSet,
+    Optional,
+    Iterable,
+    Iterator,
+    TYPE_CHECKING,
+)
 
 import re
 
@@ -848,14 +857,26 @@ class ElementList(Iterable):
     def __repr__(self):
         return f"<ElementList of {len(self.indexes)} elements>"
 
-    def __getitem__(self, index) -> "PDFElement":
+    @overload
+    def __getitem__(self, key: int) -> "PDFElement":
+        pass  # This is for type checking only
+
+    @overload
+    def __getitem__(self, key: slice) -> "ElementList":
+        pass  # This is for type checking only
+
+    def __getitem__(self, key: Union[int, slice]) -> Union["PDFElement", "ElementList"]:
         """
-        Returns the element in position `index` of the ElementList.
+        Returns the element in position `key` of the ElementList if an int is given, or
+        returns a new ElementList if a slice is given.
 
         Elements are ordered by their original positions in the document, which is
         left-to-right, top-to-bottom (the same you you read).
         """
-        element_index = sorted(self.indexes)[index]
+        if isinstance(key, slice):
+            new_indexes = set(sorted(self.indexes)[key])
+            return ElementList(self.document, new_indexes)
+        element_index = sorted(self.indexes)[key]
         return self.document._element_list[element_index]
 
     def __eq__(self, other: object) -> bool:
