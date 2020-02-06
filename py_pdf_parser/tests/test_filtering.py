@@ -1018,6 +1018,11 @@ class TestFiltering(BaseTestCase):
     def test_getitem(self):
         self.assert_original_element_equal(self.elem1, self.elem_list[0])
 
+        self.assertIsInstance(self.elem_list[1:3], ElementList)
+        self.assertEqual(len(self.elem_list[1:3]), 2)
+        self.assertIn(self.elem_list[1], self.elem_list[1:3])
+        self.assertIn(self.elem_list[2], self.elem_list[1:3])
+
     def test_eq(self):
         with self.assertRaises(NotImplementedError):
             self.elem_list == "foo"
