@@ -1,4 +1,6 @@
-FROM 069140875175.dkr.ecr.eu-west-1.amazonaws.com/ubuntu_base_image:phusion-0.11
+FROM phusion/baseimage:0.11
+
+RUN adduser --disabled-password --gecos "" optimor
 
 RUN apt-get update && \
     apt-get -y install software-properties-common \
