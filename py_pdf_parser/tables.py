@@ -307,6 +307,14 @@ def _fix_rows(rows: Set["ElementList"], elements: "ElementList") -> None:
         # No elements are in multiple rows, return.
         return
 
+    sorted_rows = sorted(
+        rows,
+        key=lambda row: (
+            row[0].page_number,
+            max(-(elem.bounding_box.y1) for elem in row),
+        ),
+    )
+
     for element in elements:
         num_rows = sum(element in row for row in rows)
         if num_rows == 1:
@@ -315,11 +323,7 @@ def _fix_rows(rows: Set["ElementList"], elements: "ElementList") -> None:
 
         rows_with_element = [row for row in rows if element in row]
         sorted_rows_with_element = sorted(
-            rows_with_element,
-            key=lambda row: (
-                row[0].page_number,
-                max(-(elem.bounding_box.y1) for elem in row),
-            ),
+            rows_with_element, key=lambda row: sorted_rows.index(row)
         )
         # Remove the element from all but the first row.
         for row in sorted_rows_with_element[1:]:
@@ -327,6 +331,12 @@ def _fix_rows(rows: Set["ElementList"], elements: "ElementList") -> None:
             new_row = row.remove_element(element)
             if new_row:
                 rows.add(new_row)
+                # Update sorted rows
+                sorted_rows = [
+                    new_row if some_row == row else some_row for some_row in sorted_rows
+                ]
+            else:
+                sorted_rows.remove(row)
 
 
 def _fix_cols(cols: Set["ElementList"], elements: "ElementList") -> None:
@@ -341,6 +351,13 @@ def _fix_cols(cols: Set["ElementList"], elements: "ElementList") -> None:
     if sum([len(col) for col in cols]) == len(set(chain.from_iterable(cols))):
         # No elements are in multiple cols, return.
         return
+
+    # We sort by looking at all the elements and choosing the element which starts
+    # most to the right. The ones with elements which start most to the right
+    # will be later on in the sorted list.
+    sorted_columns = sorted(
+        cols, key=lambda col: max(elem.bounding_box.x0 for elem in col)
+    )
     for element in elements:
         num_cols = sum(element in col for col in cols)
         if num_cols == 1:
@@ -349,7 +366,7 @@ def _fix_cols(cols: Set["ElementList"], elements: "ElementList") -> None:
 
         cols_with_element = [col for col in cols if element in col]
         sorted_cols_with_element = sorted(
-            cols_with_element, key=lambda col: max(elem.bounding_box.x0 for elem in col)
+            cols_with_element, key=lambda col: sorted_columns.index(col)
         )
         # Remove the element from all but the first col.
         for col in sorted_cols_with_element[1:]:
@@ -357,4 +374,11 @@ def _fix_cols(cols: Set["ElementList"], elements: "ElementList") -> None:
             new_col = col.remove_element(element)
             if new_col:
                 cols.add(new_col)
+                # Update sorted columns
+                sorted_columns = [
+                    new_col if some_col == col else some_col
+                    for some_col in sorted_columns
+                ]
+            else:
+                sorted_columns.remove(col)
     return
