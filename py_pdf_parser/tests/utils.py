@@ -1,3 +1,5 @@
+import re
+
 from typing import NamedTuple, Dict, List, Optional, Union
 
 from py_pdf_parser.components import PDFElement, PDFDocument
@@ -68,6 +70,8 @@ def create_pdf_element(
     font_name: str = "fake_font",
     font_size: int = 10,
     font_mapping: Optional[Dict[str, str]] = None,
+    font_mapping_is_regex: bool = False,
+    regex_flags: Union[int, re.RegexFlag] = 0,
 ) -> "PDFElement":
     document = create_pdf_document(
         elements=[
@@ -76,12 +80,17 @@ def create_pdf_element(
             )
         ],
         font_mapping=font_mapping,
+        font_mapping_is_regex=font_mapping_is_regex,
+        regex_flags=regex_flags,
     )
     return document.elements[0]
 
 
 def create_pdf_document(
-    elements: Union[List[LTComponent], Dict[int, List[LTComponent]]], font_mapping=None
+    elements: Union[List[LTComponent], Dict[int, List[LTComponent]]],
+    font_mapping: Optional[Dict[str, str]] = None,
+    font_mapping_is_regex: bool = False,
+    regex_flags: Union[int, re.RegexFlag] = 0,
 ) -> "PDFDocument":
     """
     Creates a PDF document with the given elements.
@@ -96,7 +105,12 @@ def create_pdf_document(
             for page_number, elements_list in elements.items()
         }
 
-    return PDFDocument(pages=pages, font_mapping=font_mapping)
+    return PDFDocument(
+        pages=pages,
+        font_mapping=font_mapping,
+        font_mapping_is_regex=font_mapping_is_regex,
+        regex_flags=regex_flags,
+    )
 
 
 def create_section(

@@ -1,3 +1,5 @@
+import re
+
 from ddt import ddt, data
 
 from py_pdf_parser.common import BoundingBox
@@ -46,6 +48,47 @@ class TestPDFElement(BaseTestCase):
             font_mapping={"test_font,3": "test_named_font"},
         )
         self.assertEqual(element.font, "test_font,2")
+
+        # Test when font_mapping argument is passed to PDFDocument
+        font_mapping = {}
+        element = create_pdf_element(
+            font_name="fake_font_1", font_size=10, font_mapping=font_mapping
+        )
+        self.assertEqual(element.font, "fake_font_1,10")
+
+        font_mapping = {"fake_font_1,10": "large_text"}
+        element = create_pdf_element(
+            font_name="fake_font_1", font_size=10, font_mapping=font_mapping
+        )
+        self.assertEqual(element.font, "large_text")
+
+        font_mapping = {r"^fake_font_\d,10$": "large_text"}
+        element = create_pdf_element(
+            font_name="fake_font_1",
+            font_size=10,
+            font_mapping=font_mapping,
+            font_mapping_is_regex=True,
+        )
+        self.assertEqual(element.font, "large_text")
+
+        font_mapping = {r"^fake_font_\d,10$": "large_text"}
+        element = create_pdf_element(
+            font_name="FAKE_FONT_1",
+            font_size=10,
+            font_mapping=font_mapping,
+            font_mapping_is_regex=True,
+        )
+        self.assertEqual(element.font, "FAKE_FONT_1,10")
+
+        font_mapping = {r"^fake_font_\d,10$": "large_text"}
+        element = create_pdf_element(
+            font_name="FAKE_FONT_1",
+            font_size=10,
+            font_mapping=font_mapping,
+            font_mapping_is_regex=True,
+            regex_flags=re.IGNORECASE,
+        )
+        self.assertEqual(element.font, "large_text")
 
     def test_text(self):
         element = create_pdf_element(text=" test ")
@@ -227,7 +270,6 @@ class TestPDFDocument(BaseTestCase):
         self.assertEqual(
             document.elements, ElementList(document, set([0, 1, 2, 3, 4, 5, 6, 7]))
         )
-
         with self.assertRaises(PageNotFoundError):
             document.get_page(3)
 
