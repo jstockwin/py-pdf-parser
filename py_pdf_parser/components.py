@@ -125,8 +125,8 @@ class PDFElement:
         """
         The name of the font.
 
-        This will be taken from the pdf itself, using the first character in the
-        element.
+        This will be taken from the pdf itself, using the most common font within all
+        the characters in the element.
 
         Returns:
             str: The font name of the element.
@@ -150,8 +150,8 @@ class PDFElement:
         """
         The size of the font.
 
-        This will be taken from the pdf itself, using the first character in the
-        element.
+        This will be taken from the pdf itself, using the most common size within all
+        the characters in the element.
 
         Returns:
             int: The font size of the element.
