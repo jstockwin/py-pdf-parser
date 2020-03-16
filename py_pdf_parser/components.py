@@ -1,5 +1,6 @@
-from typing import Dict, List, Set, Optional, TYPE_CHECKING
+from typing import Dict, List, Set, Optional, Union, TYPE_CHECKING
 
+import re
 from collections import Counter
 
 from .common import BoundingBox
@@ -90,6 +91,7 @@ class PDFElement:
     _index: int
     __font_name: Optional[str] = None
     __font_size: Optional[int] = None
+    __font: Optional[str] = None
     __page_number: int
 
     def __init__(
@@ -125,8 +127,8 @@ class PDFElement:
         """
         The name of the font.
 
-        This will be taken from the pdf itself, using the first character in the
-        element.
+        This will be taken from the pdf itself, using the most common font within all
+        the characters in the element.
 
         Returns:
             str: The font name of the element.
@@ -150,8 +152,8 @@ class PDFElement:
         """
         The size of the font.
 
-        This will be taken from the pdf itself, using the first character in the
-        element.
+        This will be taken from the pdf itself, using the most common size within all
+        the characters in the element.
 
         Returns:
             int: The font size of the element.
@@ -180,13 +182,22 @@ class PDFElement:
 
         If you have provided a font_mapping, this is the string you should map. If
         the string is mapped in your font_mapping then the mapped value will be
-        returned.
+        returned. font_mapping can have regexes as keys.
 
         Returns:
             str: The font of the element.
         """
+        if self.__font is not None:
+            return self.__font
+
         font = f"{self.font_name},{self.font_size}"
-        return self.document._font_mapping.get(font, font)
+        if self.document._font_mapping_is_regex:
+            for pattern, font_name in self.document._font_mapping.items():
+                if re.match(pattern, font, self.document._regex_flags):
+                    self.__font = font_name
+                    return self.__font
+        self.__font = self.document._font_mapping.get(font) or font
+        return self.__font
 
     @property
     def ignored(self) -> bool:
@@ -297,6 +308,12 @@ class PDFDocument:
             internal font names by providing a font_mapping. This is a dictionary with
             keys being the original font (including font size) and values being your
             new names.
+        font_mapping_is_regex (bool, optional): Indicates whether font_mapping keys
+            should be considered as regexes. In this case all the fonts will be matched
+            with the regexes. It is only relevant if font_mapping is not None.
+            Default: False.
+        regex_flags (str, optional): Regex flags compatible with the re module.
+                Default: 0.
 
     Attributes:
         pages (list): A list of all `PDFPages` in the document.
@@ -313,6 +330,8 @@ class PDFDocument:
     _element_list: List[PDFElement]
     _ignored_indexes: Set[int]
     _font_mapping: Dict[str, str]
+    _font_mapping_is_regex: bool
+    _regex_flags: Union[int, re.RegexFlag]
     _pdf_file_path: Optional[str]
     __pages: Dict[int, PDFPage]
 
@@ -321,10 +340,14 @@ class PDFDocument:
         pages: Dict[int, "Page"],
         pdf_file_path: Optional[str] = None,
         font_mapping: Optional[Dict[str, str]] = None,
+        font_mapping_is_regex: bool = False,
+        regex_flags: Union[int, re.RegexFlag] = 0,
     ):
         self.sectioning = Sectioning(self)
         self._element_list = []
         self._font_mapping = font_mapping if font_mapping is not None else {}
+        self._font_mapping_is_regex = font_mapping_is_regex
+        self._regex_flags = regex_flags
         self._ignored_indexes = set()
         self.__pages = {}
         idx = 0
@@ -376,6 +399,16 @@ class PDFDocument:
             list[PDFPage]: All pages in the document.
         """
         return [self.__pages[page_number] for page_number in sorted(self.__pages)]
+
+    @property
+    def fonts(self) -> Set[str]:
+        """
+        A set of all the fonts in the document.
+
+        Returns:
+            set[str]: All the fonts in the document.
+        """
+        return set(element.font for element in self.elements)
 
     def get_page(self, page_number: int) -> "PDFPage":
         """
