@@ -12,7 +12,7 @@ from py_pdf_parser.tables import (
     add_header_to_table,
 )
 from py_pdf_parser.tests.base import BaseTestCase
-from utils import create_pdf_document, create_pdf_element, FakePDFMinerTextElement
+from .utils import create_pdf_document, create_pdf_element, FakePDFMinerTextElement
 
 
 class TestTables(BaseTestCase):

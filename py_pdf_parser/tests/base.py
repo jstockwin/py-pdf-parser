@@ -35,7 +35,8 @@ class BaseTestCase(TestCase):
     ):
         self.assertEqual(len(original_element_list), len(element_list))
         for original_element, element in zip(original_element_list, element_list):
-            if original_element is None:
+            if original_element is None or element is None:
+                self.assertIsNone(original_element)
                 self.assertIsNone(element)
             else:
                 self.assert_original_element_equal(original_element, element)
