@@ -14,8 +14,7 @@ RUN pip3 install --upgrade pip
 ENV PROJECT_DIR /py-pdf-parser
 
 WORKDIR $PROJECT_DIR
-ADD ./ $PROJECT_DIR
-ADD ./imagemagick_policy.xml /etc/ImageMagick-6/policy.xml
+COPY ./setup.py $PROJECT_DIR/setup.py
 
 # Clean up APT when done.
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -24,6 +23,10 @@ RUN chown -R optimor: $PROJECT_DIR
 
 RUN pip install -e $PROJECT_DIR[test]
 RUN pip3 install black pycodestyle mypy pytype nose ddt mock sphinx sphinx-rtd-theme
+
+COPY ./imagemagick_policy.xml /etc/ImageMagick-6/policy.xml
+COPY ./ $PROJECT_DIR
+RUN chown -R optimor: $PROJECT_DIR
 
 USER optimor
 
