@@ -9,7 +9,7 @@ from py_pdf_parser.loaders import Page
 from py_pdf_parser.exceptions import NoElementsOnPageError, PageNotFoundError
 from py_pdf_parser.tests.base import BaseTestCase
 
-from utils import create_pdf_element, FakePDFMinerTextElement
+from .utils import create_pdf_element, FakePDFMinerTextElement
 
 
 @ddt
