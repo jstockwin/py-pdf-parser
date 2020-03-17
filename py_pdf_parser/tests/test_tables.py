@@ -313,10 +313,14 @@ class TestTables(BaseTestCase):
 
     def test_add_header_to_table(self):
         # Checks behaviour if header is not provided
+        table = []
+        result = add_header_to_table(table)
+        self.assertEqual(result, [])
+
         fake_header = ["fake_header_1", "fake_header_2"]
         table = [fake_header]
         result = add_header_to_table(table)
-        self.assertEqual(len(result), 0)
+        self.assertEqual(result, [])
 
         table = [fake_header, ["fake_value_1", "fake_value_2"]]
         result = add_header_to_table(table)
@@ -344,7 +348,7 @@ class TestTables(BaseTestCase):
         fake_header = ["fake_header_1", "fake_header_2"]
         table = []
         result = add_header_to_table(table, header=fake_header)
-        self.assertEqual(len(result), 0)
+        self.assertEqual(result, [])
 
         table = [["fake_value_1", "fake_value_2"]]
         result = add_header_to_table(table, header=fake_header)
