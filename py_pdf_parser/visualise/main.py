@@ -1,4 +1,4 @@
-from typing import Tuple, TYPE_CHECKING
+from typing import Dict, Tuple, Optional, TYPE_CHECKING
 
 import logging
 
@@ -6,14 +6,17 @@ import matplotlib
 
 matplotlib.use("Qt5Agg", warn=False)  # noqa
 from matplotlib import pyplot as plt
-from matplotlib.figure import Figure
-from matplotlib.axes import Axes
+from matplotlib.backend_bases import MouseButton
 
 from py_pdf_parser.components import PDFDocument
 from .background import get_pdf_background
+from .info_figure import get_clicked_element_info
 
 if TYPE_CHECKING:
     from py_pdf_parser.filtering import ElementList
+    from py_pdf_parser.components import PDFElement
+    from matplotlib.figure import Figure, Text
+    from matplotlib.axes import Axes
 
 logger = logging.getLogger("PDFParser")
 
@@ -35,18 +38,23 @@ class PDFVisualiser:
 
     document: PDFDocument
     current_page: int
-    _fig: Figure
-    _ax: Axes
+    __ax: "Axes"
+    __fig: "Figure"
+    __info_fig: Optional["Figure"] = None
+    __info_text: Optional["Text"] = None
     __first_page_button = None
     __previous_page_button = None
     __next_page_button = None
     __last_page_button = None
+
+    __clicked_elements: Dict[MouseButton, "PDFElement"] = {}
 
     def __init__(
         self,
         document: PDFDocument,
         current_page: int = 1,
         elements: "ElementList" = None,
+        show_info: bool = False,
     ):
         if not document._pdf_file_path:
             logger.warning(
@@ -61,9 +69,10 @@ class PDFVisualiser:
             self.elements = elements
         else:
             self.elements = document.elements
+        self.show_info = show_info
 
         page = document.get_page(current_page)
-        self._fig, self._ax = self.__initialise_plot(
+        self.__fig, self.__ax = self.__initialise_plot(
             width=page.width, height=page.height
         )
 
@@ -88,8 +97,8 @@ class PDFVisualiser:
                 interpolation="kaiser",
             )
         else:
-            self._ax.set_xlim([0, page.width])
-            self._ax.set_ylim([0, page.height])
+            self.__ax.set_xlim([0, page.width])
+            self.__ax.set_ylim([0, page.height])
 
         page = self.document.get_page(self.current_page)
         for element in page.elements:
@@ -106,16 +115,48 @@ class PDFVisualiser:
             element = self.document._element_list[index]
             self.__plot_element(element, STYLES["ignored"])
 
-        self._ax.format_coord = self.__get_annotations
+        self.__ax.format_coord = self.__get_annotations
 
+        if not self.show_info:
+            return
+
+        # The remaining code sets up the extra info figure
         self.__reset_toolbar()
+        self.__fig.canvas.mpl_connect("button_press_event", self.__on_click)
+
+        self.__info_fig = plt.figure()
+        self.__info_text = self.__info_fig.text(
+            0.01, 0.5, "", horizontalalignment="left", verticalalignment="center"
+        )
+
+        self.__fig.canvas.mpl_connect("close_event", lambda event: plt.close("all"))
+        self.__info_fig.canvas.mpl_connect(
+            "close_event", lambda event: plt.close("all")
+        )
+
+    def __on_click(self, event):
+        if event.button == MouseButton.MIDDLE:
+            self.__clicked_elements = {}
+            self.__update_text()
+            return
+        if event.button not in [MouseButton.LEFT, MouseButton.RIGHT]:
+            return
+        for rect in self.__ax.patches:
+            if not rect.contains(event)[0]:
+                continue
+            # rect is the rectangle we clicked on!
+            self.__clicked_elements[event.button] = rect.element
+            self.__update_text()
+
+            return
+
+    def __update_text(self):
+        self.__info_text.set_text(get_clicked_element_info(self.__clicked_elements))
+        self.__info_fig.canvas.draw()
 
     def __plot_element(self, element, style):
-        bbox = element.bounding_box
-        rect = matplotlib.patches.Rectangle(
-            (bbox.x0, bbox.y0), bbox.width, bbox.height, **style
-        )
-        self._ax.add_patch(rect)
+        rect = _ElementRectangle(element, **style)
+        self.__ax.add_patch(rect)
 
     def __setup_toolbar(self):
         fig_manager = plt.get_current_fig_manager()
@@ -168,7 +209,7 @@ class PDFVisualiser:
 
         return annotation
 
-    def __initialise_plot(self, width: int, height: int) -> Tuple[Figure, Axes]:
+    def __initialise_plot(self, width: int, height: int) -> Tuple["Figure", "Axes"]:
         return plt.subplots(figsize=(height, width))
 
     def __first_page(self):
@@ -193,11 +234,27 @@ class PDFVisualiser:
         if self.current_page != page_number:
             self.current_page = page_number
             self.__plot_current_page()
-            self._fig.canvas.draw()
+            self.__fig.canvas.draw()
+
+
+class _ElementRectangle(matplotlib.patches.Rectangle):
+    """
+    This is essentially the same as a matplotlib.patches.Rectangle, except
+    with an added `element` attribute. It also supplies the coordinates for
+    the rectangle from the element's bounding box.
+    """
+
+    def __init__(self, element: "PDFElement", **style):
+        self.element = element
+        bbox = element.bounding_box
+        super().__init__((bbox.x0, bbox.y0), bbox.width, bbox.height, **style)
 
 
 def visualise(
-    document: PDFDocument, page_number: int = 1, elements: "ElementList" = None
+    document: PDFDocument,
+    page_number: int = 1,
+    elements: "ElementList" = None,
+    show_info: bool = False,
 ):
     """
     Visualises a PDFDocument, allowing you to inspect all the elements.
@@ -216,6 +273,8 @@ def visualise(
             the arrow keys in the visualisation window.
         elements (ElementList, optional): Which elements of the document to visualise.
             Defaults to all of the elements in the document.
+        show_info (bool): Shows an additional window allowing you to click on
+            PDFElements and see details about them. Default: False.
     """
-    visualiser = PDFVisualiser(document, page_number, elements)
+    visualiser = PDFVisualiser(document, page_number, elements, show_info)
     visualiser.visualise()
