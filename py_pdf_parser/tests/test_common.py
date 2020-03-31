@@ -26,4 +26,4 @@ class TestBoundingBox(BaseTestCase):
 
     def test_repr(self):
         bbox = BoundingBox(0, 1, 0, 1)
-        self.assertEqual(repr(bbox), "<BoundingBox 0, 1, 0, 1>")
+        self.assertEqual(repr(bbox), "<BoundingBox x0=0, x1=1, y0=0, y1=1>")
