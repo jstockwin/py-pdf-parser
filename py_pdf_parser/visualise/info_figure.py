@@ -1,7 +1,12 @@
+from typing import Dict, List, Optional, TYPE_CHECKING
+
 from matplotlib.backend_bases import MouseButton
 
+if TYPE_CHECKING:
+    from py_pdf_parser.components import PDFElement
 
-def get_clicked_element_info(clicked_elements):
+
+def get_clicked_element_info(clicked_elements: Dict[MouseButton, "PDFElement"]) -> str:
     left_element = clicked_elements.get(MouseButton.LEFT)
     right_element = clicked_elements.get(MouseButton.RIGHT)
 
@@ -23,7 +28,7 @@ def get_clicked_element_info(clicked_elements):
     return "\n".join(output)
 
 
-def _get_element_info(element):
+def _get_element_info(element: Optional["PDFElement"]) -> List[str]:
     if not element:
         return ["Click an element to see details"]
     return [
@@ -36,7 +41,9 @@ def _get_element_info(element):
     ]
 
 
-def _get_element_comparison_info(element1, element2):
+def _get_element_comparison_info(
+    element1: Optional["PDFElement"], element2: Optional["PDFElement"]
+) -> List[str]:
     if element1 is None or element2 is None:
         return ["Left click one element and right click another to see comparison"]
 
