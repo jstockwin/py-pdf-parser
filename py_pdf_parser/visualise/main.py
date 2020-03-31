@@ -17,7 +17,8 @@ if TYPE_CHECKING:
     from py_pdf_parser.components import PDFElement
     from matplotlib.figure import Figure, Text
     from matplotlib.axes import Axes
-
+    from matplotlib.backend_bases import MouseEvent
+    import PyQt5
 logger = logging.getLogger("PDFParser")
 
 
@@ -42,10 +43,10 @@ class PDFVisualiser:
     __fig: "Figure"
     __info_fig: Optional["Figure"] = None
     __info_text: Optional["Text"] = None
-    __first_page_button = None
-    __previous_page_button = None
-    __next_page_button = None
-    __last_page_button = None
+    __first_page_button: "PyQt5.QtWidgets.QAction" = None
+    __previous_page_button: "PyQt5.QtWidgets.QAction" = None
+    __next_page_button: "PyQt5.QtWidgets.QAction" = None
+    __last_page_button: "PyQt5.QtWidgets.QAction" = None
 
     __clicked_elements: Dict[MouseButton, "PDFElement"] = {}
 
@@ -134,7 +135,7 @@ class PDFVisualiser:
             "close_event", lambda event: plt.close("all")
         )
 
-    def __on_click(self, event):
+    def __on_click(self, event: "MouseEvent"):
         if event.button == MouseButton.MIDDLE:
             self.__clicked_elements = {}
             self.__update_text()
@@ -154,7 +155,7 @@ class PDFVisualiser:
         self.__info_text.set_text(get_clicked_element_info(self.__clicked_elements))
         self.__info_fig.canvas.draw()
 
-    def __plot_element(self, element, style):
+    def __plot_element(self, element: "PDFElement", style: Dict):
         rect = _ElementRectangle(element, **style)
         self.__ax.add_patch(rect)
 
@@ -191,7 +192,7 @@ class PDFVisualiser:
         self.__next_page_button.setEnabled(not_last_page)
         self.__last_page_button.setEnabled(not_last_page)
 
-    def __get_annotations(self, x, y) -> str:
+    def __get_annotations(self, x: float, y: float) -> str:
         annotation = f"({x:.2f}, {y:.2f})"
         for element in self.elements.filter_by_page(self.current_page):
             bbox = element.bounding_box
@@ -230,7 +231,7 @@ class PDFVisualiser:
         previous_page = self.document.page_numbers[previous_page_idx]
         self.__set_page(previous_page)
 
-    def __set_page(self, page_number):
+    def __set_page(self, page_number: int):
         if self.current_page != page_number:
             self.current_page = page_number
             self.__plot_current_page()
