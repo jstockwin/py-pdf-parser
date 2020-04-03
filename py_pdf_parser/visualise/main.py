@@ -83,6 +83,7 @@ class PDFVisualiser:
         plt.show()
 
     def __plot_current_page(self):
+        plt.sca(self.__ax)  # Set the correct axis as active
         plt.cla()
 
         # draw PDF image as background
@@ -117,12 +118,12 @@ class PDFVisualiser:
             self.__plot_element(element, STYLES["ignored"])
 
         self.__ax.format_coord = self.__get_annotations
+        self.__reset_toolbar()
 
         if not self.show_info:
             return
 
         # The remaining code sets up the extra info figure
-        self.__reset_toolbar()
         self.__fig.canvas.mpl_connect("button_press_event", self.__on_click)
 
         self.__info_fig = plt.figure()
