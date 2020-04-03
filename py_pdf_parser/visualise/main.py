@@ -169,7 +169,7 @@ class PDFVisualiser:
         self.__ax.add_patch(rect)
 
     def __setup_toolbar(self):
-        fig_manager = plt.get_current_fig_manager()
+        fig_manager = self.__fig.canvas.manager
         style = fig_manager.toolbar.style()
         fig_manager.toolbar.addSeparator()
 
