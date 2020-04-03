@@ -77,12 +77,18 @@ class PDFVisualiser:
             width=page.width, height=page.height
         )
 
+        if self.show_info:
+            self.__info_fig, self.__info_text = self.__initialise_info_fig()
+
     def visualise(self):
         self.__setup_toolbar()
         self.__plot_current_page()
         plt.show()
 
     def __plot_current_page(self):
+        if self.show_info:
+            self.__clear_clicked_elements()
+
         plt.sca(self.__ax)  # Set the correct axis as active
         plt.cla()
 
@@ -120,26 +126,24 @@ class PDFVisualiser:
         self.__ax.format_coord = self.__get_annotations
         self.__reset_toolbar()
 
-        if not self.show_info:
-            return
-
+    def __initialise_info_fig(self) -> Tuple["Figure", "Axes"]:
         # The remaining code sets up the extra info figure
         self.__fig.canvas.mpl_connect("button_press_event", self.__on_click)
 
-        self.__info_fig = plt.figure()
-        self.__info_text = self.__info_fig.text(
+        info_fig = plt.figure()
+        info_text = info_fig.text(
             0.01, 0.5, "", horizontalalignment="left", verticalalignment="center"
         )
 
         self.__fig.canvas.mpl_connect("close_event", lambda event: plt.close("all"))
-        self.__info_fig.canvas.mpl_connect(
+        info_fig.canvas.mpl_connect(
             "close_event", lambda event: plt.close("all")
         )
+        return info_fig, info_text
 
     def __on_click(self, event: "MouseEvent"):
         if event.button == MouseButton.MIDDLE:
-            self.__clicked_elements = {}
-            self.__update_text()
+            self.__clear_clicked_elements()
             return
         if event.button not in [MouseButton.LEFT, MouseButton.RIGHT]:
             return
@@ -151,6 +155,10 @@ class PDFVisualiser:
             self.__update_text()
 
             return
+
+    def __clear_clicked_elements(self):
+        self.__clicked_elements = {}
+        self.__update_text()
 
     def __update_text(self):
         self.__info_text.set_text(get_clicked_element_info(self.__clicked_elements))
