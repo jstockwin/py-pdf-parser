@@ -136,9 +136,7 @@ class PDFVisualiser:
         )
 
         self.__fig.canvas.mpl_connect("close_event", lambda event: plt.close("all"))
-        info_fig.canvas.mpl_connect(
-            "close_event", lambda event: plt.close("all")
-        )
+        info_fig.canvas.mpl_connect("close_event", lambda event: plt.close("all"))
         return info_fig, info_text
 
     def __on_click(self, event: "MouseEvent"):
