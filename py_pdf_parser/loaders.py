@@ -70,18 +70,15 @@ def load(
         la_params = {}
 
     pages: Dict[int, Page] = {}
-    for page_number, page in enumerate(
-        extract_pages(pdf_file, laparams=LAParams(**la_params)), 1
-    ):
+    for page in extract_pages(pdf_file, laparams=LAParams(**la_params)):
         elements = [element for element in page if isinstance(element, LTTextContainer)]
-
         if not elements:
             logger.warning(
-                f"No elements detected on page {page_number}, skipping this page."
+                f"No elements detected on page {page.pageid}, skipping this page."
             )
             continue
 
-        pages[page_number] = Page(
+        pages[page.pageid] = Page(
             width=page.width, height=page.height, elements=elements
         )
 
