@@ -18,7 +18,7 @@ setup(
     author="Jake Stockwin",
     author_email="devteam@billmonitor.com",
     install_requires=[
-        "pdfminer.six==20200124",
+        "pdfminer.six==20200402",
         "docopt==0.6.2",
         "wand==0.4.4",
         "PyYAML==5.1",
