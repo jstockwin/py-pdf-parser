@@ -52,6 +52,27 @@ class TestTables(BaseTestCase):
         with self.assertRaises(TableExtractionError):
             extract_simple_table(elem_list)
 
+    def test_extract_simple_table_with_gaps(self):
+        #       elem_1      elem_2      elem_3
+        #       elem_4      elem_5
+        elem_1 = FakePDFMinerTextElement(bounding_box=BoundingBox(0, 5, 6, 10))
+        elem_2 = FakePDFMinerTextElement(bounding_box=BoundingBox(6, 10, 6, 10))
+        elem_3 = FakePDFMinerTextElement(bounding_box=BoundingBox(11, 15, 6, 10))
+        elem_4 = FakePDFMinerTextElement(bounding_box=BoundingBox(0, 5, 0, 5))
+        elem_5 = FakePDFMinerTextElement(bounding_box=BoundingBox(6, 10, 0, 5))
+        document = create_pdf_document(
+            elements=[elem_1, elem_2, elem_3, elem_4, elem_5]
+        )
+        elem_list = document.elements
+        result = extract_simple_table(elem_list, allow_gaps=True)
+        print(result)
+        self.assertEqual(len(result), 2)
+        self.assertEqual(len(result[0]), 3)
+        self.assertEqual(len(result[1]), 3)
+        self.assert_original_element_list_list_equal(
+            [[elem_1, elem_2, elem_3], [elem_4, elem_5, None]], result
+        )
+
     def test_extract_simple_table_with_tolerance(self):
         # Checks that simple 2*2 table is correctly extracted
         #

@@ -17,28 +17,52 @@ if TYPE_CHECKING:
 
 def extract_simple_table(
     elements: "ElementList",
+    reference_element: Optional["PDFElement"] = None,
     as_text: bool = False,
     strip_text: bool = True,
+    allow_gaps: bool = False,
     tolerance: float = 0.0,
 ) -> List[List]:
     """
     Returns elements structured as a table.
 
     Given an ElementList, tries to extract a structured table by examining which
-    elements are aligned. To use this function, the table must contain no gaps, i.e.
-    should be a full N x M table with an element in each cell. There must be a clear
-    gap between each row and between each column which contains no elements, and
-    a single cell cannot contain multiple elements.
+    elements are aligned.
 
-    If your table has empty cells, you can use `extract_table` instead. If you fail
-    to satisfy any of the other conditions listed above, that case is not yet supported.
+    To use this function, there must be at least one full row and one full column (which
+    we call the reference row and column), i.e. the reference row must have an element
+    in every column, and the reference column must have an element in every row. The
+    reference row and column can be specified by passing the single element in both the
+    reference row and the reference column. By default, this is the top left element,
+    which means we use the first row and column as the references. Note if you need to
+    change the reference_element, that means you have gaps in your table, and as such
+    you will need to pass `allow_gaps=True`.
+
+    Important: This function uses the elements in the reference row and column to scan
+    horizontally and vertically to find the rest of the table. If there are gaps in your
+    reference row and column, this could result in rows and columns being missed by
+    this function.
+
+    There must be a clear gap between each row and between each column which contains no
+    elements, and a single cell cannot contain multiple elements.
+
+    If there are no valid reference rows or columns, try extract_table() instead. If you
+    have elements spanning multiple rows or columns, it may be possible to fix this by
+    using extract_table(). If you fail to satisfy any of the other conditions listed
+    above, that case is not yet supported.
 
     Args:
         elements (ElementList): A list of elements to extract into a table.
+        reference_element (PDFElement, optional): An element in a full row and a full
+            column. Will be used to specify the reference row and column. If None, the
+            top left element will be used, meaning the top row and left column will be
+            used. If there are gaps in these, you should specify a different reference.
+            Default: None.
         as_text (bool, optional): Whether to extract the text from each element instead
             of the PDFElement itself. Default: False.
         strip_text (bool, optional): Whether to strip the text for each element of the
                 table (Only relevant if as_text is True). Default: True.
+        allow_gaps (bool, optional): Whether to allow empty spaces in the table.
         tolerance (int, optional): For elements to be counted as in the same row or
             column, they must overlap by at least `tolerance`. Default: 0.
 
@@ -49,25 +73,34 @@ def extract_simple_table(
         list[list]: a list of rows, which are lists of PDFElements or strings
             (depending on the value of as_text).
     """
-    first_row = elements.to_the_right_of(
+    if reference_element is None:
+        reference_element = elements[0]
+    reference_row = elements.horizontally_in_line_with(
+        reference_element, inclusive=True, tolerance=tolerance
+    )
+    reference_column = elements.vertically_in_line_with(
         elements[0], inclusive=True, tolerance=tolerance
     )
-    first_column = elements.below(elements[0], inclusive=True, tolerance=tolerance)
 
     table: List[List] = []
-    for left_hand_element in first_column:
+    for reference_column_element in reference_column:
         row: List = []
-        for top_element in first_row:
-            element = elements.to_the_right_of(
-                left_hand_element, inclusive=True, tolerance=tolerance
-            ).below(top_element, inclusive=True, tolerance=tolerance)
+        for reference_row_element in reference_row:
+            element = elements.horizontally_in_line_with(
+                reference_column_element, inclusive=True, tolerance=tolerance
+            ).vertically_in_line_with(
+                reference_row_element, inclusive=True, tolerance=tolerance
+            )
             try:
                 row.append(element.extract_single_element())
             except NoElementFoundError as err:
-                raise TableExtractionError(
-                    "Element not found, there appears to be a gap in the table. "
-                    "Please try extract_table() instead."
-                ) from err
+                if allow_gaps:
+                    row.append(None)
+                else:
+                    raise TableExtractionError(
+                        "Element not found, there appears to be a gap in the table. "
+                        "If this is expected, pass allow_gaps=True."
+                    ) from err
             except MultipleElementsFoundError as err:
                 raise TableExtractionError(
                     "Multiple elements appear to be in the place of one cell in the "
@@ -76,7 +109,9 @@ def extract_simple_table(
         table.append(row)
 
     table_size = sum(len(row) for row in table)
-    if table_size != len(elements):
+    if not allow_gaps and table_size != len(elements):
+        # We should never reach here, since we'd have hit one of the exceptions above,
+        # but it's good to do a quick check.
         raise TableExtractionError(
             f"Number of elements in table ({table_size}) does not match number of "
             f"elements passed {len(elements)}. Perhaps try extract_table instead of "
@@ -108,6 +143,9 @@ def extract_table(
 
     If you fail to satisfy any of the other conditions listed above, that case is not
     yet supported.
+
+    Note: If you satisfy the conditions to use extract_simple_table, then that should be
+    used instead, as it's much more efficient.
 
     Args:
         elements (ElementList): A list of elements to extract into a table.
