@@ -2,7 +2,7 @@ from typing import Dict, List, NamedTuple, IO, Optional, TYPE_CHECKING
 
 import logging
 
-from pdfminer import converter, pdfdocument, pdfinterp, pdfpage, pdfparser
+from pdfminer.high_level import extract_pages
 from pdfminer.layout import LTTextContainer, LAParams
 
 from .components import PDFDocument
@@ -65,45 +65,21 @@ def load(
 
     Returns:
         PDFDocument: A PDFDocument with the file loaded.
-
-    Raises:
-        pdfminer.pdfpage.PDFTextExtractionNotAllowed: If the document does not allow
-            text extraction.
     """
     if la_params is None:
         la_params = {}
 
-    parser = pdfparser.PDFParser(pdf_file)
-    document = pdfdocument.PDFDocument(parser)
-
-    if not document.is_extractable:
-        raise pdfpage.PDFTextExtractionNotAllowed
-
-    resource_manager = pdfinterp.PDFResourceManager()
-    device = converter.PDFPageAggregator(
-        resource_manager, laparams=LAParams(**la_params)
-    )
-    interpreter = pdfinterp.PDFPageInterpreter(resource_manager, device)
-
     pages: Dict[int, Page] = {}
-    for page in pdfpage.PDFPage.create_pages(document):
-        interpreter.process_page(page)
-        results = device.get_result()
-
-        page_number = results.pageid
-
-        elements = [
-            element for element in results if isinstance(element, LTTextContainer)
-        ]
-
+    for page in extract_pages(pdf_file, laparams=LAParams(**la_params)):
+        elements = [element for element in page if isinstance(element, LTTextContainer)]
         if not elements:
             logger.warning(
-                f"No elements detected on page {page_number}, skipping this page."
+                f"No elements detected on page {page.pageid}, skipping this page."
             )
             continue
 
-        pages[page_number] = Page(
-            width=results.width, height=results.height, elements=elements
+        pages[page.pageid] = Page(
+            width=page.width, height=page.height, elements=elements
         )
 
     return PDFDocument(pages=pages, pdf_file_path=pdf_file_path, **kwargs)
