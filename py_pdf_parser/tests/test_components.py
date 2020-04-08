@@ -31,6 +31,16 @@ class TestPDFElement(BaseTestCase):
         element = create_pdf_element(font_size=2)
         self.assertEqual(element.font_size, 2)
 
+    def test_font_size_precision(self):
+        element = create_pdf_element(font_size=1.234)
+        self.assertEqual(element.font_size, 1.2)
+
+        element = create_pdf_element(font_size=1.234, font_size_precision=0)
+        self.assertEqual(element.font_size, 1)
+
+        element = create_pdf_element(font_size=1.234, font_size_precision=3)
+        self.assertEqual(element.font_size, 1.234)
+
     def test_font(self):
         element = create_pdf_element(font_name="test_font", font_size=2)
         self.assertEqual(element.font, "test_font,2")
