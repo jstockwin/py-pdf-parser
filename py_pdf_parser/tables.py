@@ -17,10 +17,10 @@ if TYPE_CHECKING:
 
 def extract_simple_table(
     elements: "ElementList",
-    reference_element: Optional["PDFElement"] = None,
     as_text: bool = False,
     strip_text: bool = True,
     allow_gaps: bool = False,
+    reference_element: Optional["PDFElement"] = None,
     tolerance: float = 0.0,
 ) -> List[List]:
     """
@@ -53,16 +53,16 @@ def extract_simple_table(
 
     Args:
         elements (ElementList): A list of elements to extract into a table.
-        reference_element (PDFElement, optional): An element in a full row and a full
-            column. Will be used to specify the reference row and column. If None, the
-            top left element will be used, meaning the top row and left column will be
-            used. If there are gaps in these, you should specify a different reference.
-            Default: None.
         as_text (bool, optional): Whether to extract the text from each element instead
             of the PDFElement itself. Default: False.
         strip_text (bool, optional): Whether to strip the text for each element of the
                 table (Only relevant if as_text is True). Default: True.
         allow_gaps (bool, optional): Whether to allow empty spaces in the table.
+        reference_element (PDFElement, optional): An element in a full row and a full
+            column. Will be used to specify the reference row and column. If None, the
+            top left element will be used, meaning the top row and left column will be
+            used. If there are gaps in these, you should specify a different reference.
+            Default: None.
         tolerance (int, optional): For elements to be counted as in the same row or
             column, they must overlap by at least `tolerance`. Default: 0.
 
