@@ -77,6 +77,8 @@ class PDFElement:
         element (LTComponent): A PDF Miner LTComponent.
         index (int): The index of the element within the document.
         page_number (int): The page number that the element is on.
+        font_size_precision (int): How much rounding to apply to the font size. The font
+            size will be rounded to this many decimal places.
 
     Attributes:
         original_element (LTComponent): A reference to the original PDF Miner element.
@@ -90,7 +92,8 @@ class PDFElement:
     bounding_box: BoundingBox
     _index: int
     __font_name: Optional[str] = None
-    __font_size: Optional[int] = None
+    __font_size: Optional[float] = None
+    __font_size_precision: int
     __font: Optional[str] = None
     __page_number: int
 
@@ -100,11 +103,13 @@ class PDFElement:
         element: "LTComponent",
         index: int,
         page_number: int,
+        font_size_precision: int = 1,
     ):
         self.document = document
         self.original_element = element
         self._index = index
         self.__page_number = page_number
+        self.__font_size_precision = font_size_precision
 
         self.tags = set()
 
@@ -148,7 +153,7 @@ class PDFElement:
         return self.__font_name
 
     @property
-    def font_size(self) -> int:
+    def font_size(self) -> float:
         """
         The size of the font.
 
@@ -156,7 +161,8 @@ class PDFElement:
         the characters in the element.
 
         Returns:
-            int: The font size of the element.
+            float: The font size of the element, rounded to the font_size_precision of
+                the document.
         """
         if self.__font_size is not None:
             return self.__font_size
@@ -169,7 +175,9 @@ class PDFElement:
                 if hasattr(character, "height")
             )
         )
-        self.__font_size = int(round(counter.most_common(1)[0][0], 0))
+        self.__font_size = round(
+            counter.most_common(1)[0][0], self.__font_size_precision
+        )
         return self.__font_size
 
     @property
@@ -314,6 +322,8 @@ class PDFDocument:
             Default: False.
         regex_flags (str, optional): Regex flags compatible with the re module.
                 Default: 0.
+        font_size_precision (int): How much rounding to apply to the font size. The font
+            size will be rounded to this many decimal places.
 
     Attributes:
         pages (list): A list of all `PDFPages` in the document.
@@ -342,6 +352,7 @@ class PDFDocument:
         font_mapping: Optional[Dict[str, str]] = None,
         font_mapping_is_regex: bool = False,
         regex_flags: Union[int, re.RegexFlag] = 0,
+        font_size_precision: int = 1,
     ):
         self.sectioning = Sectioning(self)
         self._element_list = []
@@ -355,7 +366,11 @@ class PDFDocument:
             first_element = None
             for element in sorted(page.elements, key=lambda elem: (-elem.y0, elem.x0)):
                 pdf_element = PDFElement(
-                    document=self, element=element, index=idx, page_number=page_number
+                    document=self,
+                    element=element,
+                    index=idx,
+                    page_number=page_number,
+                    font_size_precision=font_size_precision,
                 )
                 self._element_list.append(pdf_element)
                 idx += 1
