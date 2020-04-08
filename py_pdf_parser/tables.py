@@ -79,7 +79,7 @@ def extract_simple_table(
         reference_element, inclusive=True, tolerance=tolerance
     )
     reference_column = elements.vertically_in_line_with(
-        elements[0], inclusive=True, tolerance=tolerance
+        reference_element, inclusive=True, tolerance=tolerance, all_pages=True
     )
 
     table: List[List] = []
@@ -89,7 +89,10 @@ def extract_simple_table(
             element = elements.horizontally_in_line_with(
                 reference_column_element, inclusive=True, tolerance=tolerance
             ).vertically_in_line_with(
-                reference_row_element, inclusive=True, tolerance=tolerance
+                reference_row_element,
+                inclusive=True,
+                tolerance=tolerance,
+                all_pages=True,
             )
             try:
                 row.append(element.extract_single_element())
@@ -108,14 +111,14 @@ def extract_simple_table(
                 ) from err
         table.append(row)
 
-    table_size = sum(len(row) for row in table)
-    if not allow_gaps and table_size != len(elements):
-        # We should never reach here, since we'd have hit one of the exceptions above,
-        # but it's good to do a quick check.
+    table_size = sum(
+        len([element for element in row if element is not None]) for row in table
+    )
+    if table_size != len(elements):
         raise TableExtractionError(
             f"Number of elements in table ({table_size}) does not match number of "
-            f"elements passed {len(elements)}. Perhaps try extract_table instead of "
-            "extract_simple_table."
+            f"elements passed ({len(elements)}). Perhaps try extract_table instead of "
+            "extract_simple_table, or change you reference element."
         )
 
     if as_text:
