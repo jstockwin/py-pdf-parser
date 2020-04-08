@@ -12,11 +12,11 @@ from py_pdf_parser.loaders import Page
 
 class FakePDFMinerCharacter(NamedTuple):
     fontname: str = "fake_fontname"
-    height: int = 10
+    height: float = 10
 
 
 class FakePDFMinerIterator:
-    def __init__(self, font_name: str = "fake_font", font_size: int = 10):
+    def __init__(self, font_name: str = "fake_font", font_size: float = 10):
         self.finished = False
         self.font_name = font_name
         self.font_size = font_size
@@ -46,7 +46,7 @@ class FakePDFMinerTextElement(LTComponent):
         bounding_box: "BoundingBox" = BoundingBox(0, 1, 0, 1),
         text: str = "fake_text",
         font_name: str = "fake_font",
-        font_size: int = 10,
+        font_size: float = 10,
     ):
         super().__init__(
             bbox=[bounding_box.x0, bounding_box.y0, bounding_box.x1, bounding_box.y1]
@@ -68,10 +68,11 @@ def create_pdf_element(
     bounding_box: "BoundingBox" = BoundingBox(0, 1, 0, 1),
     text: str = "fake_text",
     font_name: str = "fake_font",
-    font_size: int = 10,
+    font_size: float = 10,
     font_mapping: Optional[Dict[str, str]] = None,
     font_mapping_is_regex: bool = False,
     regex_flags: Union[int, re.RegexFlag] = 0,
+    font_size_precision: int = 1,
 ) -> "PDFElement":
     document = create_pdf_document(
         elements=[
@@ -82,6 +83,7 @@ def create_pdf_element(
         font_mapping=font_mapping,
         font_mapping_is_regex=font_mapping_is_regex,
         regex_flags=regex_flags,
+        font_size_precision=font_size_precision,
     )
     return document.elements[0]
 
@@ -91,6 +93,7 @@ def create_pdf_document(
     font_mapping: Optional[Dict[str, str]] = None,
     font_mapping_is_regex: bool = False,
     regex_flags: Union[int, re.RegexFlag] = 0,
+    font_size_precision: int = 1,
 ) -> "PDFDocument":
     """
     Creates a PDF document with the given elements.
@@ -110,6 +113,7 @@ def create_pdf_document(
         font_mapping=font_mapping,
         font_mapping_is_regex=font_mapping_is_regex,
         regex_flags=regex_flags,
+        font_size_precision=font_size_precision,
     )
 
 
