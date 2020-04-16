@@ -82,18 +82,22 @@ def extract_simple_table(
         reference_element, inclusive=True, tolerance=tolerance, all_pages=True
     )
 
+    reference_columns = [
+        elements.vertically_in_line_with(
+            element, inclusive=True, tolerance=tolerance, all_pages=True
+        )
+        for element in reference_row
+    ]
+    reference_rows = [
+        elements.horizontally_in_line_with(element, inclusive=True, tolerance=tolerance)
+        for element in reference_column
+    ]
+
     table: List[List] = []
-    for reference_column_element in reference_column:
+    for current_row in reference_rows:
         row: List = []
-        for reference_row_element in reference_row:
-            element = elements.horizontally_in_line_with(
-                reference_column_element, inclusive=True, tolerance=tolerance
-            ).vertically_in_line_with(
-                reference_row_element,
-                inclusive=True,
-                tolerance=tolerance,
-                all_pages=True,
-            )
+        for current_column in reference_columns:
+            element = current_row & current_column
             try:
                 row.append(element.extract_single_element())
             except NoElementFoundError as err:
