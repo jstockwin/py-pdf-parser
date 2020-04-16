@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Font sizes are now `float` not `int`. The `font_size_precision` in the additions defaults to 1, and as such all fonts will change to have a single decimal place. To keep the old behaviour, you can pass `font_size_precision=0` when instantiating your PDFDocument.
 
+### Fixed
+- Improved performance of `extract_simple_table`, which is now much faster. ([#65](https://github.com/optimor/py-pdf-parser/pull/65))
+
 ## [0.1.0] - 2019-04-08
 ### Added
 - Initial version of the product. Note: The version is less than 1, so this product should not yet be considered stable. API changes and other breaking changes are possible, if not likely.
