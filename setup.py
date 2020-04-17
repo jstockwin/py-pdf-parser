@@ -12,11 +12,11 @@ setup(
     packages=find_packages(),
     exclude=["tests.*", "tests"],
     version="0.0.1",
-    url="https://github.com/optimor/py-pdf-parser",
+    url="https://github.com/jstockwin/py-pdf-parser",
     license="BSD",
     description="Tool for pdf parsing",
     author="Jake Stockwin",
-    author_email="devteam@billmonitor.com",
+    author_email="jstockwin@gmail.com",
     install_requires=[
         "pdfminer.six==20200402",
         "docopt==0.6.2",

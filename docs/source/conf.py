@@ -19,8 +19,8 @@ sys.path.insert(0, os.path.abspath("../../"))
 # -- Project information -----------------------------------------------------
 
 project = "PDF Parser"
-copyright = "2019, Jake Stockwin, Billmonitor"
-author = "Jake Stockwin, Billmonitor"
+copyright = "2019, Jake Stockwin"
+author = "Jake Stockwin"
 
 
 # -- General configuration ---------------------------------------------------
