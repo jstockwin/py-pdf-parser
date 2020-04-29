@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - This product is now complete enough for the needs of Optimor Ltd, however `jstockwin` is going to continue development as a personal project. The repository has been moved from `optimor/py-pdf-parser` to `jstockwin/py-pdf-parser`.
 
+### Added
+- The visualise tool now draws an outline around each section on the page. ([#69](https://github.com/jstockwin/py-pdf-parser/pull/69))
+
 ## [0.2.0] - 2020-04-17
 ### Added
 - It is now possible to specify `font_size_precision` when instantiating a PDFDocument. This is the number of decimal places the font size will be rounded to. ([#60](https://github.com/jstockwin/py-pdf-parser/pull/60))

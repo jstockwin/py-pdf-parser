@@ -52,7 +52,7 @@ echo ''
 echo '#######################################################################'
 echo '#                             Running PyType                            #'
 echo '#######################################################################'
-pytype $PROJECT_DIR --disable=pyi-error
+pytype $PROJECT_DIR --disable=pyi-error,import-error
 
 PYTYPE_STATUS=$?
 if [[ ("$PYTYPE_STATUS" == 0) ]]; then

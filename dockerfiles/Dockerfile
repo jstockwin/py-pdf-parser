@@ -21,7 +21,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN chown -R app_user: $PROJECT_DIR
 
-RUN pip install $PROJECT_DIR
+RUN pip3 install $PROJECT_DIR
 
 USER app_user
 
