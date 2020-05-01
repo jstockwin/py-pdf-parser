@@ -16,6 +16,7 @@ Please describe how your changes have been tested.
 - [ ] I have provided a good description of the change above
 - [ ] I have added any necessary tests
 - [ ] I have added all necessary type hints
+- [ ] I have checked my linting (`docker-compose run --rm lint`)
 - [ ] I have added/updated all necessary documentation
 - [ ] I have updated `CHANGELOG.md`, following the format from
       [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).

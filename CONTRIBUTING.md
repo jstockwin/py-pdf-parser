@@ -33,6 +33,9 @@ your time working on something that may not be accepted.
 When submitting a Pull Request, you will need to do the following things. There is a
 checklist in the template to help make sure you don't forget.
 
+We run type checks using both pytpe and mypy. We also enforce code style using
+pycodestyle and black. You can run  `docker-compose run --rm lint` to check this.
+
 * Provide a good description of the change, and the reason for it.
 * Ensure the tests, type checks, and linting passes (this is done by continuous
   integration).
