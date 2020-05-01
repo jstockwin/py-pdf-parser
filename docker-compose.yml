@@ -15,7 +15,9 @@ lint:
   volumes:
     - .:/py-pdf-parser
   # pytype pyi-error disabled due to https://github.com/google/pytype/issues/355
-  command: bash -c "black . --check && mypy . && pytype . --disable=pyi-error && pycodestyle . --config=pycodestyle.cfg"
+  # pytype import error disabled because some packages (e.g. pyvoronoi) don't have any
+  # type hinting available.
+  command: bash -c "black . --check && mypy . && pytype . --disable=pyi-error,import-error && pycodestyle . --config=pycodestyle.cfg"
 
 lint-fix:
   build: .

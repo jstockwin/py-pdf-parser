@@ -24,7 +24,13 @@ setup(
         "PyYAML==5.1",
     ],
     extras_require={
-        "dev": ["pyqt5==5.14.1", "matplotlib==3.1.2", "pillow==7.0.0",],
+        "dev": [
+            "matplotlib==3.1.2",
+            "pillow==7.0.0",
+            "pyqt5==5.14.1",
+            "pyvoronoi==1.0.5",
+            "shapely==1.7.0",
+        ],
         "test": [
             "black==19.10b0",
             "ddt==1.2.2",

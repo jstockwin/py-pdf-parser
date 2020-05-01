@@ -21,8 +21,8 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN chown -R app_user: $PROJECT_DIR
 
-RUN pip install -e $PROJECT_DIR[test]
-RUN pip3 install black pycodestyle mypy pytype nose ddt mock sphinx sphinx-rtd-theme
+RUN pip3 install -e $PROJECT_DIR[dev]
+RUN pip3 install -e $PROJECT_DIR[test]
 
 COPY ./imagemagick_policy.xml /etc/ImageMagick-6/policy.xml
 COPY ./ $PROJECT_DIR

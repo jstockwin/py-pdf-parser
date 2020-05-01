@@ -11,6 +11,7 @@ from matplotlib.backend_bases import MouseButton
 from py_pdf_parser.components import PDFDocument
 from .background import get_pdf_background
 from .info_figure import get_clicked_element_info
+from .sections import SectionVisualiser
 
 if TYPE_CHECKING:
     from py_pdf_parser.filtering import ElementList
@@ -47,6 +48,7 @@ class PDFVisualiser:
     __previous_page_button: "PyQt5.QtWidgets.QAction" = None
     __next_page_button: "PyQt5.QtWidgets.QAction" = None
     __last_page_button: "PyQt5.QtWidgets.QAction" = None
+    __section_visualiser: "SectionVisualiser"
 
     __clicked_elements: Dict[MouseButton, "PDFElement"] = {}
 
@@ -77,6 +79,8 @@ class PDFVisualiser:
             width=page.width, height=page.height
         )
 
+        self.__section_visualiser = SectionVisualiser(self.document, self.__ax)
+
         if self.show_info:
             self.__info_fig, self.__info_text = self.__initialise_info_fig()
 
@@ -105,6 +109,7 @@ class PDFVisualiser:
                 interpolation="kaiser",
             )
         else:
+            self.__ax.set_aspect("equal")
             self.__ax.set_xlim([0, page.width])
             self.__ax.set_ylim([0, page.height])
 
@@ -122,6 +127,8 @@ class PDFVisualiser:
         for index in ignored_indexes_on_page:
             element = self.document._element_list[index]
             self.__plot_element(element, STYLES["ignored"])
+
+        self.__section_visualiser.plot_sections_for_page(page)
 
         self.__ax.format_coord = self.__get_annotations
         self.__reset_toolbar()
