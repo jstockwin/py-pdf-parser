@@ -10,7 +10,6 @@ from typing import (
 )
 
 import re
-from itertools import chain
 
 from .common import BoundingBox
 from .exceptions import (
@@ -213,23 +212,7 @@ class ElementList(Iterable):
         Returns:
             ElementList: The filtered list.
         """
-        non_cached_fonts = fonts - self.document._elements_indexes_by_font.keys()
-        if non_cached_fonts:
-            # If we don't have cached elements for any of the required fonts, build
-            # the cache for the non cached fonts.
-            for element in self:
-                if element.font not in non_cached_fonts:
-                    continue
-
-                self.document._elements_indexes_by_font[element.font].add(
-                    element._index
-                )
-
-        # Returns elements based on the caching of fonts to elements indexes.
-        elements_indexes_for_fonts = set(
-            chain.from_iterable(self.document._elements_indexes_by_font.values())
-        )
-        new_indexes = self.indexes & elements_indexes_for_fonts
+        new_indexes = self.indexes & self.document._element_indexes_with_fonts(*fonts)
         return ElementList(self.document, new_indexes)
 
     def filter_by_page(self, page_number: int) -> "ElementList":

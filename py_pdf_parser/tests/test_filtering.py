@@ -158,7 +158,7 @@ class TestFiltering(BaseTestCase):
 
         self.assertEqual(len(doc.elements.filter_by_font("foo,2")), 1)
         # Check if "foo,2" has been added to cache
-        self.assertEqual(doc._elements_indexes_by_font, {"foo,2": {0}})
+        self.assertEqual(doc._element_indexes_by_font, {"foo,2": set([0])})
         self.assert_original_element_in(elem1, doc.elements.filter_by_font("foo,2"))
 
         doc = create_pdf_document([elem1, elem2], font_mapping={"foo,2": "font_a"})
@@ -167,7 +167,7 @@ class TestFiltering(BaseTestCase):
 
         self.assertEqual(len(doc.elements.filter_by_font("font_a")), 1)
         # Check if "font_a" has been added to cache
-        self.assertEqual(doc._elements_indexes_by_font, {"font_a": {0}})
+        self.assertEqual(doc._element_indexes_by_font, {"font_a": set([0])})
         self.assert_original_element_in(elem1, doc.elements.filter_by_font("font_a"))
 
     def test_filter_by_fonts(self):
@@ -180,7 +180,9 @@ class TestFiltering(BaseTestCase):
 
         self.assertEqual(len(doc.elements.filter_by_fonts("foo,2", "bar,3")), 2)
         # Check if "foo,2" and "bar,3" have been added to cache
-        self.assertEqual(doc._elements_indexes_by_font, {"foo,2": {0}, "bar,3": {1}})
+        self.assertEqual(
+            doc._element_indexes_by_font, {"foo,2": set([0]), "bar,3": set([1])}
+        )
         self.assert_original_element_in(
             elem1, doc.elements.filter_by_fonts("foo,2", "bar,3")
         )
@@ -197,7 +199,9 @@ class TestFiltering(BaseTestCase):
 
         self.assertEqual(len(doc.elements.filter_by_fonts("font_a", "font_b")), 2)
         # Check if "font_a" and "font_b" have been added to cache
-        self.assertEqual(doc._elements_indexes_by_font, {"font_a": {0}, "font_b": {1}})
+        self.assertEqual(
+            doc._element_indexes_by_font, {"font_a": set([0]), "font_b": set([1])}
+        )
         self.assert_original_element_in(
             elem1, doc.elements.filter_by_fonts("font_a", "font_b")
         )
