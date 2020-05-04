@@ -448,7 +448,7 @@ class PDFDocument:
         except KeyError as err:
             raise PageNotFoundError(f"Could not find page {page_number}") from err
 
-    def _element_indexes_with_fonts(self, *fonts) -> Set[int]:
+    def _element_indexes_with_fonts(self, *fonts: str) -> Set[int]:
         """
         Returns all the indexes of elements with given fonts.
 
