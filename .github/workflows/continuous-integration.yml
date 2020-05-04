@@ -18,3 +18,5 @@ jobs:
         run: docker run --rm py-pdf-parser/py-pdf-parser-test:test .github/scripts/lint.sh
       - name: Run test
         run: docker run --rm py-pdf-parser/py-pdf-parser-test:test .github/scripts/test.sh
+      - name: Check docs build correctly
+        run: docker run --rm py-pdf-parser/py-pdf-parser-test:test .github/scripts/docs.sh

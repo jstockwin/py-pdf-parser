@@ -50,19 +50,19 @@ fi
 
 echo ''
 echo '#######################################################################'
-echo '#                             Running PyType                            #'
+echo '#                             Running PyType                          #'
 echo '#######################################################################'
 pytype $PROJECT_DIR --disable=pyi-error,import-error
 
 PYTYPE_STATUS=$?
 if [[ ("$PYTYPE_STATUS" == 0) ]]; then
   echo '#######################################################################'
-  echo '#                             PyType succeded                           #'
+  echo '#                             PyType succeded                         #'
   echo '#######################################################################'
 else
   echo ''
   echo '#######################################################################'
-  echo '#                             PyType failed    !                        #'
+  echo '#                             PyType failed    !                      #'
   echo '#######################################################################'
   LINTERS_FAILED=1
 fi
