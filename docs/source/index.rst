@@ -8,3 +8,4 @@ Welcome to PDF Parser's documentation!
    overview
    examples/index
    reference/index
+   CHANGELOG.md
