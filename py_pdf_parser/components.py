@@ -451,6 +451,8 @@ class PDFDocument:
     def _element_indexes_with_fonts(self, *fonts: str) -> Set[int]:
         """
         Returns all the indexes of elements with given fonts.
+        For internal use only, used to cache fonts. If you want to filter by fonts you
+        should use elements.filter_by_fonts instead.
 
         Args:
             *fonts (str): The fonts to filter for.
