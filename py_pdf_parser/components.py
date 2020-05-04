@@ -1,7 +1,7 @@
 from typing import Dict, List, Set, Optional, Union, TYPE_CHECKING
 
 import re
-from collections import Counter
+from collections import Counter, defaultdict
 
 from .common import BoundingBox
 from .exceptions import PageNotFoundError, NoElementsOnPageError
@@ -338,6 +338,9 @@ class PDFDocument:
     sectioning: "Sectioning"
     # _element_list will contain all elements, sorted from top to bottom, left to right.
     _element_list: List[PDFElement]
+    # _elements_indexes_by_font will be a caching of fonts to elements indexes but it
+    # will be built as needed (while filtering by fonts), not on document load.
+    _elements_indexes_by_font: Dict[str, Set[int]]
     _ignored_indexes: Set[int]
     _font_mapping: Dict[str, str]
     _font_mapping_is_regex: bool
@@ -356,6 +359,7 @@ class PDFDocument:
     ):
         self.sectioning = Sectioning(self)
         self._element_list = []
+        self._elements_indexes_by_font = defaultdict(set)
         self._font_mapping = font_mapping if font_mapping is not None else {}
         self._font_mapping_is_regex = font_mapping_is_regex
         self._regex_flags = regex_flags
