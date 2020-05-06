@@ -200,8 +200,7 @@ class ElementList(Iterable):
         Returns:
             ElementList: The filtered list.
         """
-        new_indexes = set(element._index for element in self if element.font == font)
-        return ElementList(self.document, new_indexes)
+        return self.filter_by_fonts(font)
 
     def filter_by_fonts(self, *fonts: str) -> "ElementList":
         """
@@ -213,7 +212,7 @@ class ElementList(Iterable):
         Returns:
             ElementList: The filtered list.
         """
-        new_indexes = set(element._index for element in self if element.font in fonts)
+        new_indexes = self.indexes & self.document._element_indexes_with_fonts(*fonts)
         return ElementList(self.document, new_indexes)
 
     def filter_by_page(self, page_number: int) -> "ElementList":

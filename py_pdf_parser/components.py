@@ -1,7 +1,8 @@
 from typing import Dict, List, Set, Optional, Union, TYPE_CHECKING
 
 import re
-from collections import Counter
+from collections import Counter, defaultdict
+from itertools import chain
 
 from .common import BoundingBox
 from .exceptions import PageNotFoundError, NoElementsOnPageError
@@ -338,6 +339,9 @@ class PDFDocument:
     sectioning: "Sectioning"
     # _element_list will contain all elements, sorted from top to bottom, left to right.
     _element_list: List[PDFElement]
+    # _element_indexes_by_font will be a caching of fonts to elements indexes but it
+    # will be built as needed (while filtering by fonts), not on document load.
+    _element_indexes_by_font: Dict[str, Set[int]]
     _ignored_indexes: Set[int]
     _font_mapping: Dict[str, str]
     _font_mapping_is_regex: bool
@@ -356,6 +360,7 @@ class PDFDocument:
     ):
         self.sectioning = Sectioning(self)
         self._element_list = []
+        self._element_indexes_by_font = defaultdict(set)
         self._font_mapping = font_mapping if font_mapping is not None else {}
         self._font_mapping_is_regex = font_mapping_is_regex
         self._regex_flags = regex_flags
@@ -442,3 +447,30 @@ class PDFDocument:
             return self.__pages[page_number]
         except KeyError as err:
             raise PageNotFoundError(f"Could not find page {page_number}") from err
+
+    def _element_indexes_with_fonts(self, *fonts: str) -> Set[int]:
+        """
+        Returns all the indexes of elements with given fonts.
+        For internal use only, used to cache fonts. If you want to filter by fonts you
+        should use elements.filter_by_fonts instead.
+
+        Args:
+            *fonts (str): The fonts to filter for.
+
+        Returns:
+            Set[int]: The elements indexes.
+        """
+        non_cached_fonts = [
+            font for font in fonts if font not in self._element_indexes_by_font.keys()
+        ]
+        if non_cached_fonts:
+            # If we don't have cached elements for any of the required fonts, build
+            # the cache for the non cached fonts.
+            for element in self._element_list:
+                if element.font not in non_cached_fonts:
+                    continue
+
+                self._element_indexes_by_font[element.font].add(element._index)
+
+        # Returns elements based on the caching of fonts to elements indexes.
+        return set(chain.from_iterable(self._element_indexes_by_font.values()))
