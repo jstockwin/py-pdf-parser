@@ -6,8 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Documentation is now hosted [here](https://py-pdf-parser.readthedocs.io/en/latest/).
+- Documentation is now hosted [here](https://py-pdf-parser.readthedocs.io/en/latest/). ([#71](https://github.com/jstockwin/py-pdf-parser/pull/71))
+- Added new examples to the documentation. ([#74](https://github.com/jstockwin/py-pdf-parser/pull/74))
 - Font filtering now caches the elements by font. ([#73](https://github.com/jstockwin/py-pdf-parser/pull/73)) (updated in [#78](https://github.com/jstockwin/py-pdf-parser/pull/78))
+- Font filtering now caches the elements by font. ([#73](https://github.com/jstockwin/py-pdf-parser/pull/73))
 
 ### Changed
 - This product is now complete enough for the needs of Optimor Ltd, however `jstockwin` is going to continue development as a personal project. The repository has been moved from `optimor/py-pdf-parser` to `jstockwin/py-pdf-parser`.
