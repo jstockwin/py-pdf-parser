@@ -161,6 +161,13 @@ class TestFiltering(BaseTestCase):
         self.assertEqual(doc._element_indexes_by_font, {"foo,2": set([0])})
         self.assert_original_element_in(elem1, doc.elements.filter_by_font("foo,2"))
 
+        # Check we can still filter for another font which is not in cache
+        self.assertEqual(len(doc.elements.filter_by_font("bar,3")), 1)
+        self.assertEqual(
+            doc._element_indexes_by_font, {"foo,2": set([0]), "bar,3": set([1])}
+        )
+        self.assert_original_element_in(elem2, doc.elements.filter_by_font("bar,3"))
+
         doc = create_pdf_document([elem1, elem2], font_mapping={"foo,2": "font_a"})
         self.assertEqual(len(doc.elements.filter_by_font("hello,1")), 0)
         self.assertEqual(len(doc.elements.filter_by_font("foo,2")), 0)
@@ -207,6 +214,19 @@ class TestFiltering(BaseTestCase):
         )
         self.assert_original_element_in(
             elem2, doc.elements.filter_by_fonts("font_a", "font_b")
+        )
+
+        # Check we can still filter for another font which is not in cache
+        self.assertEqual(len(doc.elements.filter_by_fonts("font_b", "font_c")), 2)
+        self.assert_original_element_in(
+            elem2, doc.elements.filter_by_fonts("font_b", "font_c")
+        )
+        self.assert_original_element_in(
+            elem3, doc.elements.filter_by_fonts("font_b", "font_c")
+        )
+        self.assertEqual(
+            doc._element_indexes_by_font,
+            {"font_a": set([0]), "font_b": set([1]), "font_c": set([2])},
         )
 
     def test_filter_by_page(self):

@@ -473,4 +473,12 @@ class PDFDocument:
                 self._element_indexes_by_font[element.font].add(element._index)
 
         # Returns elements based on the caching of fonts to elements indexes.
-        return set(chain.from_iterable(self._element_indexes_by_font.values()))
+        return set(
+            chain.from_iterable(
+                [
+                    indexes
+                    for font, indexes in self._element_indexes_by_font.items()
+                    if font in fonts
+                ]
+            )
+        )
