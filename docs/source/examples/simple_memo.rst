@@ -42,6 +42,11 @@ Certain elements should be present in every memo. We will use these as reference
 
 The simplest way to extract the elements we are interested in is by text. There are many other options available to us, and a full list can be found on the :ref:`filtering reference page<filtering-reference>`.
 
+We will extract the "TO:", "FROM:", "DATE:" and "SUBJECT:" elements as reference elements, i.e. the elements on the left of the below image. We will then search to the right of each of them in turn, to extract the values for each field.
+
+.. image:: /screenshots/simple_memo_example/top.png
+   :height: 200px
+
 To extract the element which says "TO:", we can simply run :meth:`document.elements.filter_by_font("TO:") <py_pdf_parser.filtering.ElementList.filter_by_font>`. This returns a new :class:`~py_pdf_parser.filtering.ElementList` which contains all the elements in the document with text equal to "TO:". In this case, there should only be one element in the list. We could just use ``[0]`` on the element list to access the element in question, however, there is a convenience function, :func:`~py_pdf_parser.filtering.ElementList.extract_single_element` on the :class:`~py_pdf_parser.filtering.ElementList` class to handle this case. This essentially checks if the list has a single element and returns the element for you, otherwise it raises an exception. Use of this is encouraged to make your code more robust and to make any errors more explicit.
 
 .. code-block:: python
