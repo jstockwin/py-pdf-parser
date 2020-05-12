@@ -79,7 +79,7 @@ Calling :meth:`~py_pdf_parser.sectioning.Sectioning.create_section` will return 
 
 Going back to our example, we will create sections for the order summary table, and for the totals table. Our order summary table will start with the "Order Summary:" sub title and end at the "Totals:" sub title. Note that there are two elements on the page with text equal to "Order Summary:", however they have different font and so we can still extract exactly the one we want.
 
-By default, meth:`~py_pdf_parser.sectioning.Sectioning.create_section` will include the last element in the section, but this can be disabled by passing ``include_last_element=False``.
+By default, :meth:`~py_pdf_parser.sectioning.Sectioning.create_section` will include the last element in the section, but this can be disabled by passing ``include_last_element=False``.
 
 The totals section will run from the "Totals:" sub title, until the end of the document. An :class:`~py_pdf_parser.filtering.ElementList` (e.g. ``document.elements``) acts like a set of elements, but it does also define an order, and as such we can access the last element in the :class:`~py_pdf_parser.filtering.ElementList` by simply doing ``document.elements[-1]``.
 

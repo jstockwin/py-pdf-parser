@@ -38,7 +38,7 @@ Py-pdf-parser has extracted each element from the PDF as a :class:`~py_pdf_parse
 Step 2 - Extract reference elements
 ...................................
 
-Certain elements should be present in every memo. We will use these as reference elements to identify the elements which contain the information we are interested in. We already have our ``document``, which is a :class:`~py_pdf_parser.components.PDFDocument`. We can do :meth:`document.elements <py_pdf_parser.components.PDFDocument.elements>` to get a list (an :class:`~py_pdf_parser.filtering.ElementList`) of all the :class:`~py_pdf_parser.components.PDFElement` in the document, and also allows us to filter the elements.
+Certain elements should be present in every memo. We will use these as reference elements to identify the elements which contain the information we are interested in. We already have our ``document``, which is a :class:`~py_pdf_parser.components.PDFDocument`. We can do :meth:`document.elements <py_pdf_parser.components.PDFDocument.elements>` to get a list (an :class:`~py_pdf_parser.filtering.ElementList`) of all the :class:`~py_pdf_parser.components.PDFElement` in the document, and also to allow us to filter the elements.
 
 The simplest way to extract the elements we are interested in is by text. There are many other options available to us, and a full list can be found on the :ref:`filtering reference page<filtering-reference>`.
 

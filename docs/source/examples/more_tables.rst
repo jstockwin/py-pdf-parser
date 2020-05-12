@@ -101,7 +101,7 @@ To use :meth:`~py_pdf_parser.tables.extract_simple_table` we must have at least 
 
 To understand why: for each column element in the reference row and each row element in the reference column, :meth:`~py_pdf_parser.tables.extract_simple_table` will scan across from the row element (to get the row) and up/down from the column element (to get the column), and see if there is an element there. If there is, it is added to the table. Therefore, if there are gaps in the reference row/column, other elements may get missed. There is a check for this, so an exception will be raised if this is the case.
 
-This means :meth:`~py_pdf_parser.tables.extract_simple_table` takes time proportional to ``len(cols) + len(rows)``. Conversely,  :meth:`~py_pdf_parser.tables.extract_simple_table` is at least ``len(cols) * len(rows)``, and if there are merged cells it will be even worse. (Note in reality the complexity is not quite this simple, but it should give you an idea of the difference.)
+This means :meth:`~py_pdf_parser.tables.extract_simple_table` takes time proportional to ``len(cols) + len(rows)``. Conversely,  :meth:`~py_pdf_parser.tables.extract_table` is at least ``len(cols) * len(rows)``, and if there are merged cells it will be even worse. (Note in reality the complexity is not quite this simple, but it should give you an idea of the difference.)
 
 Below, we will work through increasingly complex examples to explain the functionality, and the steps involved.
 
@@ -167,7 +167,7 @@ This table is similar to the above example, but now we have gaps in the first ro
 
 The error message suggests either passing another reference element, or using the more complicated :meth:`~py_pdf_parser.tables.extract_table` method. In this case, as we still have a row and a column which have no missing cells, we can just pass a new reference element.
 
-In this case, we can use the second column and the last row as our references, as neither of these have missing cells. The reference row and column are specified by simply passing the unique element in both the reference row and the reference column (called the reference element). In this case, it's the first number "3" in the table. Here we will be lazy and simply use the fact that this is the 10th element in the table, but you should probably do something smarter.
+As such, we can use the second column and the last row as our references, as neither of these have missing cells. The reference row and column are specified by simply passing the unique element in both the reference row and the reference column (called the reference element). In this case, it's the first number "3" in the table. Here we will be lazy and simply use the fact that this is the 10th element in the table, but you should probably do something smarter.
 
 .. code-block:: python
 
@@ -189,7 +189,7 @@ Non Simple Table
 
 The next table does not have any row with no empty cells, and as such we must use :meth:`~py_pdf_parser.tables.extract_table`. There is no ``allow_gaps`` parameter for this method, since if you don't want to allow gaps you should be using :meth:`~py_pdf_parser.tables.extract_simple_table` instead.
 
-Whilst the below may seem easier than working out the reference element in the above example, please note that is will be computationally slower.
+Whilst the below may seem easier than working out the reference element in the above example, please note that it will be computationally slower.
 
 .. code-block:: python
 
@@ -258,7 +258,7 @@ Over the page
 
 The final table goes over the page break. This is not a problem, simply pass the elements within the table and the result should be correct.
 
-If you had e.g. a footer that broke the table in two, simply ensure these elements are not included in the element list you pass to extract_table, and again it should still work.
+If you had e.g. a footer that broke the table in two, simply ensure these elements are not included in the element list you pass to :meth:`~py_pdf_parser.tables.extract_table`, and again it should still work.
 
 .. code-block:: python
 
@@ -268,4 +268,3 @@ If you had e.g. a footer that broke the table in two, simply ensure these elemen
 
    >>> table
    [['Heading 1', 'Heading 2', 'Heading 3', 'Heading 4'], ['A', '1', 'A', '1'], ['B', '2', 'B', '2'], ['C', '3', 'C', '3']]
-
