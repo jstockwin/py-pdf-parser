@@ -199,9 +199,15 @@ def extract_table(
     if fix_element_in_multiple_cols:
         _fix_cols(cols, elements)
     if sum([len(row) for row in rows]) != len(set(chain.from_iterable(rows))):
-        raise TableExtractionError("An element is in multiple rows")
+        raise TableExtractionError(
+            "An element is in multiple rows. If this is expected, you can try passing "
+            "fix_element_in_multiple_rows=True"
+        )
     if sum([len(col) for col in cols]) != len(set(chain.from_iterable(cols))):
-        raise TableExtractionError("An element is in multiple columns")
+        raise TableExtractionError(
+            "An element is in multiple columns. If this is expected, you can try "
+            "passing fix_element_in_multiple_cols=True"
+        )
 
     sorted_rows = sorted(
         rows,

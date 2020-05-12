@@ -1,5 +1,7 @@
 from typing import List, Optional, Union, TYPE_CHECKING
 
+import logging
+
 from unittest import TestCase
 
 if TYPE_CHECKING:
@@ -7,6 +9,10 @@ if TYPE_CHECKING:
 
     from py_pdf_parser.components import PDFElement
     from py_pdf_parser.filtering import ElementList
+
+
+# Turn of debug spam from pdfminer
+logging.getLogger("pdfminer").setLevel(logging.WARNING)
 
 
 class BaseTestCase(TestCase):

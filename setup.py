@@ -42,6 +42,8 @@ setup(
             "pycodestyle==2.5.0",
             "pyqt5==5.14.1",
             "pytype==2020.1.8",
+            "recommonmark==0.6.0",
+            "sphinx-autobuild==0.7.1",
             "sphinx-rtd-theme==0.4.3",
             "Sphinx==2.3.1",
             # This is a sub-dependency but is pinned because the next version doesn't

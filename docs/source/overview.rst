@@ -4,65 +4,45 @@ Overview
 Introduction
 ------------
 
-This PDF Parser is a tool built on top of PDF Miner to help extracting information from
-PDFs in Python. The main idea was to create a tool that could be driven by code to
-interact with the elements on the PDF and slowly classify them by creating sections
-and adding tags to them. It also comes with a helpful visualisation tool which enables
-you to examine the current status of your elements.
+This PDF Parser is a tool built on top of PDF Miner to help extracting information from PDFs in Python. The main idea was to create a tool that could be driven by code to interact with the elements on the PDF and slowly classify them by creating sections and adding tags to them. It also comes with a helpful visualisation tool which enables you to examine the current status of your elements.
 
-This page gives a brief overview of the PDF Parser, but there is also a full
-:doc:`reference/index` of all the functionality.
+This page gives a brief overview of the PDF Parser, but there is also a full :doc:`reference/index` of all the functionality. You may get a more in-depth overview by looking at the :doc:`examples/index`.
 
 Setup
 -----
 
-At the moment you will need to install it from github. You will also need to manually
-install matplotlib and PyQt5 using apt. We are working on this.
+At the moment you will need to install it from github, using ``pip install git+https://github.com/jstockwin/py-pdf-parser.git@master#egg=py-pdf-parser``. We hope to publish to `PyPi` soon.
+
+When Should I Use Py PDF Parser?
+--------------------------------
+
+Py PDF Parser is for extracting specific, structured data from a PDF. You will be able to write code that should extract for multiple PDFs with the same format.
+
+If you're simply trying to extract all of the text from a PDF, other tools (e.g. https://textract.readthedocs.io/en/stable/python_package.html) may be more appropriate.
+
+If you're trying to extract specific tables from a certain PDF, other tools (e.g. https://camelot-py.readthedocs.io/en/master/) may be more appropriate.
 
 Loading A PDF
 -------------
 
-To load a PDF, use the ``load_file`` function from the :doc:`reference/loaders`. You
-will need to use ``load_file`` with a file path to be able to use the visualisation
-tool with your PDF as the background. If you don't have this, you can instead use the
-``load`` function, but when you use the visualisation tool there will be no background.
+To load a PDF, use the :func:`~py_pdf_parser.loaders.load_file`: function from the :doc:`reference/loaders`. You will need to use :func:`~py_pdf_parser.loaders.load_file`: with a file path to be able to use the visualisation tool with your PDF as the background. If you don't have this, you can instead use the :func:`~py_pdf_parser.loaders.load`: function, but when you use the visualisation tool there will be no background.
 
-We order the elements in a pdf, left-to-right, top-to-bottom. At the moment, this is
-not configurable. Each ``PDFElement`` within the ``PDFDocument`` are aware of their
-position, both on the page and within the document, and also have properties allowing
-you to access their font and text. For more information about ``PDFDocument`` and
-``PDFElement``, see :doc:`reference/components`.
+We order the elements in a pdf, left-to-right, top-to-bottom. At the moment, this is not configurable. Each :class:`~py_pdf_parser.components.PDFElement` within the :class:`~py_pdf_parser.components.PDFDocument` are aware of their position, both on the page and within the document, and also have properties allowing you to access their font and text. For more information about :class:`~py_pdf_parser.components.PDFDocument` and :class:`~py_pdf_parser.components.PDFElement`, see :doc:`reference/components`.
 
-Pay particular attention to the ``la_params`` argument. These will need to be
-fine-tuned for your PDF. We suggest immediately visualising your PDF using the
-visualisation tool to see how the elements have been grouped. If multiple elements
-have been counted as one, or vice versa, you should be able to fix this by tweaking
-the ``la_params``.
+Pay particular attention to the ``la_params`` argument. These will need to be fine-tuned for your PDF. We suggest immediately visualising your PDF using the visualisation tool to see how the elements have been grouped. If multiple elements have been counted as one, or vice versa, you should be able to fix this by tweaking the ``la_params``.
 
 Filtering
 ---------
 
-Once you have loaded your PDF, say into a variable ``document``, you can start
-interacting with the elements. You can access all the elements by calling
-``document.elements``. You may now want to filter your elements, for example you could
-do ``document.elements.filter_by_text_equal("foo")`` to filter for all elements which
-say "foo". To view all available filters, have a look at the :doc:`reference/filtering`
-reference.
+Once you have loaded your PDF, say into a variable :class:`document<py_pdf_parser.components.PDFDocument>`, you can start interacting with the elements. You can access all the elements by calling :class:`document.elements<py_pdf_parser.filtering.ElementList>`. You may now want to filter your elements, for example you could do :meth:`document.elements.filter_by_text_equal("foo")<py_pdf_parser.filtering.ElementList.filter_by_text_equal>` to filter for all elements which say "foo". To view all available filters, have a look at the :doc:`reference/filtering` reference.
 
-The ``document.elements`` object, and any filtered subset thereof, will be an
-``ElementList``. These act like sets of elements, and so you can union (``|``),
-intersect (``&``), difference (``-``) and symmetric difference (``^``) different
-filtered sets of elements.
+The :class:`document.elements<py_pdf_parser.filtering.ElementList>` object, and any filtered subset thereof, will be an :class:`~py_pdf_parser.filtering.ElementList`. These act like sets of elements, and so you can union (:meth:`|<py_pdf_parser.filtering.ElementList.__or__>`), intersect (:meth:`&<py_pdf_parser.filtering.ElementList.__and__>`), difference (:meth:`-<py_pdf_parser.filtering.ElementList.__sub__>`) and symmetric difference (:meth:`^<py_pdf_parser.filtering.ElementList.__xor__>`) different filtered sets of elements.
 
-You can also chain filters, which will do the same as intersecting multiple filters, for
-example ``document.elements.filter_by_text_equal("foo").filter_by_tag("bar")`` is the
-same as ``document.elements.filter_by_text_equal("foo") &
-document.elements.filter_by_tag("bar")``.
+You can also chain filters, which will do the same as intersecting multiple filters, for example ``document.elements.filter_by_text_equal("foo").filter_by_tag("bar")`` is the same as ``document.elements.filter_by_text_equal("foo") & document.elements.filter_by_tag("bar")``.
 
-If you believe you have filtered down to a single element, and would like to examine
-that element, you can call ``extract_single_element`` on your ``ElementList``. This will
-return said element, or raise an exception if there is not a single element in your
-list.
+If you believe you have filtered down to a single element, and would like to examine that element, you can call :meth:`~py_pdf_parser.filtering.ElementList.extract_single_element`. This will return said element, or raise an exception if there is not a single element in your list.
+
+You can see an example of filtering in the :ref:`simple-memo` example.
 
 Classifying Elements
 --------------------
@@ -73,47 +53,31 @@ There are three ways to classify elements:
 - create sections
 - mark certain elements as ignored
 
-To add a tag, you can simply call ``add_tag`` on an element. You can filter by tags.
+To add a tag, you can simply call :meth:`~py_pdf_parser.components.PDFElement.add_tag` on an :class:`~py_pdf_parser.components.PDFElement`, or :meth:`~py_pdf_parser.filtering.ElementList.add_tag_to_elements` on an :class:`~py_pdf_parser.filtering.ElementList`. You can filter by tags.
 
-To create a section, you can call ``document.sectioning.create_section``. See
-:doc:`reference/sectioning` for more information. When you create a section you simply
-specify a name for the section, and the start and end element for the section. Any
-elements between the start and end element will be included in your section. You can
-add multiple sections with the same name, and internally they will be given unique
-names. You can filter by either the non-unique ``section_name``, or by the unique
-sections. Elements can be in multiple sections.
+To create a section, you can call :meth:`~py_pdf_parser.sectioning.Sectioning.create_section`. See :doc:`reference/sectioning` for more information and the :ref:`order-summary` example for an example. When you create a section you simply specify a name for the section, and the start and end element for the section. Any elements between the start and end element will be included in your section. You can add multiple sections with the same name, and internally they will be given unique names. You can filter by either the non-unique ``section_name``, or by the unique sections. Elements can be in multiple sections.
 
-To mark an element as ignored, simply set the ``ignore`` property to ``True``. You can
-then remove all ignored elements by doing ``document.elements.exclude_ignored()``.
+To mark an element as ignored, simply set the ``ignore`` property to ``True``. Ignored elements will not be included in any :class:`~py_pdf_parser.filtering.ElementList`, however existing lists which you have assigned to variables will not be re-calculated and so may still include the ignored elements.
 
-To process a whole pdf, we suggest that you mark any elements you're not interested in
-as ignored, group any elements which are together into sections, and then add tags to
-important elements. You can then loop through filtered sets of elements to extract the
-information you would like.
+To process a whole pdf, we suggest that you mark any elements you're not interested in as ignored, group any elements which are together into sections, and then add tags to important elements. You can then loop through filtered sets of elements to extract the information you would like.
 
 Visualisation Tool
 ------------------
 
-The PDF Parser comes with a visualisation tool. See the :doc:`reference/visualise`
-documentation. When you visualise your ``PDFDocument``, you'll be able to see each
-page of the document in turn, with every ``PDFElement`` highlighted. You can hover
-over the elements to see their sections, tags and whether they are ignored or not. This
-is very helpful for debugging any problems.
+The PDF Parser comes with a visualisation tool. See the :doc:`reference/visualise` documentation. When you visualise your :class:`~py_pdf_parser.components.PDFDocument`, you'll be able to see each page of the document in turn, with every :class:`~py_pdf_parser.components.PDFElement` highlighted. You can hover over the elements to see their sections, tags and whether they are ignored or not. This is very helpful for debugging any problems.
 
-You can use the arrow key icons to change page, and can press home to return to page 1.
-You can also use the scroll wheel on your mouse to zoom in and out.
+You can use the arrow key icons to change page, and can press home to return to page 1. You can also use the scroll wheel on your mouse to zoom in and out.
+
+You can see an example of the visualisation in the :ref:`simple-memo` and :ref:`order-summary` examples.
 
 Font Mappings
 -------------
 
-You can filter elements by font. The font will be taken from the PDF itself, however
-often they have long and confusing names. You can specify a ``font_mapping`` when
-you load the document to map these to more memorable names. See the
-:doc:`reference/components` reference for the ``PDFDocument`` arguments for more
-information.
+You can filter elements by font. The font will be taken from the PDF itself, however often they have long and confusing names. You can specify a ``font_mapping`` when you load the document to map these to more memorable names. See the :doc:`reference/components` reference for the :class:`~py_pdf_parser.components.PDFDocument` arguments for more information.
+
+You can see an example of font mapping in the :ref:`order-summary` example.
 
 Tables
 ------
 
-We have many functions to help extract tables. All of these use the positioning of the
-elements on the page to do this. See :doc:`reference/tables`.
+We have many functions to help extract tables. All of these use the positioning of the elements on the page to do this. See the :doc:`reference/tables` reference, and the :ref:`order-summary` and :ref:`more-tables` examples.

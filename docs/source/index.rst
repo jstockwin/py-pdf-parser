@@ -6,4 +6,6 @@ Welcome to PDF Parser's documentation!
    :caption: Contents:
 
    overview
+   examples/index
    reference/index
+   CHANGELOG.md
