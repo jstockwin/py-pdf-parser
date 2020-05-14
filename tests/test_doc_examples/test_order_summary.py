@@ -1,9 +1,9 @@
 import os
 
-from py_pdf_parser.tests.base import BaseTestCase
-
 from py_pdf_parser import tables
 from py_pdf_parser.loaders import load_file
+
+from tests.base import BaseTestCase
 
 
 class TestSimpleMemo(BaseTestCase):
@@ -12,7 +12,7 @@ class TestSimpleMemo(BaseTestCase):
         # Step 1 - Load the document
         file_path = os.path.join(
             os.path.dirname(__file__),
-            "../../../docs/source/example_files/order_summary.pdf",
+            "../../docs/source/example_files/order_summary.pdf",
         )
         FONT_MAPPING = {
             "BAAAAA+LiberationSerif-Bold,16.0": "title",

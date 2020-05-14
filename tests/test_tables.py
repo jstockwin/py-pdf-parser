@@ -11,7 +11,8 @@ from py_pdf_parser.tables import (
     _validate_table_shape,
     add_header_to_table,
 )
-from py_pdf_parser.tests.base import BaseTestCase
+
+from .base import BaseTestCase
 from .utils import create_pdf_document, create_pdf_element, FakePDFMinerTextElement
 
 

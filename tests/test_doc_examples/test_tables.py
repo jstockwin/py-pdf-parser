@@ -1,16 +1,16 @@
 import os
 
-from py_pdf_parser.tests.base import BaseTestCase
-
 from py_pdf_parser import tables
 from py_pdf_parser.exceptions import TableExtractionError
 from py_pdf_parser.loaders import load_file
+
+from tests.base import BaseTestCase
 
 
 class TestSimpleMemo(BaseTestCase):
     def test_output_is_correct(self):
         file_path = os.path.join(
-            os.path.dirname(__file__), "../../../docs/source/example_files/tables.pdf"
+            os.path.dirname(__file__), "../../docs/source/example_files/tables.pdf"
         )
 
         # Step 1 - Load the file
