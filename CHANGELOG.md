@@ -4,8 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.3.0] - 2020-05-14
 ### Added
+- Published to PyPI as py-pdf-parser.
 - Documentation is now hosted [here](https://py-pdf-parser.readthedocs.io/en/latest/). ([#71](https://github.com/jstockwin/py-pdf-parser/pull/71))
 - Added new examples to the documentation. ([#74](https://github.com/jstockwin/py-pdf-parser/pull/74))
 - Font filtering now caches the elements by font. ([#73](https://github.com/jstockwin/py-pdf-parser/pull/73)) (updated in [#78](https://github.com/jstockwin/py-pdf-parser/pull/78))
