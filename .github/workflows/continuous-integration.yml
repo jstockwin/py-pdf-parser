@@ -13,9 +13,24 @@ jobs:
           image_name: jstockwin/py-pdf-parser-test
           image_tag: test
           dockerfile: dockerfiles/Dockerfile_tests
+  lint:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
       - name: Run linting
         run: docker run --rm jstockwin/py-pdf-parser-test:test .github/scripts/lint.sh
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
       - name: Run test
         run: docker run --rm jstockwin/py-pdf-parser-test:test .github/scripts/test.sh
+  docs:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
       - name: Check docs build correctly
         run: docker run --rm jstockwin/py-pdf-parser-test:test .github/scripts/docs.sh
