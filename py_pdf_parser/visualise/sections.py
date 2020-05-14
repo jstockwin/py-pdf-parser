@@ -182,9 +182,7 @@ class SectionVisualiser:
 
     def __plot_section(self, section: "Section"):
         if self.pv is None or self.pv_segments is None:
-            pv, pv_segments = self.__get_voronoi()
-            self.pv = pv
-            self.pv_segments = pv_segments
+            self.pv, self.pv_segments = self.__get_voronoi()
         edges = self.pv.GetEdges()
         vertices = self.pv.GetVertices()
         cells = self.pv.GetCells()
@@ -263,7 +261,7 @@ class SectionVisualiser:
                 # such we can simply draw this boundary as the section outline. Break.
                 break
         else:
-            # None of the margins gave us a box which did not cotain any non-section
+            # None of the margins gave us a box which did not contain any non-section
             # elements. We cannot use the simple method.
             return False
 
