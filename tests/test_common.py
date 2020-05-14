@@ -1,6 +1,7 @@
 from py_pdf_parser.common import BoundingBox
 from py_pdf_parser.exceptions import InvalidCoordinatesError
-from py_pdf_parser.tests.base import BaseTestCase
+
+from .base import BaseTestCase
 
 
 class TestBoundingBox(BaseTestCase):

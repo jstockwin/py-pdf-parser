@@ -7,8 +7,8 @@ from py_pdf_parser.components import PDFDocument
 from py_pdf_parser.filtering import ElementList
 from py_pdf_parser.loaders import Page
 from py_pdf_parser.exceptions import NoElementsOnPageError, PageNotFoundError
-from py_pdf_parser.tests.base import BaseTestCase
 
+from .base import BaseTestCase
 from .utils import create_pdf_element, FakePDFMinerTextElement
 
 

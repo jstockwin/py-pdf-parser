@@ -14,6 +14,7 @@ RUN pip3 install --upgrade pip
 ENV PROJECT_DIR /py-pdf-parser
 
 WORKDIR $PROJECT_DIR
+COPY ./README.md $PROJECT_DIR/README.md
 COPY ./setup.py $PROJECT_DIR/setup.py
 
 # Clean up APT when done.
