@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - This product is now complete enough for the needs of Optimor Ltd, however `jstockwin` is going to continue development as a personal project. The repository has been moved from `optimor/py-pdf-parser` to `jstockwin/py-pdf-parser`.
 
 ### Added
-- The visualise tool now draws an outline around each section on the page. ([#69](https://github.com/jstockwin/py-pdf-parser/pull/69))
+- The visualise tool now draws an outline around each section on the page. ([#69](https://github.com/jstockwin/py-pdf-parser/pull/69)) (updated in [#80](https://github.com/jstockwin/py-pdf-parser/pull/80))
 
 ## [0.2.0] - 2020-04-17
 ### Added
