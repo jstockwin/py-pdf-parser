@@ -7,6 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
+    - uses: actions/setup-python@master
     - name: Get the tag
       id: tagName
       run: echo ::set-output name=tag::${GITHUB_REF/refs\/tags\//}
@@ -26,3 +27,6 @@ jobs:
       run: twine check dist/*
     - name: Package package to PyPI
       run: twine upload dist/*
+      env:
+        TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
+        TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
