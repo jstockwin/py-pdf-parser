@@ -1,5 +1,6 @@
 # py-pdf-parser
 
+[![PyPI version](https://badge.fury.io/py/py-pdf-parser.svg)](https://badge.fury.io/py/py-pdf-parser)
 ![Continuous Integration](https://github.com/jstockwin/py-pdf-parser/workflows/Continuous%20Integration/badge.svg)
 [![Documentation Status](https://readthedocs.org/projects/py-pdf-parser/badge/?version=latest)](https://py-pdf-parser.readthedocs.io/en/latest/?badge=latest)
 

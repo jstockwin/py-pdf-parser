@@ -11,7 +11,9 @@ This page gives a brief overview of the PDF Parser, but there is also a full :do
 Setup
 -----
 
-At the moment you will need to install it from github, using ``pip install git+https://github.com/jstockwin/py-pdf-parser.git@master#egg=py-pdf-parser``. We hope to publish to `PyPi` soon.
+You will need to have Python 3.6 or greater installed, and if you're installing the development requirements you will also need the development Python version. You can install this by running ``apt-get install python3.x-dev``, replacing ``x`` with your version as required.
+
+We recommend you install the development requirements with ``pip3 install py-pdf-parser[dev]``, which enables the visualise tool. If you don't need the visualise tool (for example in a production app once you've written your parsing scripts) you can simply run ``pip3 install py-pdf-parser``.
 
 When Should I Use Py PDF Parser?
 --------------------------------
