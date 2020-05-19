@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from pdfminer.layout import LTComponent
 
 logger = logging.getLogger("PDFParser")
+DEFAULT_LA_PARAMS: Dict = {"boxes_flow": None}
 
 
 class Page(NamedTuple):
@@ -68,6 +69,7 @@ def load(
     """
     if la_params is None:
         la_params = {}
+    la_params = {**DEFAULT_LA_PARAMS, **la_params}
 
     pages: Dict[int, Page] = {}
     for page in extract_pages(pdf_file, laparams=LAParams(**la_params)):
