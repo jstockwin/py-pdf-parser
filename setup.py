@@ -26,7 +26,7 @@ setup(
     author_email="jstockwin@gmail.com",
     include_package_data=True,
     install_requires=[
-        "pdfminer.six==20200402",
+        "pdfminer.six==20200517",
         "docopt==0.6.2",
         "wand==0.4.4",
         "PyYAML==5.1",
