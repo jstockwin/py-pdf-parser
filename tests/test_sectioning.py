@@ -58,6 +58,28 @@ class TestSection(BaseTestCase):
         with self.assertRaises(InvalidSectionError):
             create_section(document, start_element=pdf_elem_2, end_element=pdf_elem_1)
 
+    def test_len(self):
+        elem_1 = FakePDFMinerTextElement()
+        elem_2 = FakePDFMinerTextElement()
+        elem_3 = FakePDFMinerTextElement()
+        document = create_pdf_document([elem_1, elem_2, elem_3])
+
+        pdf_elem_1 = self.extract_element_from_list(elem_1, document._element_list)
+        pdf_elem_2 = self.extract_element_from_list(elem_2, document._element_list)
+        pdf_elem_3 = self.extract_element_from_list(elem_3, document._element_list)
+
+        section = create_section(
+            document,
+            name="fake_section",
+            start_element=pdf_elem_1,
+            end_element=pdf_elem_3,
+        )
+        self.assertEqual(len(section), 3)
+
+        # Ignoring an element should affect the length of the section.
+        pdf_elem_2.ignore()
+        self.assertEqual(len(section), 2)
+
 
 class TestSectioning(BaseTestCase):
     def test_create_section(self):

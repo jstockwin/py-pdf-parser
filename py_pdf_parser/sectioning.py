@@ -76,6 +76,12 @@ class Section:
             ]
         )
 
+    def __len__(self):
+        """
+        Returns the number of elements in the section.
+        """
+        return len(self.elements)
+
 
 class Sectioning:
     """
