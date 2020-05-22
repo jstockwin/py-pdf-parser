@@ -22,6 +22,7 @@ def extract_simple_table(
     allow_gaps: bool = False,
     reference_element: Optional["PDFElement"] = None,
     tolerance: float = 0.0,
+    remove_duplicate_header_rows: bool = False,
 ) -> List[List]:
     """
     Returns elements structured as a table.
@@ -65,6 +66,8 @@ def extract_simple_table(
             Default: None.
         tolerance (int, optional): For elements to be counted as in the same row or
             column, they must overlap by at least `tolerance`. Default: 0.
+        remove_duplicate_header_rows (bool, optional): Remove duplicates of the header
+            row (the first row) if they exist. Default: False.
 
     Raises:
         TableExtractionError: If something goes wrong.
@@ -125,6 +128,9 @@ def extract_simple_table(
             "extract_simple_table, or change you reference element."
         )
 
+    if remove_duplicate_header_rows:
+        table = _remove_duplicate_header_rows(table)
+
     if as_text:
         return get_text_from_table(table, strip_text=strip_text)
 
@@ -139,6 +145,7 @@ def extract_table(
     fix_element_in_multiple_rows: bool = False,
     fix_element_in_multiple_cols: bool = False,
     tolerance: float = 0.0,
+    remove_duplicate_header_rows: bool = False,
 ) -> List[List]:
     """
     Returns elements structured as a table.
@@ -172,6 +179,8 @@ def extract_table(
             expect this to be the case in your table. Default: False.
         tolerance (int, optional): For elements to be counted as in the same row or
             column, they must overlap by at least `tolerance`. Default: 0.
+        remove_duplicate_header_rows (bool, optional): Remove duplicates of the header
+            row (the first row) if they exist. Default: False.
 
     Raises:
         TableExtractionError: If something goes wrong.
@@ -234,6 +243,9 @@ def extract_table(
                 ) from err
             table_row.append(element)
         table.append(table_row)
+
+    if remove_duplicate_header_rows:
+        table = _remove_duplicate_header_rows(table)
 
     if as_text:
         return get_text_from_table(table, strip_text=strip_text)
@@ -431,3 +443,45 @@ def _fix_cols(cols: Set["ElementList"], elements: "ElementList") -> None:
             else:
                 sorted_columns.remove(col)
     return
+
+
+def _remove_duplicate_header_rows(table: List[List[Any]]) -> List[List[Any]]:
+    """
+    Removes rows which are duplicates of the header (i.e., the first) row.
+    A row is considered duplicate if all of its elements have the same text and font of
+    their correspondent elements (i.e., same index) in the header row.
+
+    Args:
+        table (List[List[Any]]): The table to remove the duplicate headers from.
+
+    Returns:
+        List[List[Any]]: The table without the duplicate header rows.
+
+    """
+    if len(table) <= 1:
+        return table
+
+    def elements_equal(elem_1: Optional["PDFElement"], elem_2: Optional["PDFElement"]):
+        if elem_1 is None and elem_2 is None:
+            return True
+
+        if (elem_1 is None or elem_2 is None) or (
+            elem_2 is None and elem_1 is not None
+        ):
+            return False
+
+        if elem_1.text() != elem_2.text() or elem_1.font != elem_2.font:
+            return False
+
+        return True
+
+    header = table[0]
+    rows_without_duplicate_header = [
+        row
+        for row in table[1:]
+        if any(
+            not elements_equal(element, header[index])
+            for index, element in enumerate(row)
+        )
+    ]
+    return [header] + rows_without_duplicate_header

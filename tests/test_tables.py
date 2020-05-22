@@ -184,6 +184,92 @@ class TestTables(BaseTestCase):
             [[elem_1, elem_2], [elem_3, elem_4]], result
         )
 
+    def test_extract_simple_table_removing_duplicate_header_rows(self):
+        #    header_elem_1    header_elem_2
+        header_elem_1 = FakePDFMinerTextElement(
+            text="header 1",
+            font_name="header font",
+            font_size=10,
+            bounding_box=BoundingBox(0, 5, 21, 25),
+        )
+        header_elem_2 = FakePDFMinerTextElement(
+            text="header 2",
+            font_name="header font",
+            font_size=10,
+            bounding_box=BoundingBox(6, 10, 21, 25),
+        )
+        document = create_pdf_document(elements=[header_elem_1, header_elem_2])
+        elem_list = document.elements
+
+        result = extract_simple_table(elem_list, remove_duplicate_header_rows=True)
+        # Extraction here should just return the whole table as it is not possible to
+        # have duplicates of a single lined table.
+        self.assertEqual(len(result), 1)
+        self.assertEqual(len(result[0]), 2)
+        self.assert_original_element_list_list_equal(
+            [[header_elem_1, header_elem_2]], result
+        )
+
+        #    header_elem_1    header_elem_2
+        #       elem_1           elem_2
+        #    header_elem_3    header_elem_4
+        #       elem_3           elem_4
+        #    header_elem_5    header_elem_6
+        #
+        elem_1 = FakePDFMinerTextElement(bounding_box=BoundingBox(0, 5, 16, 20))
+        elem_2 = FakePDFMinerTextElement(bounding_box=BoundingBox(6, 10, 16, 20))
+        header_elem_3 = FakePDFMinerTextElement(
+            text="header 1",
+            font_name="header font",
+            font_size=10,
+            bounding_box=BoundingBox(0, 5, 11, 15),
+        )
+        header_elem_4 = FakePDFMinerTextElement(
+            text="header 2",
+            font_name="header font",
+            font_size=10,
+            bounding_box=BoundingBox(6, 10, 11, 15),
+        )
+        elem_3 = FakePDFMinerTextElement(bounding_box=BoundingBox(0, 5, 6, 10))
+        elem_4 = FakePDFMinerTextElement(bounding_box=BoundingBox(6, 10, 6, 10))
+        header_elem_5 = FakePDFMinerTextElement(
+            text="header 1",
+            font_name="header font",
+            font_size=10,
+            bounding_box=BoundingBox(0, 5, 0, 5),
+        )
+        header_elem_6 = FakePDFMinerTextElement(
+            text="header 2",
+            font_name="header font",
+            font_size=10,
+            bounding_box=BoundingBox(6, 10, 0, 5),
+        )
+
+        document = create_pdf_document(
+            elements=[
+                header_elem_1,
+                header_elem_2,
+                elem_1,
+                elem_2,
+                header_elem_3,
+                header_elem_4,
+                elem_3,
+                elem_4,
+                header_elem_5,
+                header_elem_6,
+            ]
+        )
+        elem_list = document.elements
+
+        result = extract_simple_table(elem_list, remove_duplicate_header_rows=True)
+        self.assertEqual(len(result), 3)
+        self.assertEqual(len(result[0]), 2)
+        self.assertEqual(len(result[1]), 2)
+        self.assertEqual(len(result[2]), 2)
+        self.assert_original_element_list_list_equal(
+            [[header_elem_1, header_elem_2], [elem_1, elem_2], [elem_3, elem_4]], result
+        )
+
     def test_extract_table(self):
         # Checks that simple 2*2 table is correctly extracted
         #
@@ -309,6 +395,100 @@ class TestTables(BaseTestCase):
         self.assertEqual(len(result[1]), 2)
         self.assert_original_element_list_list_equal(
             [[elem_1, elem_2], [elem_3, elem_4]], result
+        )
+
+    def test_extract_table_removing_duplicate_header_rows(self):
+        #    header_elem_1    header_elem_2
+        header_elem_1 = FakePDFMinerTextElement(
+            text="header 1",
+            font_name="header font",
+            font_size=10,
+            bounding_box=BoundingBox(0, 5, 21, 25),
+        )
+        header_elem_2 = FakePDFMinerTextElement(
+            text="header 2",
+            font_name="header font",
+            font_size=10,
+            bounding_box=BoundingBox(11, 15, 21, 25),
+        )
+        document = create_pdf_document(elements=[header_elem_1, header_elem_2])
+        elem_list = document.elements
+
+        result = extract_simple_table(elem_list, remove_duplicate_header_rows=True)
+        # Extraction here should just return the whole table as it is not possible to
+        # have duplicates of a single lined table.
+        self.assertEqual(len(result), 1)
+        self.assertEqual(len(result[0]), 2)
+        self.assert_original_element_list_list_equal(
+            [[header_elem_1, header_elem_2]], result
+        )
+
+        #    header_elem_1                     header_elem_2
+        #       elem_1           elem_2
+        #    header_elem_3                     header_elem_4
+        #       elem_3                         elem_4
+        #    header_elem_5    header_elem_6
+        #
+        elem_1 = FakePDFMinerTextElement(bounding_box=BoundingBox(0, 5, 16, 20))
+        elem_2 = FakePDFMinerTextElement(bounding_box=BoundingBox(6, 10, 16, 20))
+        header_elem_3 = FakePDFMinerTextElement(
+            text="header 1",
+            font_name="header font",
+            font_size=10,
+            bounding_box=BoundingBox(0, 5, 11, 15),
+        )
+        header_elem_4 = FakePDFMinerTextElement(
+            text="header 2",
+            font_name="header font",
+            font_size=10,
+            bounding_box=BoundingBox(11, 15, 11, 15),
+        )
+        elem_3 = FakePDFMinerTextElement(bounding_box=BoundingBox(0, 5, 6, 10))
+        elem_4 = FakePDFMinerTextElement(bounding_box=BoundingBox(11, 15, 6, 10))
+        header_elem_5 = FakePDFMinerTextElement(
+            text="header 1",
+            font_name="header font",
+            font_size=10,
+            bounding_box=BoundingBox(0, 5, 0, 5),
+        )
+        header_elem_6 = FakePDFMinerTextElement(
+            text="header 2",
+            font_name="header font",
+            font_size=10,
+            bounding_box=BoundingBox(6, 10, 0, 5),
+        )
+
+        document = create_pdf_document(
+            elements=[
+                header_elem_1,
+                header_elem_2,
+                elem_1,
+                elem_2,
+                header_elem_3,
+                header_elem_4,
+                elem_3,
+                elem_4,
+                header_elem_5,
+                header_elem_6,
+            ]
+        )
+        elem_list = document.elements
+
+        result = extract_table(elem_list, remove_duplicate_header_rows=True)
+        # The last row will not be removed as the gaps do not match the header row
+        self.assertEqual(len(result), 4)
+        self.assertEqual(len(result[0]), 3)
+        self.assertEqual(len(result[1]), 3)
+        self.assertEqual(len(result[2]), 3)
+        self.assertEqual(len(result[3]), 3)
+        self.assert_original_element_list_list_equal(
+            [
+                [header_elem_1, None, header_elem_2],
+                [elem_1, elem_2, None],
+                [elem_3, None, elem_4],
+                [header_elem_5, header_elem_6, None],
+            ],
+            result,
         )
 
     def test_extract_text_from_simple_table(self):

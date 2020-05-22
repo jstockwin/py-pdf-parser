@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
+- Added flag to `extract_simple_table` and `extract_table` functions to remove duplicate header rows. ([#89](https://github.com/jstockwin/py-pdf-parser/pull/89))
 - Advanced layout analysis is now disabled by default. ([#88](https://github.com/jstockwin/py-pdf-parser/pull/88))
 
 ## [0.3.0] - 2020-05-14
