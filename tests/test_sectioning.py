@@ -80,6 +80,40 @@ class TestSection(BaseTestCase):
         pdf_elem_2.ignore()
         self.assertEqual(len(section), 2)
 
+    def test_repr(self):
+        elem_1 = FakePDFMinerTextElement()
+        elem_2 = FakePDFMinerTextElement()
+        document = create_pdf_document([elem_1, elem_2])
+
+        pdf_elem_1 = self.extract_element_from_list(elem_1, document._element_list)
+        pdf_elem_2 = self.extract_element_from_list(elem_2, document._element_list)
+
+        section = create_section(
+            document,
+            name="fake_section",
+            unique_name="fake_section_0",
+            start_element=pdf_elem_1,
+            end_element=pdf_elem_2,
+        )
+
+        self.assertEqual(
+            repr(section),
+            (
+                "<Section name: 'fake_section', unique_name: 'fake_section_0', "
+                "number of elements: 2>"
+            ),
+        )
+
+        # Ignoring an element should affect the number of elements of the section.
+        pdf_elem_2.ignore()
+        self.assertEqual(
+            repr(section),
+            (
+                "<Section name: 'fake_section', unique_name: 'fake_section_0', "
+                "number of elements: 1>"
+            ),
+        )
+
 
 class TestSectioning(BaseTestCase):
     def test_create_section(self):
