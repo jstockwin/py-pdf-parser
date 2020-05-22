@@ -456,32 +456,44 @@ def _remove_duplicate_header_rows(table: List[List[Any]]) -> List[List[Any]]:
 
     Returns:
         List[List[Any]]: The table without the duplicate header rows.
-
     """
     if len(table) <= 1:
         return table
-
-    def elements_equal(elem_1: Optional["PDFElement"], elem_2: Optional["PDFElement"]):
-        if elem_1 is None and elem_2 is None:
-            return True
-
-        if (elem_1 is None or elem_2 is None) or (
-            elem_2 is None and elem_1 is not None
-        ):
-            return False
-
-        if elem_1.text() != elem_2.text() or elem_1.font != elem_2.font:
-            return False
-
-        return True
 
     header = table[0]
     rows_without_duplicate_header = [
         row
         for row in table[1:]
         if any(
-            not elements_equal(element, header[index])
+            not _are_elements_equal(element, header[index])
             for index, element in enumerate(row)
         )
     ]
     return [header] + rows_without_duplicate_header
+
+
+def _are_elements_equal(
+    elem_1: Optional["PDFElement"], elem_2: Optional["PDFElement"]
+) -> bool:
+    """
+    Checks if two elements are equal.
+    Two elements are considered equal if they are both None or they have the same text
+    and font.
+
+    Args:
+        elem_1 (PDFElement, optional): The first element to compare.
+        elem_2 (PDFElement, optional): The second element to compare.
+
+    Returns:
+        bool: True if elements are equal, False otherwise.
+    """
+    if elem_1 is None and elem_2 is None:
+        return True
+
+    if elem_1 is None or elem_2 is None:
+        return False
+
+    if elem_1.text() != elem_2.text() or elem_1.font != elem_2.font:
+        return False
+
+    return True

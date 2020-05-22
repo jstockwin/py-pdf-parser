@@ -5,8 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-### Changed
+### Added
 - Added flag to `extract_simple_table` and `extract_table` functions to remove duplicate header rows. ([#89](https://github.com/jstockwin/py-pdf-parser/pull/89))
+### Changed
 - Advanced layout analysis is now disabled by default. ([#88](https://github.com/jstockwin/py-pdf-parser/pull/88))
 
 ## [0.3.0] - 2020-05-14
