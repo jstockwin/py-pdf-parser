@@ -76,6 +76,18 @@ class Section:
             ]
         )
 
+    def __len__(self):
+        """
+        Returns the number of elements in the section.
+        """
+        return len(self.elements)
+
+    def __repr__(self):
+        return (
+            f"<Section name: '{self.name}', unique_name: '{self.unique_name}', "
+            f"number of elements: {len(self)}>"
+        )
+
 
 class Sectioning:
     """
