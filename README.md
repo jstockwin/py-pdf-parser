@@ -8,3 +8,5 @@ Py PDF Parser is a tool to help extracting information from structured PDFs.
 
 Full details and installation instructions can be found at:
 https://py-pdf-parser.readthedocs.io/en/latest/
+
+This project is based on an original design and protoype by Sam Whitehall (github.com/samwhitehall).
