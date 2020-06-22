@@ -37,7 +37,7 @@ class BaseTestCase(TestCase):
     def assert_original_element_list_equal(
         self,
         original_element_list: List[Optional["LTComponent"]],
-        element_list: List[Optional["PDFElement"]],
+        element_list: Union[List[Optional["PDFElement"]], "ElementList"],
     ):
         self.assertEqual(len(original_element_list), len(element_list))
         for original_element, element in zip(original_element_list, element_list):

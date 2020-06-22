@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added `__len__` and `__repr__` functions to the Section class. ([#90](https://github.com/jstockwin/py-pdf-parser/pull/90))
 - Added flag to `extract_simple_table` and `extract_table` functions to remove duplicate header rows. ([#89](https://github.com/jstockwin/py-pdf-parser/pull/89))
+- You can now specify `element_ordering` when instantiating a PDFDocument. This defaults to the old behaviour or left to right, top to bottom. ([#95](https://github.com/jstockwin/py-pdf-parser/pull/95))
+
 ### Changed
 - Advanced layout analysis is now disabled by default. ([#88](https://github.com/jstockwin/py-pdf-parser/pull/88))
 

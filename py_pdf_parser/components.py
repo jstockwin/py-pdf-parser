@@ -1,7 +1,8 @@
-from typing import Dict, List, Set, Optional, Union, TYPE_CHECKING
+from typing import Callable, Dict, List, Set, Optional, Union, TYPE_CHECKING
 
 import re
 from collections import Counter, defaultdict
+from enum import Enum, auto
 from itertools import chain
 
 from .common import BoundingBox
@@ -12,6 +13,33 @@ from .sectioning import Sectioning
 if TYPE_CHECKING:
     from .loaders import Page
     from pdfminer.layout import LTComponent
+
+
+class ElementOrdering(Enum):
+    """
+    A class enumerating the available presets for element_ordering.
+    """
+
+    LEFT_TO_RIGHT_TOP_TO_BOTTOM = auto()
+    RIGHT_TO_LEFT_TOP_TO_BOTTOM = auto()
+    TOP_TO_BOTTOM_LEFT_TO_RIGHT = auto()
+    TOP_TO_BOTTOM_RIGHT_TO_LEFT = auto()
+
+
+_ELEMENT_ORDERING_FUNCTIONS: Dict[ElementOrdering, Callable[[List], List]] = {
+    ElementOrdering.LEFT_TO_RIGHT_TOP_TO_BOTTOM: lambda elements: sorted(
+        elements, key=lambda elem: (-elem.y0, elem.x0)
+    ),
+    ElementOrdering.RIGHT_TO_LEFT_TOP_TO_BOTTOM: lambda elements: sorted(
+        elements, key=lambda elem: (-elem.y0, -elem.x0)
+    ),
+    ElementOrdering.TOP_TO_BOTTOM_LEFT_TO_RIGHT: lambda elements: sorted(
+        elements, key=lambda elem: (elem.x0, -elem.y0)
+    ),
+    ElementOrdering.TOP_TO_BOTTOM_RIGHT_TO_LEFT: lambda elements: sorted(
+        elements, key=lambda elem: (-elem.x0, -elem.y0)
+    ),
+}
 
 
 class PDFPage:
@@ -325,6 +353,11 @@ class PDFDocument:
                 Default: 0.
         font_size_precision (int): How much rounding to apply to the font size. The font
             size will be rounded to this many decimal places.
+        element_ordering (ElementOrdering or callable, optional): An ordering function
+            for the elements. Either a member of the ElementOrdering Enum, or a callable
+            which takes a list of elements and returns an ordered list of elements. This
+            will be called separately for each page. Note that the elements in this case
+            will be PDFMiner elements, and not PDFElements from this package.
 
     Attributes:
         pages (list): A list of all `PDFPages` in the document.
@@ -337,7 +370,8 @@ class PDFDocument:
     number_of_pages: int
     page_numbers: List[int]
     sectioning: "Sectioning"
-    # _element_list will contain all elements, sorted from top to bottom, left to right.
+    # _element_list will contain all elements, sorted according to element_ordering
+    # (default left to right, top to bottom).
     _element_list: List[PDFElement]
     # _element_indexes_by_font will be a caching of fonts to elements indexes but it
     # will be built as needed (while filtering by fonts), not on document load.
@@ -357,6 +391,9 @@ class PDFDocument:
         font_mapping_is_regex: bool = False,
         regex_flags: Union[int, re.RegexFlag] = 0,
         font_size_precision: int = 1,
+        element_ordering: Union[
+            ElementOrdering, Callable[[List], List]
+        ] = ElementOrdering.LEFT_TO_RIGHT_TOP_TO_BOTTOM,
     ):
         self.sectioning = Sectioning(self)
         self._element_list = []
@@ -369,7 +406,11 @@ class PDFDocument:
         idx = 0
         for page_number, page in sorted(pages.items()):
             first_element = None
-            for element in sorted(page.elements, key=lambda elem: (-elem.y0, elem.x0)):
+            if isinstance(element_ordering, ElementOrdering):
+                sort_func = _ELEMENT_ORDERING_FUNCTIONS[element_ordering]
+            else:
+                sort_func = element_ordering
+            for element in sort_func(page.elements):
                 pdf_element = PDFElement(
                     document=self,
                     element=element,
