@@ -3,13 +3,13 @@ import re
 from ddt import ddt, data
 
 from py_pdf_parser.common import BoundingBox
-from py_pdf_parser.components import PDFDocument
+from py_pdf_parser.components import PDFDocument, ElementOrdering
 from py_pdf_parser.filtering import ElementList
 from py_pdf_parser.loaders import Page
 from py_pdf_parser.exceptions import NoElementsOnPageError, PageNotFoundError
 
 from .base import BaseTestCase
-from .utils import create_pdf_element, FakePDFMinerTextElement
+from .utils import create_pdf_element, create_pdf_document, FakePDFMinerTextElement
 
 
 @ddt
@@ -286,3 +286,56 @@ class TestPDFDocument(BaseTestCase):
     def test_document_with_blank_page(self):
         with self.assertRaises(NoElementsOnPageError):
             PDFDocument(pages={1: Page(elements=[], width=100, height=100)})
+
+    def test_element_ordering(self):
+        #       elem_1      elem_2
+        #       elem_3      elem_4
+        elem_1 = FakePDFMinerTextElement(bounding_box=BoundingBox(0, 5, 6, 10))
+        elem_2 = FakePDFMinerTextElement(bounding_box=BoundingBox(6, 10, 6, 10))
+        elem_3 = FakePDFMinerTextElement(bounding_box=BoundingBox(0, 5, 0, 5))
+        elem_4 = FakePDFMinerTextElement(bounding_box=BoundingBox(6, 10, 0, 5))
+
+        # Check default: left to right, top to bottom
+        document = create_pdf_document(elements=[elem_1, elem_2, elem_3, elem_4])
+        self.assert_original_element_list_equal(
+            [elem_1, elem_2, elem_3, elem_4], document.elements
+        )
+
+        # Check other presets
+        document = create_pdf_document(
+            elements=[elem_1, elem_2, elem_3, elem_4],
+            element_ordering=ElementOrdering.RIGHT_TO_LEFT_TOP_TO_BOTTOM,
+        )
+        self.assert_original_element_list_equal(
+            [elem_2, elem_1, elem_4, elem_3], document.elements
+        )
+
+        document = create_pdf_document(
+            elements=[elem_1, elem_2, elem_3, elem_4],
+            element_ordering=ElementOrdering.TOP_TO_BOTTOM_LEFT_TO_RIGHT,
+        )
+        self.assert_original_element_list_equal(
+            [elem_1, elem_3, elem_2, elem_4], document.elements
+        )
+
+        document = create_pdf_document(
+            elements=[elem_1, elem_2, elem_3, elem_4],
+            element_ordering=ElementOrdering.TOP_TO_BOTTOM_RIGHT_TO_LEFT,
+        )
+        self.assert_original_element_list_equal(
+            [elem_2, elem_4, elem_1, elem_3], document.elements
+        )
+
+        # Check custom function
+        document = create_pdf_document(
+            elements=[elem_1, elem_2, elem_3, elem_4],
+            element_ordering=lambda elements: [
+                elements[0],
+                elements[3],
+                elements[1],
+                elements[2],
+            ],
+        )
+        self.assert_original_element_list_equal(
+            [elem_1, elem_4, elem_2, elem_3], document.elements
+        )

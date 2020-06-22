@@ -1,8 +1,8 @@
 import re
 
-from typing import NamedTuple, Dict, List, Optional, Union
+from typing import NamedTuple, Callable, Dict, List, Optional, Union
 
-from py_pdf_parser.components import PDFElement, PDFDocument
+from py_pdf_parser.components import PDFElement, PDFDocument, ElementOrdering
 from py_pdf_parser.sectioning import Section
 from pdfminer.layout import LTComponent
 
@@ -94,6 +94,9 @@ def create_pdf_document(
     font_mapping_is_regex: bool = False,
     regex_flags: Union[int, re.RegexFlag] = 0,
     font_size_precision: int = 1,
+    element_ordering: Union[
+        ElementOrdering, Callable[[List], List]
+    ] = ElementOrdering.LEFT_TO_RIGHT_TOP_TO_BOTTOM,
 ) -> "PDFDocument":
     """
     Creates a PDF document with the given elements.
@@ -114,6 +117,7 @@ def create_pdf_document(
         font_mapping_is_regex=font_mapping_is_regex,
         regex_flags=regex_flags,
         font_size_precision=font_size_precision,
+        element_ordering=element_ordering,
     )
 
 

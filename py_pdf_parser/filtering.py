@@ -684,7 +684,8 @@ class ElementList(Iterable):
         Returns all elements before the specified element.
 
         By before, we mean preceding elements according to their index. The PDFDocument
-        will order elements left to right, top to bottom (as you would normally read).
+        will order elements according to the specified element_ordering (which defaults
+        to left to right, top to bottom).
 
         Args:
             element (PDFElement): The element in question.
@@ -704,7 +705,8 @@ class ElementList(Iterable):
         Returns all elements after the specified element.
 
         By after, we mean succeeding elements according to their index. The PDFDocument
-        will order elements left to right, top to bottom (as you would normally read).
+        will order elements according to the specified element_ordering (which defaults
+        to left to right, top to bottom).
 
         Args:
             element (PDFElement): The element in question.
@@ -729,7 +731,8 @@ class ElementList(Iterable):
         Returns all elements between the start and end elements.
 
         This is done according to the element indexes. The PDFDocument will order
-        elements left to right, top to bottom (as you would normally read).
+        elements according to the specified element_ordering (which defaults
+        to left to right, top to bottom).
 
         This is the same as applying `before` with `start_element` and `after` with
         `end_element`.
