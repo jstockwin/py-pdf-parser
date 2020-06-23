@@ -7,6 +7,7 @@ Below you can find links to the following examples:
 - The :ref:`order-summary` example explains how to use font mappings, sections, and how to extract simple tables.
 - The :ref:`more-tables` example explains tables in more detail, showing how to extract more complex tables.
 - The :ref:`element-ordering` example shows how to specify different orderings for the elements on a page.
+- The :ref:`extracting-text-from-figures` example shows how to extract text from figures.
 
 .. toctree::
 
@@ -14,4 +15,5 @@ Below you can find links to the following examples:
    order_summary
    more_tables
    element_ordering
+   extracting_text_from_figures
 
