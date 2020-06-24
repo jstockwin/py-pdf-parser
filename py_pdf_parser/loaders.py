@@ -3,7 +3,7 @@ from typing import Dict, List, NamedTuple, IO, Optional, TYPE_CHECKING
 import logging
 
 from pdfminer.high_level import extract_pages
-from pdfminer.layout import LTTextContainer, LAParams
+from pdfminer.layout import LTTextContainer, LAParams, LTFigure
 
 from .components import PDFDocument
 
@@ -74,6 +74,17 @@ def load(
     pages: Dict[int, Page] = {}
     for page in extract_pages(pdf_file, laparams=LAParams(**la_params)):
         elements = [element for element in page if isinstance(element, LTTextContainer)]
+
+        # If all_texts=True then we may get some text from inside figures
+        if la_params.get("all_texts"):
+            figures = (element for element in page if isinstance(element, LTFigure))
+            for figure in figures:
+                elements += [
+                    element
+                    for element in figure
+                    if isinstance(element, LTTextContainer)
+                ]
+
         if not elements:
             logger.warning(
                 f"No elements detected on page {page.pageid}, skipping this page."
