@@ -18,11 +18,11 @@ We recommend you install the development requirements with ``pip3 install py-pdf
 When Should I Use Py PDF Parser?
 --------------------------------
 
-Py PDF Parser is for extracting specific, structured data from a PDF. You will be able to write code that should extract for multiple PDFs with the same format.
+Py PDF Parser is best suited to locating and extracting specific data in a structured way from a PDF. You can locate contents however you want (by text, location, font, etc), and since it is code-driven you have the flexibility to implement custom logic without having to deal with the PDF itself. Py pdf parser helps to abstract away things like page breaks (unless you want to use them), which helps to write robust code which will extract data from multiple PDFs of the same type, even if there are differences between each individual document.
 
-If you're simply trying to extract all of the text from a PDF, other tools (e.g. https://textract.readthedocs.io/en/stable/python_package.html) may be more appropriate.
+Py PDF Parser is good at extracting tables in PDFs, and allows you to write code to programmatically locate the tables to extract. Page breaks (and even headers or footers) half way through your table can be ignored easily. If you're trying to extract all tables from a PDF, other tools (e.g. https://camelot-py.readthedocs.io/en/master/) are available and may be more appropriate.
 
-If you're trying to extract specific tables from a certain PDF, other tools (e.g. https://camelot-py.readthedocs.io/en/master/) may be more appropriate.
+If you're simply trying to extract all of the text from a PDF, other tools (e.g. https://textract.readthedocs.io/en/stable/python_package.html) may be more appropriate. Whilst you can still do this with Py PDF Parser, it is not designed to be a tool where you simply plug in a PDF and it spits it out in text format. Py PDF Parser is not a plug-and-play solution, but rather a tool to help you write code that extracts certain pieces of data from a structured PDF.
 
 Loading A PDF
 -------------
