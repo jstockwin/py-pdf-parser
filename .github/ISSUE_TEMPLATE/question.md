@@ -2,7 +2,7 @@
 name: Question
 about: Ask for help using this tool
 title: ''
-labels: Type - Question
+labels: question
 assignees: ''
 
 ---
