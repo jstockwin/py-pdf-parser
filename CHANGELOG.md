@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - When the layout parameter all_texts is True, the text inside figures is now also returned as elements in the document. ([#99](https://github.com/jstockwin/py-pdf-parser/pull/99))
 
-## [0.4.0]
+## [0.4.0] - 2020-06-22
 ### Added
 - Added `__len__` and `__repr__` functions to the Section class. ([#90](https://github.com/jstockwin/py-pdf-parser/pull/90))
 - Added flag to `extract_simple_table` and `extract_table` functions to remove duplicate header rows. ([#89](https://github.com/jstockwin/py-pdf-parser/pull/89))
