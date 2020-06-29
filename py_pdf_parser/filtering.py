@@ -364,13 +364,15 @@ class ElementList(Iterable):
             inclusive (bool, optional): Whether the include `element` in the returned
                 results. Default: False.
             tolerance (int, optional): To be counted as to the right, the elements must
-                overlap by at least `tolerance` on the Y axis. Default 0.
+                overlap by at least `tolerance` on the Y axis. Tolerance is capped at
+                half the height of the element. Default 0.
 
         Returns:
             ElementList: The filtered list.
         """
         page_number = element.page_number
         page = self.document.get_page(page_number)
+        tolerance = min(element.bounding_box.height / 2, tolerance)
         bounding_box = BoundingBox(
             element.bounding_box.x1,
             page.width,
@@ -407,13 +409,15 @@ class ElementList(Iterable):
             inclusive (bool, optional): Whether the include `element` in the returned
                 results. Default: False.
             tolerance (int, optional): To be counted as to the left, the elements must
-                overlap by at least `tolerance` on the Y axis. Default 0.
+                overlap by at least `tolerance` on the Y axis. Tolerance is capped at
+                half the height of the element. Default 0.
 
 
         Returns:
             ElementList: The filtered list.
         """
         page_number = element.page_number
+        tolerance = min(element.bounding_box.height / 2, tolerance)
         bounding_box = BoundingBox(
             0,
             element.bounding_box.x0,
@@ -458,12 +462,14 @@ class ElementList(Iterable):
             all_pages (bool, optional): Whether to included pages other than the page
                 which the element is on.
             tolerance (int, optional): To be counted as below, the elements must
-                overlap by at least `tolerance` on the X axis. Default 0.
+                overlap by at least `tolerance` on the X axis. Tolerance is capped at
+                half the width of the element. Default 0.
 
         Returns:
             ElementList: The filtered list.
         """
         page_number = element.page_number
+        tolerance = min(element.bounding_box.width / 2, tolerance)
         bounding_box = BoundingBox(
             element.bounding_box.x0 + tolerance,
             element.bounding_box.x1 - tolerance,
@@ -523,13 +529,15 @@ class ElementList(Iterable):
             all_pages (bool, optional): Whether to included pages other than the page
                 which the element is on.
             tolerance (int, optional): To be counted as above, the elements must
-                overlap by at least `tolerance` on the X axis. Default 0.
+                overlap by at least `tolerance` on the X axis. Tolerance is capped at
+                half the width of the element. Default 0.
 
         Returns:
             ElementList: The filtered list.
         """
         page_number = element.page_number
         page = self.document.get_page(page_number)
+        tolerance = min(element.bounding_box.width / 2, tolerance)
         bounding_box = BoundingBox(
             element.bounding_box.x0 + tolerance,
             element.bounding_box.x1 - tolerance,
@@ -586,13 +594,15 @@ class ElementList(Iterable):
             all_pages (bool, optional): Whether to included pages other than the page
                 which the element is on.
             tolerance (int, optional): To be counted as in line with, the elements must
-                overlap by at least `tolerance` on the X axis. Default 0.
+                overlap by at least `tolerance` on the X axis. Tolerance is capped at
+                half the width of the element. Default 0.
 
         Returns:
             ElementList: The filtered list.
         """
         page_number = element.page_number
         page = self.document.get_page(page_number)
+        tolerance = min(element.bounding_box.width / 2, tolerance)
         bounding_box = BoundingBox(
             element.bounding_box.x0 + tolerance,
             element.bounding_box.x1 - tolerance,
@@ -642,13 +652,15 @@ class ElementList(Iterable):
             inclusive (bool, optional): Whether the include `element` in the returned
                 results. Default: False.
             tolerance (int, optional): To be counted as in line with, the elements must
-                overlap by at least `tolerance` on the Y axis. Default 0.
+                overlap by at least `tolerance` on the Y axis. Tolerance is capped at
+                half the width of the element. Default 0.
 
         Returns:
             ElementList: The filtered list.
         """
         page_number = element.page_number
         page = self.document.get_page(page_number)
+        tolerance = min(element.bounding_box.height / 2, tolerance)
         bounding_box = BoundingBox(
             0,
             page.width,
