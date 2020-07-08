@@ -231,7 +231,7 @@ class SectionVisualiser:
 
     def __get_boundary_for_elements(
         self, elements: List["PDFElement"], margin: int
-    ) -> Tuple[int, int, int, int]:
+    ) -> Tuple[float, float, float, float]:
         x0s = [element.bounding_box.x0 for element in elements]
         x1s = [element.bounding_box.x1 for element in elements]
         y0s = [element.bounding_box.y0 for element in elements]

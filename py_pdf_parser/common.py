@@ -24,7 +24,7 @@ class BoundingBox:
         height (int): The height of the box, equal to y1 - y0.
     """
 
-    def __init__(self, x0, x1, y0, y1):
+    def __init__(self, x0: float, x1: float, y0: float, y1: float):
         if x1 < x0:
             raise InvalidCoordinatesError(
                 f"Invalid coordinates, x1 is smaller than x0 ({x1}<{x0})"
@@ -40,7 +40,10 @@ class BoundingBox:
         self.width = x1 - x0
         self.height = y1 - y0
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, BoundingBox):
+            raise NotImplementedError(f"Can't compare BoundingBox with {type(other)}")
+
         return all(
             [
                 self.x0 == other.x0,
