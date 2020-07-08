@@ -1,4 +1,4 @@
-from typing import Dict, List, NamedTuple, IO, Optional, TYPE_CHECKING
+from typing import Dict, List, NamedTuple, IO, Optional
 
 import logging
 
@@ -7,8 +7,6 @@ from pdfminer.layout import LTTextContainer, LAParams, LTFigure
 
 from .components import PDFDocument
 
-if TYPE_CHECKING:
-    from pdfminer.layout import LTComponent
 
 logger = logging.getLogger("PDFParser")
 DEFAULT_LA_PARAMS: Dict = {"boxes_flow": None}
@@ -21,12 +19,12 @@ class Page(NamedTuple):
     Args:
         width (int): The width of the page.
         height (int): The height of the page.
-        elements (list): A list of PDF Miner elements (LTComponents) on the page.
+        elements (list): A list of PDF Miner elements (LTTextContainers) on the page.
     """
 
     width: int
     height: int
-    elements: List["LTComponent"]
+    elements: List[LTTextContainer]
 
 
 def load_file(
