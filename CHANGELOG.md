@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- New functions on `ElementList`, `move_forwards_from` and `move_backwards_from`, to allow moving forwards and backwards from a certain element in the list easily. ([#113](https://github.com/jstockwin/py-pdf-parser/pull/113))
+
 ### Changed
 - When the layout parameter all_texts is True, the text inside figures is now also returned as elements in the document. ([#99](https://github.com/jstockwin/py-pdf-parser/pull/99))
 

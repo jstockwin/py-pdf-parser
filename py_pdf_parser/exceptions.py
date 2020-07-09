@@ -20,6 +20,10 @@ class MultipleElementsFoundError(PDFParserError):
     pass
 
 
+class ElementOutOfRangeError(PDFParserError):
+    pass
+
+
 # Sectioning
 class InvalidSectionError(PDFParserError):
     pass
