@@ -870,8 +870,9 @@ class ElementList(Iterable):
                 return the element at the start or end of the list.
 
         Raises:
-            ElementOutOfRangeError: If the count large (or large-negative) enough that
-                we reach the end (or start) of the list. Only happens when capped=False.
+            ElementOutOfRangeError: If the count is large (or large-negative) enough
+                that we reach the end (or start) of the list. Only happens when
+                capped=False.
         """
         indexes = sorted(self.indexes)
         new_index = indexes.index(element._index) + count
@@ -884,8 +885,8 @@ class ElementList(Iterable):
                 element_index = indexes[new_index]
                 return self.document._element_list[element_index]
             raise ElementOutOfRangeError(
-                f"Requested element is {'before' if capped < 0 else 'after'} the start "
-                "of the ElementList"
+                f"Requested element is {'before' if new_index < 0 else 'after'} the "
+                f"{'start' if new_index < 0 else 'end'} of the ElementList"
             )
 
         # We avoid just returning self[new_index] here since getitem will do an
@@ -912,8 +913,9 @@ class ElementList(Iterable):
                 return the element at the start or end of the list.
 
         Raises:
-            ElementOutOfRangeError: If the count large (or large-negative) enough that
-                we reach the start (or end) of the list. Only happens when capped=False.
+            ElementOutOfRangeError: If the count is large (or large-negative) enough
+                that we reach the start (or end) of the list. Only happens when
+                capped=False.
         """
         return self.move_forwards_from(element, count=-count, capped=capped)
 
