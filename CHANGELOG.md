@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.5.0] - 2020-07-05
 ### Added
 - New functions on `ElementList`, `move_forwards_from` and `move_backwards_from`, to allow moving forwards and backwards from a certain element in the list easily. ([#113](https://github.com/jstockwin/py-pdf-parser/pull/113))
 
