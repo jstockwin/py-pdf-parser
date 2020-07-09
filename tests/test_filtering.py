@@ -4,7 +4,11 @@ from mock import patch, call
 
 from py_pdf_parser.components import PDFDocument, PDFElement
 from py_pdf_parser.common import BoundingBox
-from py_pdf_parser.exceptions import NoElementFoundError, MultipleElementsFoundError
+from py_pdf_parser.exceptions import (
+    NoElementFoundError,
+    MultipleElementsFoundError,
+    ElementOutOfRangeError,
+)
 from py_pdf_parser.filtering import ElementList
 from py_pdf_parser.loaders import Page
 
@@ -1140,6 +1144,72 @@ class TestFiltering(BaseTestCase):
         self.assertEqual(len(result), original_length - 2)
         self.assertNotIn(self.elem_list[0], result)
         self.assertNotIn(self.elem_list[1], result)
+
+    def test_move_forwards_from(self):
+        # By default, should move forwards by one element
+        self.assertEqual(
+            self.elem_list.move_forwards_from(self.elem_list[2]), self.elem_list[3]
+        )
+        # Test count
+        self.assertEqual(
+            self.elem_list.move_forwards_from(self.elem_list[2], count=2),
+            self.elem_list[4],
+        )
+        # Negative count should move backwards
+        self.assertEqual(
+            self.elem_list.move_forwards_from(self.elem_list[2], count=-1),
+            self.elem_list[1],
+        )
+        # Going outside of list in either direction should raise exception
+        with self.assertRaises(ElementOutOfRangeError):
+            self.elem_list.move_forwards_from(self.elem_list[2], count=10)
+        with self.assertRaises(ElementOutOfRangeError):
+            self.elem_list.move_forwards_from(self.elem_list[2], count=-10)
+        # Passing capped=True should instead return first/last element
+        self.assertEqual(
+            self.elem_list.move_forwards_from(self.elem_list[2], count=10, capped=True),
+            self.elem_list[-1],
+        )
+        self.assertEqual(
+            self.elem_list.move_forwards_from(
+                self.elem_list[2], count=-10, capped=True
+            ),
+            self.elem_list[0],
+        )
+
+    def test_move_backwards_from(self):
+        # By default, should move backwards by one element
+        self.assertEqual(
+            self.elem_list.move_backwards_from(self.elem_list[3]), self.elem_list[2]
+        )
+        # Test count
+        self.assertEqual(
+            self.elem_list.move_backwards_from(self.elem_list[3], count=2),
+            self.elem_list[1],
+        )
+        # Negative count should move forwards
+        self.assertEqual(
+            self.elem_list.move_backwards_from(self.elem_list[3], count=-1),
+            self.elem_list[4],
+        )
+        # Going outside of list in either direction should raise exception
+        with self.assertRaises(ElementOutOfRangeError):
+            self.elem_list.move_backwards_from(self.elem_list[3], count=10)
+        with self.assertRaises(ElementOutOfRangeError):
+            self.elem_list.move_backwards_from(self.elem_list[3], count=-10)
+        # Passing capped=True should instead return first/last element
+        self.assertEqual(
+            self.elem_list.move_backwards_from(
+                self.elem_list[3], count=10, capped=True
+            ),
+            self.elem_list[0],
+        )
+        self.assertEqual(
+            self.elem_list.move_backwards_from(
+                self.elem_list[3], count=-10, capped=True
+            ),
+            self.elem_list[-1],
+        )
 
     def test_repr(self):
         self.assertEqual(repr(self.elem_list), "<ElementList of 6 elements>")

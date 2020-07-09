@@ -13,6 +13,7 @@ import re
 
 from .common import BoundingBox
 from .exceptions import (
+    ElementOutOfRangeError,
     NoElementFoundError,
     MultipleElementsFoundError,
     SectionNotFoundError,
@@ -850,6 +851,71 @@ class ElementList(Iterable):
         return ElementList(
             self.document, self.indexes - set(element._index for element in elements)
         )
+
+    def move_forwards_from(
+        self, element: "PDFElement", count: int = 1, capped: bool = False
+    ) -> "PDFElement":
+        """
+        Returns the element in the element list obtained by moving forwards from
+        `element` by `count`.
+
+        Args:
+            element (PDFElement): The element to start at.
+            count (int, optional): How many elements to move from `element`. The default
+                of 1 will move forwards by one element. Passing 0 will simply return the
+                element itself. You can also pass negative integers to move backwards.
+            capped (bool, optional): By default (False), if the count is high enough
+                that we try to move out of range of the list, an exception will be
+                raised. Passing `capped=True` will change this behaviour to instead
+                return the element at the start or end of the list.
+
+        Raises:
+            ElementOutOfRangeError: If the count large (or large-negative) enough that
+                we reach the end (or start) of the list. Only happens when capped=False.
+        """
+        indexes = sorted(self.indexes)
+        new_index = indexes.index(element._index) + count
+        if new_index < 0 or new_index >= len(indexes):
+            # Out of range. We could simply catch the index error for large new_index,
+            # but we have to handle the negative case like this anyway, so might as well
+            # do both cases while we're at it.
+            if capped:
+                new_index = max(min(new_index, len(indexes) - 1), 0)
+                element_index = indexes[new_index]
+                return self.document._element_list[element_index]
+            raise ElementOutOfRangeError(
+                f"Requested element is {'before' if capped < 0 else 'after'} the start "
+                "of the ElementList"
+            )
+
+        # We avoid just returning self[new_index] here since getitem will do an
+        # additional sorted(self.indexes), which we have already computed here.
+        element_index = indexes[new_index]
+        return self.document._element_list[element_index]
+
+    def move_backwards_from(
+        self, element: "PDFElement", count: int = 1, capped: bool = False
+    ) -> "PDFElement":
+        """
+        Returns the element in the element list obtained by moving backwards from
+        `element` by `count`.
+
+        Args:
+            element (PDFElement): The element to start at.
+            count (int, optional): How many elements to move from `element`. The default
+                of 1 will move backwards by one element. Passing 0 will simply return
+                the element itself. You can also pass negative integers to move
+                forwards.
+            capped (bool, optional): By default (False), if the count is high enough
+                that we try to move out of range of the list, an exception will be
+                raised. Passing `capped=True` will change this behaviour to instead
+                return the element at the start or end of the list.
+
+        Raises:
+            ElementOutOfRangeError: If the count large (or large-negative) enough that
+                we reach the start (or end) of the list. Only happens when capped=False.
+        """
+        return self.move_forwards_from(element, count=-count, capped=capped)
 
     def __intersect_indexes_with_self(self, new_indexes: Set[int]) -> "ElementList":
         return self & ElementList(self.document, new_indexes)
