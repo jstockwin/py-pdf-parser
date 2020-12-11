@@ -5,7 +5,7 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-  # Maintain dependenceis from GitHub Actions
+  # Maintain dependencies from GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
