@@ -4,7 +4,7 @@ import logging
 
 import matplotlib
 
-matplotlib.use("Qt5Agg", warn=False)  # noqa
+matplotlib.use("Qt5Agg")  # noqa
 from matplotlib import pyplot as plt
 from matplotlib.backend_bases import MouseButton
 
