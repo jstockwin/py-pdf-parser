@@ -28,7 +28,7 @@ setup(
     install_requires=[
         "pdfminer.six==20201018",
         "docopt==0.6.2",
-        "wand==0.4.4",
+        "wand==0.6.5",
         "PyYAML==5.3.1",
     ],
     extras_require={
