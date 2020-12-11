@@ -43,7 +43,7 @@ setup(
             "black==19.10b0",
             "ddt==1.4.1",
             "matplotlib==3.1.2",
-            "mock==3.0.5",
+            "mock==4.0.3",
             "mypy==0.790",
             "nose==1.3.7",
             "pillow==7.0.0",
