@@ -37,7 +37,7 @@ setup(
             "pillow==7.0.0",
             "pyqt5==5.14.1",
             "pyvoronoi==1.0.5",
-            "shapely==1.7.0",
+            "shapely==1.7.1",
         ],
         "test": [
             "black==19.10b0",
