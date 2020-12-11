@@ -16,7 +16,7 @@ setup(
     name="py-pdf-parser",
     packages=find_packages(),
     exclude=["tests.*", "tests", "docs", "docs.*"],
-    version="0.5.0",
+    version="0.6.0",
     url="https://github.com/jstockwin/py-pdf-parser",
     license="BSD",
     description="A tool to help extracting information from structured PDFs.",
