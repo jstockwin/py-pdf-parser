@@ -29,7 +29,7 @@ setup(
         "pdfminer.six==20201018",
         "docopt==0.6.2",
         "wand==0.4.4",
-        "PyYAML==5.1",
+        "PyYAML==5.3.1",
     ],
     extras_require={
         "dev": [
