@@ -360,7 +360,6 @@ class PDFDocument:
             will be PDFMiner elements, and not PDFElements from this package.
 
     Attributes:
-        pages (list): A list of all `PDFPages` in the document.
         number_of_pages (int): The total number of pages in the document.
         page_numbers (list(int)): A list of available page numbers.
         sectioning: Gives access to the sectioning utilities. See the documentation for
