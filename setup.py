@@ -53,7 +53,7 @@ setup(
             "recommonmark==0.7.1",
             "sphinx-autobuild==2020.9.1",
             "sphinx-rtd-theme==0.5.0",
-            "Sphinx==3.4.0",
+            "Sphinx==3.4.1",
             # This is a sub-dependency but is pinned because the next version doesn't
             # install correctly. See:
             # https://github.com/scikit-build/ninja-python-distributions/issues/27
