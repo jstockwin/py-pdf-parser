@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Optional, List, Tuple, Dict
 
-from pyvoronoi import Pyvoronoi
+import pyvoronoi
 from shapely import geometry, ops
 from matplotlib import cm
 
@@ -47,7 +47,7 @@ class SectionVisualiser:
     all_elements: List["PDFElement"]
     document: "PDFDocument"
     page: "PDFPage"
-    pv: Optional["Pyvoronoi"]
+    pv: Optional["pyvoronoi.Pyvoronoi"]
     pv_segments: Optional[List]
 
     __ax: "Axes"
@@ -212,7 +212,7 @@ class SectionVisualiser:
 
         self.__plot_edges(to_plot, edges, vertices, label=section.unique_name)
 
-    def __get_voronoi(self) -> Tuple[Pyvoronoi, List]:
+    def __get_voronoi(self) -> Tuple[pyvoronoi.Pyvoronoi, List]:
         all_segments = self.__get_segments_for_elements(self.all_elements)
         # Add the page boundary as segments:
         all_segments += [
@@ -222,7 +222,7 @@ class SectionVisualiser:
             [(self.page.width, 0), (self.page.width, self.page.height)],
         ]
 
-        pv = Pyvoronoi(10)
+        pv = pyvoronoi.Pyvoronoi(10)
         for segment in all_segments:
             pv.AddSegment(segment)
 
