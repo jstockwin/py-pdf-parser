@@ -3,7 +3,7 @@ from typing import Dict, List, NamedTuple, IO, Optional
 import logging
 
 from pdfminer.high_level import extract_pages
-from pdfminer.layout import LTTextContainer, LAParams, LTFigure
+from pdfminer.layout import LTTextBox, LAParams, LTFigure
 
 from .components import PDFDocument
 
@@ -19,12 +19,12 @@ class Page(NamedTuple):
     Args:
         width (int): The width of the page.
         height (int): The height of the page.
-        elements (list): A list of PDF Miner elements (LTTextContainers) on the page.
+        elements (list): A list of PDF Miner elements (LTTextBox) on the page.
     """
 
     width: int
     height: int
-    elements: List[LTTextContainer]
+    elements: List[LTTextBox]
 
 
 def load_file(
@@ -71,16 +71,14 @@ def load(
 
     pages: Dict[int, Page] = {}
     for page in extract_pages(pdf_file, laparams=LAParams(**la_params)):
-        elements = [element for element in page if isinstance(element, LTTextContainer)]
+        elements = [element for element in page if isinstance(element, LTTextBox)]
 
         # If all_texts=True then we may get some text from inside figures
         if la_params.get("all_texts"):
             figures = (element for element in page if isinstance(element, LTFigure))
             for figure in figures:
                 elements += [
-                    element
-                    for element in figure
-                    if isinstance(element, LTTextContainer)
+                    element for element in figure if isinstance(element, LTTextBox)
                 ]
 
         if not elements:

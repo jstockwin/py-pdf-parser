@@ -5,12 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
+### Changed
+- Ensure we only accept LTTextBoxes at the top level (not LTTextLines) ([#155](https://github.com/jstockwin/py-pdf-parser/pull/155))
 ## [0.6.0] - 2020-12-11
 ### Added
 - Enabled dependabot which should help to keep packages up to date ([#124](https://github.com/jstockwin/py-pdf-parser/pull/124))
 
-### Changes
+### Changed
 - Various dependency updates
 
 ### Fixed
