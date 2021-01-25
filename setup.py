@@ -44,7 +44,7 @@ setup(
             "ddt==1.4.1",
             "matplotlib==3.1.2",
             "mock==4.0.3",
-            "mypy==0.790",
+            "mypy==0.800",
             "nose==1.3.7",
             "pillow==8.1.0",
             "pycodestyle==2.6.0",
