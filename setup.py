@@ -35,7 +35,7 @@ setup(
         "dev": [
             "matplotlib==3.1.2",
             "pillow==8.1.0",
-            "pyqt5==5.14.1",
+            "pyqt5==5.15.3",
             "pyvoronoi==1.0.5",
             "shapely==1.7.1",
         ],
@@ -48,7 +48,7 @@ setup(
             "nose==1.3.7",
             "pillow==8.1.0",
             "pycodestyle==2.6.0",
-            "pyqt5==5.14.1",
+            "pyqt5==5.15.3",
             "pytype==2020.2.6",
             "recommonmark==0.7.1",
             "sphinx-autobuild==2020.9.1",
