@@ -34,19 +34,19 @@ setup(
     extras_require={
         "dev": [
             "matplotlib==3.1.2",
-            "pillow==8.1.0",
+            "pillow==8.1.1",
             "pyqt5==5.14.1",
             "pyvoronoi==1.0.5",
             "shapely==1.7.1",
         ],
         "test": [
             "black==20.8b1",
-            "ddt==1.4.1",
+            "ddt==1.4.2",
             "matplotlib==3.1.2",
             "mock==4.0.3",
             "mypy==0.790",
             "nose==1.3.7",
-            "pillow==8.1.0",
+            "pillow==8.1.1",
             "pycodestyle==2.6.0",
             "pyqt5==5.14.1",
             "pytype==2020.2.6",
