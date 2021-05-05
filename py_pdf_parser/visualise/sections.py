@@ -1,11 +1,11 @@
-from typing import TYPE_CHECKING, Optional, List, Tuple, Dict
+from typing import TYPE_CHECKING, Optional, List, Tuple, Dict, Union
 
 import pyvoronoi
 from shapely import geometry, ops
 from matplotlib import cm
 
 if TYPE_CHECKING:
-    from py_pdf_parser.components import PDFPage, PDFDocument, PDFElement
+    from py_pdf_parser.components import PDFPage, PDFDocument, PDFElement, ElementList
     from py_pdf_parser.sectioning import Section
     from matplotlib.axes import Axes
 
@@ -90,7 +90,7 @@ class SectionVisualiser:
             for start, end in self.__get_segment_for_element(element)
         ]
 
-    def __get_element_boxes(self, elements: List["PDFElement"]):
+    def __get_element_boxes(self, elements: Union[List["PDFElement"], "ElementList"]):
         return [
             geometry.box(
                 element.bounding_box.x0,
