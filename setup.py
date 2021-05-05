@@ -47,7 +47,7 @@ setup(
             "mypy==0.790",
             "nose==1.3.7",
             "pillow==8.1.1",
-            "pycodestyle==2.6.0",
+            "pycodestyle==2.7.0",
             "pyqt5==5.14.1",
             "pytype==2020.2.6",
             "recommonmark==0.7.1",
