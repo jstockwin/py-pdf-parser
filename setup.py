@@ -41,7 +41,7 @@ setup(
         ],
         "test": [
             "black==20.8b1",
-            "ddt==1.4.1",
+            "ddt==1.4.2",
             "matplotlib==3.1.2",
             "mock==4.0.3",
             "mypy==0.790",
