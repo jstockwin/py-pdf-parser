@@ -52,7 +52,7 @@ setup(
             "pytype==2020.2.6",
             "recommonmark==0.7.1",
             "sphinx-autobuild==2020.9.1",
-            "sphinx-rtd-theme==0.5.1",
+            "sphinx-rtd-theme==0.5.2",
             "Sphinx==3.5.2",
             # This is a sub-dependency but is pinned because the next version doesn't
             # install correctly. See:
