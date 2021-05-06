@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from matplotlib.figure import Figure, Text
     from matplotlib.axes import Axes
     from matplotlib.backend_bases import MouseEvent
-    import PyQt5
+    from PyQt5 import QtWidgets
 logger = logging.getLogger("PDFParser")
 
 
@@ -44,10 +44,10 @@ class PDFVisualiser:
     __fig: "Figure"
     __info_fig: Optional["Figure"] = None
     __info_text: Optional["Text"] = None
-    __first_page_button: "PyQt5.QtWidgets.QAction" = None
-    __previous_page_button: "PyQt5.QtWidgets.QAction" = None
-    __next_page_button: "PyQt5.QtWidgets.QAction" = None
-    __last_page_button: "PyQt5.QtWidgets.QAction" = None
+    __first_page_button: Optional["QtWidgets.QAction"] = None
+    __previous_page_button: Optional["QtWidgets.QAction"] = None
+    __next_page_button: Optional["QtWidgets.QAction"] = None
+    __last_page_button: Optional["QtWidgets.QAction"] = None
     __section_visualiser: "SectionVisualiser"
 
     __clicked_elements: Dict[MouseButton, "PDFElement"] = {}
