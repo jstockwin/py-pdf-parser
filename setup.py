@@ -40,7 +40,7 @@ setup(
             "shapely==1.7.1",
         ],
         "test": [
-            "black==21.5b0",
+            "black==21.5b1",
             "ddt==1.4.2",
             "matplotlib==3.1.2",
             "mock==4.0.3",
