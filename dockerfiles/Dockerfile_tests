@@ -6,7 +6,8 @@ RUN apt-get update && \
     apt-get -y install software-properties-common \
     python3.7-dev \
     python3-pip \
-    libmagickwand-dev
+    libmagickwand-dev \
+    xvfb
 
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 2
 

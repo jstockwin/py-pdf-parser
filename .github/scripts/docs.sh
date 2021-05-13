@@ -6,7 +6,7 @@ echo '#######################################################################'
 
 export SPHINXOPTS="-W"  # Treat warnings as errors
 
-make --directory $PROJECT_DIR/docs html
+xvfb-run make --directory $PROJECT_DIR/docs html
 
 DOCS_STATUS=$?
 if [[ ("$DOCS_STATUS" == 0) ]]; then
