@@ -6,7 +6,7 @@ shell:
     - /tmp/.X11-unix:/tmp/.X11-unix:rw
     - ./imagemagick_policy.xml:/etc/ImageMagick-6/policy.xml
   environment:
-    DISPLAY: ":1"
+    - DISPLAY
   command: bash
 
 lint:
@@ -31,6 +31,9 @@ tests:
   dockerfile: dockerfiles/Dockerfile_tests
   volumes:
     - .:/py-pdf-parser
+    - /tmp/.X11-unix:/tmp/.X11-unix:rw
+  environment:
+    - DISPLAY
   command: bash -c "nosetests ."
 
 # Run docs to re-build the docs once.

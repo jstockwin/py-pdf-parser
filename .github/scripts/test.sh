@@ -7,7 +7,7 @@ echo ''
 echo '#######################################################################'
 echo '#                          Running nosetests                          #'
 echo '#######################################################################'
-nosetests $PROJECT_DIR
+xvfb-run nosetests $PROJECT_DIR
 
 TEST_STATUS=$?
 if [[ ("$TEST_STATUS" == 0) ]]; then
