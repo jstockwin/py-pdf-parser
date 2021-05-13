@@ -17,8 +17,8 @@ jobs:
           context: .
           file: dockerfiles/Dockerfile_tests
           tags: jstockwin/py-pdf-parser-test:test
-      - name: Run linting
-        run: docker run --rm jstockwin/py-pdf-parser-test:test .github/scripts/lint.sh
+      # - name: Run linting
+      #   run: docker run --rm jstockwin/py-pdf-parser-test:test .github/scripts/lint.sh
       - name: Run test
         run: docker run --rm jstockwin/py-pdf-parser-test:test .github/scripts/test.sh
       - name: Check docs build correctly
