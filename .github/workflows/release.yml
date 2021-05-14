@@ -11,21 +11,13 @@ jobs:
     - name: Get the tag
       id: tagName
       run: echo ::set-output name=tag::${GITHUB_REF/refs\/tags\//}
-    - name: Publish to docker hub
-      uses: elgohr/Publish-Docker-Github-Action@master
-      with:
-        name: jstockwin/py-pdf-parser
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-        dockerfile: dockerfiles/Dockerfile
-        tags: ${{ steps.tagName.outputs.tag }}
     - name: Install build packages
       run: pip3 install twine==3.1.1 wheel==0.34.2
     - name: Build package
       run: python3 setup.py sdist bdist_wheel
     - name: Check built package
       run: twine check dist/*
-    - name: Package package to PyPI
+    - name: Publish package to PyPI
       run: twine upload dist/*
       env:
         TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
