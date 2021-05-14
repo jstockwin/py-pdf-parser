@@ -2,15 +2,20 @@
 FROM phusion/baseimage:focal-1.0.0
 
 RUN adduser --disabled-password --gecos "" app_user
-RUN echo "alias python=python3" > /home/app_user/.bashrc
 
 RUN apt-get update && \
     apt-get -y install software-properties-common \
                        python3-dev \
                        python3-pip \
+                       python3-virtualenv \
                        libmagickwand-dev \
                        xvfb && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+ENV VIRTUAL_ENV_DIR /.venv
+RUN python3 -m virtualenv --python=python3.8 $VIRTUAL_ENV_DIR
+# Set the virtual environment as the main Python directory
+ENV PATH $VIRTUAL_ENV_DIR/bin:$PATH
 
 RUN --mount=type=cache,target=/root/.cache/pip pip3 install --upgrade pip
 
@@ -26,8 +31,9 @@ ADD ./setup.py $PROJECT_DIR/setup.py
 ADD ./README.md $PROJECT_DIR/README.md
 RUN --mount=type=cache,target=/root/.cache/pip pip3 install -e $PROJECT_DIR[dev]
 RUN --mount=type=cache,target=/root/.cache/pip pip3 install -e $PROJECT_DIR[test]
+RUN chown -R app_user:app_user $VIRTUAL_ENV_DIR
 
 # Copy code, chown and switch user
 ADD ./ $PROJECT_DIR
-RUN chown -R app_user: $PROJECT_DIR
+RUN chown -R app_user:app_user $PROJECT_DIR
 USER app_user
