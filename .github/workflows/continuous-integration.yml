@@ -23,8 +23,6 @@ jobs:
       - name: Build the tests docker container
         uses: docker/build-push-action@v2.4.0
         with:
-          context: .
-          file: dockerfiles/Dockerfile_tests
           tags: jstockwin/py-pdf-parser-test:test
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
