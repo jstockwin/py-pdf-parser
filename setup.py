@@ -49,7 +49,7 @@ setup(
             "pillow==8.1.1",
             "pycodestyle==2.7.0",
             "pyqt5==5.15.4",
-            "pytype==2021.5.19",
+            "pytype==2021.5.25",
             "recommonmark==0.7.1",
             "sphinx-autobuild==2021.3.14",
             "sphinx-rtd-theme==0.5.2",
