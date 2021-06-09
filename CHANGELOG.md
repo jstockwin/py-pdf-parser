@@ -6,7 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2021-06-09
 ### Changed
+- Various dependency updates (matplotlib, pyqt5)
 - Removed all but the tests dockerfile for simplicity. Use Docker BuildKit. We will no longer be pushing images to DockerHub on release. ([#203](https://github.com/jstockwin/py-pdf-parser/pull/203))
 
 ## [0.8.0] - 2021-05-12
