@@ -1,8 +1,12 @@
 from typing import List, Optional, Union, TYPE_CHECKING
 
+import os
 import logging
 
+import tkinter as tk
+import _tkinter
 from unittest import TestCase
+from PIL import Image
 
 if TYPE_CHECKING:
     from pdfminer.layout import LTComponent
@@ -11,8 +15,10 @@ if TYPE_CHECKING:
     from py_pdf_parser.filtering import ElementList
 
 
-# Turn of debug spam from pdfminer
+# Turn of debug spam from pdfminer, matplotlib, shapely
 logging.getLogger("pdfminer").setLevel(logging.WARNING)
+logging.getLogger("matplotlib").setLevel(logging.WARNING)
+logging.getLogger("shapely").setLevel(logging.WARNING)
 
 
 class BaseTestCase(TestCase):
@@ -63,3 +69,57 @@ class BaseTestCase(TestCase):
             if elem is not None
             if elem.original_element == original_element
         ][0]
+
+
+class BaseVisualiseTestCase(BaseTestCase):
+    """
+    See the answer from ivan_pozdeev at
+    https://stackoverflow.com/questions/4083796/how-do-i-run-unittest-on-a-tkinter-app
+    for the setUp, tearDown and pump_events methods. This basically allows us to
+    run tk.mainloop() manually using pump_events, thus allowing us to use visualise
+    without blocking the thread.
+
+    There is also a custom check_images function to do comparison of the screenshots
+    from visualise. You can set self.WRITE_NEW to True to write new images if they don't
+    exist. This also allows you to delete images which are old, and then run the tests
+    with WRITE_NEW=True to replace them.
+    """
+
+    WRITE_NEW = False
+
+    def setUp(self):
+        self.root = tk.Tk()
+        self.pump_events()
+
+    def tearDown(self):
+        if self.root:
+            self.root.destroy()
+            self.pump_events()
+
+    def pump_events(self):
+        while self.root.dooneevent(_tkinter.ALL_EVENTS | _tkinter.DONT_WAIT):
+            pass
+
+    def check_images(self, visualiser, image_name):
+        self.pump_events()
+        root_path = os.path.join(os.path.dirname(__file__), "data", "images")
+        existing_file_path = os.path.join(root_path, f"{image_name}.png")
+        new_file_path = os.path.join(root_path, f"{image_name}-new.png")
+
+        # Check if file exists (write if not)
+        if not os.path.isfile(existing_file_path):
+            if not self.WRITE_NEW:
+                self.fail(f"Could not find existing image for {image_name=}. Set ")
+
+            visualiser._PDFVisualiser__fig.savefig(existing_file_path)
+
+        # Check images are identical (fail if not)
+        existing_image = Image.open(existing_file_path)
+
+        visualiser._PDFVisualiser__fig.savefig(new_file_path)
+        new_image = Image.open(new_file_path)
+
+        if new_image.tobytes() != existing_image.tobytes():
+            self.fail(f"Images differ for {image_name=}.")
+
+        os.remove(new_file_path)

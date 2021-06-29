@@ -7,7 +7,6 @@ import tkinter as tk
 from matplotlib.figure import Figure
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-from matplotlib import pyplot as plt
 from matplotlib.backend_bases import MouseButton
 
 from py_pdf_parser.components import PDFDocument
@@ -30,6 +29,8 @@ STYLES = {
     "tagged": {"color": "#007ac1", "linewidth": 1, "alpha": 0.5},
     "ignored": {"color": "#67daff", "linewidth": 1, "alpha": 0.2, "linestyle": ":"},
 }
+
+DPI = 100
 
 
 class CustomToolbar(NavigationToolbar2Tk):
@@ -93,6 +94,7 @@ class PDFVisualiser:
 
     def __init__(
         self,
+        root: tk.Tk,
         document: PDFDocument,
         current_page: int = 1,
         elements: "ElementList" = None,
@@ -113,11 +115,12 @@ class PDFVisualiser:
             self.elements = document.elements
         self.show_info = show_info
 
-        self.root = tk.Tk()
-        self.__fig = Figure(figsize=(5, 4), dpi=100)
-        self.canvas = FigureCanvasTkAgg(
-            self.__fig, master=self.root
-        )  # A tk.DrawingArea.
+        self.root = root
+        width = self.root.winfo_screenwidth()
+        height = self.root.winfo_screenheight()
+        self.root.geometry(f"{width}x{height}")
+        self.__fig = Figure(figsize=(5, 4), dpi=DPI)
+        self.canvas = FigureCanvasTkAgg(self.__fig, master=self.root)
         self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
         self.toolbar = CustomToolbar(
             self.canvas,
@@ -135,9 +138,7 @@ class PDFVisualiser:
         if self.show_info:
             self.__info_fig, self.__info_text = self.__initialise_info_fig()
 
-    def visualise(self):
         self.__plot_current_page()
-        self.root.mainloop()
 
     def __plot_current_page(self):
         if self.show_info:
@@ -314,5 +315,6 @@ def visualise(
         show_info (bool): Shows an additional window allowing you to click on
             PDFElements and see details about them. Default: False.
     """
-    visualiser = PDFVisualiser(document, page_number, elements, show_info)
-    visualiser.visualise()
+    root = tk.Tk()
+    PDFVisualiser(root, document, page_number, elements, show_info)
+    root.mainloop()
