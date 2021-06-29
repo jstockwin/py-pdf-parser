@@ -8,6 +8,7 @@ RUN apt-get update && \
                        python3-dev \
                        python3-pip \
                        python3-virtualenv \
+                       python3-tk \
                        libmagickwand-dev \
                        xvfb && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
