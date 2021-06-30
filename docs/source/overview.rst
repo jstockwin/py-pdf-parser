@@ -11,7 +11,7 @@ This page gives a brief overview of the PDF Parser, but there is also a full :do
 Setup
 -----
 
-You will need to have Python 3.6 or greater installed, and if you're installing the development requirements you will also need the development Python version. You can install this by running ``apt-get install python3.x-dev``, replacing ``x`` with your version as required.
+You will need to have Python 3.6 or greater installed, and if you're installing the development requirements to use the visualise tool you will also need tkinter installed on your system. For information on how to do this, see https://tkdocs.com/tutorial/install.html.
 
 We recommend you install the development requirements with ``pip3 install py-pdf-parser[dev]``, which enables the visualise tool. If you don't need the visualise tool (for example in a production app once you've written your parsing scripts) you can simply run ``pip3 install py-pdf-parser``.
 
