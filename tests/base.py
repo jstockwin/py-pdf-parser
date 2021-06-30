@@ -80,12 +80,12 @@ class BaseVisualiseTestCase(BaseTestCase):
     without blocking the thread.
 
     There is also a custom check_images function to do comparison of the screenshots
-    from visualise. You can set self.WRITE_NEW to True to write new images if they don't
-    exist. This also allows you to delete images which are old, and then run the tests
-    with WRITE_NEW=True to replace them.
+    from visualise. You can set self.WRITE_NEW_TEST_IMAGES to True to write new images
+    if they don't exist. This also allows you to delete images which are old, and then
+    run the tests with WRITE_NEW_TEST_IMAGES=True to replace them.
     """
 
-    WRITE_NEW = False
+    WRITE_NEW_TEST_IMAGES = False
 
     def setUp(self):
         self.root = tk.Tk()
@@ -108,7 +108,7 @@ class BaseVisualiseTestCase(BaseTestCase):
 
         # Check if file exists (write if not)
         if not os.path.isfile(existing_file_path):
-            if not self.WRITE_NEW:
+            if not self.WRITE_NEW_TEST_IMAGES:
                 self.fail(f"Could not find existing image for {image_name=}. Set ")
 
             visualiser._PDFVisualiser__fig.savefig(existing_file_path)
