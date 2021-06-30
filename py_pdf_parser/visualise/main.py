@@ -1,4 +1,4 @@
-from typing import Dict, Tuple, Optional, TYPE_CHECKING
+from typing import Dict, Tuple, Optional, Callable, TYPE_CHECKING
 
 import logging
 
@@ -36,12 +36,12 @@ DPI = 100
 class CustomToolbar(NavigationToolbar2Tk):
     def __init__(
         self,
-        canvas,
-        window,
-        first_page_callback,
-        previous_page_callback,
-        next_page_callback,
-        last_page_callback,
+        canvas: tk.Canvas,
+        window: tk.Tk,
+        first_page_callback: Callable,
+        previous_page_callback: Callable,
+        next_page_callback: Callable,
+        last_page_callback: Callable,
         *args,
         **kwargs,
     ):
