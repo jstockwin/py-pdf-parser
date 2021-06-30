@@ -99,6 +99,8 @@ class PDFVisualiser:
         current_page: int = 1,
         elements: "ElementList" = None,
         show_info: bool = False,
+        width: Optional[int] = None,
+        height: Optional[int] = None,
     ):
         if not document._pdf_file_path:
             logger.warning(
@@ -116,8 +118,10 @@ class PDFVisualiser:
         self.show_info = show_info
 
         self.root = root
-        width = self.root.winfo_screenwidth()
-        height = self.root.winfo_screenheight()
+        if width is None:
+            width = self.root.winfo_screenwidth()
+        if height is None:
+            height = self.root.winfo_screenheight()
         self.root.geometry(f"{width}x{height}")
         self.__fig = Figure(figsize=(5, 4), dpi=DPI)
         self.canvas = FigureCanvasTkAgg(self.__fig, master=self.root)
@@ -294,6 +298,8 @@ def visualise(
     page_number: int = 1,
     elements: "ElementList" = None,
     show_info: bool = False,
+    width: Optional[int] = None,
+    height: Optional[int] = None,
 ):
     """
     Visualises a PDFDocument, allowing you to inspect all the elements.
@@ -314,7 +320,9 @@ def visualise(
             Defaults to all of the elements in the document.
         show_info (bool): Shows an additional window allowing you to click on
             PDFElements and see details about them. Default: False.
+        width: (int, optional): The initial width of the visualisation window.
+        height: (int, optional): The initial height of the visualisation window.
     """
     root = tk.Tk()
-    PDFVisualiser(root, document, page_number, elements, show_info)
+    PDFVisualiser(root, document, page_number, elements, show_info, width, height)
     root.mainloop()

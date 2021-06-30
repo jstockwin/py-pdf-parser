@@ -23,7 +23,9 @@ class TestVisualise(BaseVisualiseTestCase):
         }
         document = load_file(file_path, font_mapping=FONT_MAPPING)
 
-        visualiser = PDFVisualiser(self.root, document, show_info=True)
+        visualiser = PDFVisualiser(
+            self.root, document, show_info=True, width=1920, height=1080
+        )
 
         self.check_images(visualiser, "tables1")
 

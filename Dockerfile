@@ -5,7 +5,6 @@ RUN adduser --disabled-password --gecos "" app_user
 
 RUN apt-get update && \
     apt-get -y install software-properties-common \
-                       python3-dev \
                        python3-pip \
                        python3-virtualenv \
                        python3-tk \
