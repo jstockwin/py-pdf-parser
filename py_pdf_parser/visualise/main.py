@@ -34,21 +34,6 @@ DPI = 100
 
 
 class CustomToolbar(NavigationToolbar2Tk):
-    toolitems = (
-        ("Home", "Reset to original view", "home", "home"),
-        ("Back", "Back to previous view", "back", "back"),
-        ("Forward", "Forward to next view", "forward", "forward"),
-        ("Pan", "Pan axes with left mouse, zoom with right", "move", "pan"),
-        ("Zoom", "Zoom to rectangle", "zoom_to_rect", "zoom"),
-        ("Save", "Save the figure", "filesave", "save_figure"),
-        # New:
-        (None, None, None, None),  # Divider
-        ("First page", "Go to fist page", "back", "first_page_callback"),
-        ("Previous page", "Go to previous page", "back", "previous_page_callback"),
-        ("Next page", "Go to next page", "forward", "next_page_callback"),
-        ("Last page", "Go to last page", "forward", "last_page_callback"),
-    )
-
     def __init__(
         self,
         canvas,
@@ -64,6 +49,13 @@ class CustomToolbar(NavigationToolbar2Tk):
         self.previous_page_callback = previous_page_callback
         self.next_page_callback = next_page_callback
         self.last_page_callback = last_page_callback
+        self.toolitems += (
+            (None, None, None, None),  # Divider
+            ("First page", "Go to fist page", "back", "first_page_callback"),
+            ("Previous page", "Go to previous page", "back", "previous_page_callback"),
+            ("Next page", "Go to next page", "forward", "next_page_callback"),
+            ("Last page", "Go to last page", "forward", "last_page_callback"),
+        )
         super().__init__(canvas, window, *args, **kwargs)
 
     def reset(self, not_first_page, not_last_page):
