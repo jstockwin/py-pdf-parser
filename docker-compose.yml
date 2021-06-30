@@ -1,5 +1,6 @@
 shell:
-  build: .
+  extends:
+    service: base
   volumes:
     - .:/py-pdf-parser
     - /tmp/.X11-unix:/tmp/.X11-unix:rw
@@ -9,37 +10,38 @@ shell:
   command: bash
 
 lint:
-  build: .
-  volumes:
-    - .:/py-pdf-parser
+  extends:
+    service: base
   command: bash -c "black . --check && mypy . && pytype . --disable=pyi-error,import-error && pycodestyle . --config=pycodestyle.cfg"
 
 lint-fix:
-  build: .
-  volumes:
-    - .:/py-pdf-parser
+  extends:
+    service: base
   command: bash -c "black ."
 
 tests:
-  build: .
-  volumes:
-    - .:/py-pdf-parser
+  extends:
+    service: base
   command: .github/scripts/test.sh
 
 # Run docs to re-build the docs once.
 docs:
-  build: .
-  volumes:
-    - .:/py-pdf-parser
+  extends:
+    service: base
   command: make --directory docs html
   environment:
     - SPHINXOPTS="-W"
 
 # Use "up" to host the docs on port 8000, watching for changes.
 docs-autobuild:
-  build: .
-  volumes:
-    - .:/py-pdf-parser
+  extends:
+    service: base
   ports:
     - "8000:8000"
   command: make --directory docs livehtml
+
+base:
+  build: .
+  volumes:
+    - .:/py-pdf-parser
+  working_dir: /py-pdf-parser
