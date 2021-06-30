@@ -115,6 +115,11 @@ class PDFVisualiser:
         if height is None:
             height = self.root.winfo_screenheight()
         self.root.geometry(f"{width}x{height}")
+        title = f"py-pdf-parser"
+        if self.document._pdf_file_path:
+            title += f" - {self.document._pdf_file_path}"
+        self.root.title(title)
+
         self.__fig = Figure(figsize=(5, 4), dpi=DPI)
         self.canvas = FigureCanvasTkAgg(self.__fig, master=self.root)
         self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
