@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.10.0] - 2021-07-01
 - [BREAKING] Changes from using pyqt5 to using tkinter for the visualise tool. This
   means we don't need the python3-dev as a requirement, and seems to solve endless
   issues with pyqt5 not finding the correct qt bindings. This is a potential breaking
