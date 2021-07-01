@@ -1,11 +1,12 @@
-from typing import Dict, Tuple, Optional, TYPE_CHECKING
+from typing import Dict, Tuple, Optional, Callable, TYPE_CHECKING
 
 import logging
 
 import matplotlib
+import tkinter as tk
+from matplotlib.figure import Figure
 
-matplotlib.use("Qt5Agg")  # noqa
-from matplotlib import pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.backend_bases import MouseButton
 
 from py_pdf_parser.components import PDFDocument
@@ -16,10 +17,10 @@ from .sections import SectionVisualiser
 if TYPE_CHECKING:
     from py_pdf_parser.filtering import ElementList
     from py_pdf_parser.components import PDFElement
-    from matplotlib.figure import Figure, Text
+    from matplotlib.figure import Text
     from matplotlib.axes import Axes
     from matplotlib.backend_bases import MouseEvent
-    from PyQt5 import QtWidgets
+
 logger = logging.getLogger("PDFParser")
 
 
@@ -28,6 +29,41 @@ STYLES = {
     "tagged": {"color": "#007ac1", "linewidth": 1, "alpha": 0.5},
     "ignored": {"color": "#67daff", "linewidth": 1, "alpha": 0.2, "linestyle": ":"},
 }
+
+DPI = 100
+
+
+class CustomToolbar(NavigationToolbar2Tk):
+    def __init__(
+        self,
+        canvas: tk.Canvas,
+        window: tk.Tk,
+        first_page_callback: Callable,
+        previous_page_callback: Callable,
+        next_page_callback: Callable,
+        last_page_callback: Callable,
+        *args,
+        **kwargs,
+    ):
+        self.first_page_callback = first_page_callback
+        self.previous_page_callback = previous_page_callback
+        self.next_page_callback = next_page_callback
+        self.last_page_callback = last_page_callback
+        self.toolitems += (
+            (None, None, None, None),  # Divider
+            ("First page", "Go to fist page", "back", "first_page_callback"),
+            ("Previous page", "Go to previous page", "back", "previous_page_callback"),
+            ("Next page", "Go to next page", "forward", "next_page_callback"),
+            ("Last page", "Go to last page", "forward", "last_page_callback"),
+        )
+        super().__init__(canvas, window, *args, **kwargs)
+
+    def reset(self, not_first_page, not_last_page):
+        map = {True: tk.ACTIVE, False: tk.DISABLED}
+        self._buttons["First page"]["state"] = map[not_first_page]
+        self._buttons["Previous page"]["state"] = map[not_first_page]
+        self._buttons["Next page"]["state"] = map[not_last_page]
+        self._buttons["Last page"]["state"] = map[not_last_page]
 
 
 class PDFVisualiser:
@@ -44,20 +80,19 @@ class PDFVisualiser:
     __fig: "Figure"
     __info_fig: Optional["Figure"] = None
     __info_text: Optional["Text"] = None
-    __first_page_button: Optional["QtWidgets.QAction"] = None
-    __previous_page_button: Optional["QtWidgets.QAction"] = None
-    __next_page_button: Optional["QtWidgets.QAction"] = None
-    __last_page_button: Optional["QtWidgets.QAction"] = None
     __section_visualiser: "SectionVisualiser"
 
     __clicked_elements: Dict[MouseButton, "PDFElement"] = {}
 
     def __init__(
         self,
+        root: tk.Tk,
         document: PDFDocument,
         current_page: int = 1,
         elements: "ElementList" = None,
         show_info: bool = False,
+        width: Optional[int] = None,
+        height: Optional[int] = None,
     ):
         if not document._pdf_file_path:
             logger.warning(
@@ -74,27 +109,43 @@ class PDFVisualiser:
             self.elements = document.elements
         self.show_info = show_info
 
-        page = document.get_page(current_page)
-        self.__fig, self.__ax = self.__initialise_plot(
-            width=page.width, height=page.height
+        self.root = root
+        if width is None:
+            width = self.root.winfo_screenwidth()
+        if height is None:
+            height = self.root.winfo_screenheight()
+        self.root.geometry(f"{width}x{height}")
+        title = "py-pdf-parser"
+        if self.document._pdf_file_path:
+            title += f" - {self.document._pdf_file_path}"
+        self.root.title(title)
+
+        self.__fig = Figure(figsize=(5, 4), dpi=DPI)
+        self.canvas = FigureCanvasTkAgg(self.__fig, master=self.root)
+        self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+        self.toolbar = CustomToolbar(
+            self.canvas,
+            self.root,
+            next_page_callback=self.__next_page,
+            first_page_callback=self.__first_page,
+            previous_page_callback=self.__previous_page,
+            last_page_callback=self.__last_page,
         )
+
+        self.__ax = self.canvas.figure.add_subplot(111)
 
         self.__section_visualiser = SectionVisualiser(self.document, self.__ax)
 
         if self.show_info:
             self.__info_fig, self.__info_text = self.__initialise_info_fig()
 
-    def visualise(self):
-        self.__setup_toolbar()
         self.__plot_current_page()
-        plt.show()
 
     def __plot_current_page(self):
         if self.show_info:
             self.__clear_clicked_elements()
 
-        plt.sca(self.__ax)  # Set the correct axis as active
-        plt.cla()
+        self.__ax.cla()
 
         # draw PDF image as background
         page = self.document.get_page(self.current_page)
@@ -102,7 +153,7 @@ class PDFVisualiser:
             background = get_pdf_background(
                 self.document._pdf_file_path, self.current_page
             )
-            plt.imshow(
+            self.__ax.imshow(
                 background,
                 origin="lower",
                 extent=[0, page.width, 0, page.height],
@@ -134,16 +185,21 @@ class PDFVisualiser:
         self.__reset_toolbar()
 
     def __initialise_info_fig(self) -> Tuple["Figure", "Axes"]:
-        # The remaining code sets up the extra info figure
-        self.__fig.canvas.mpl_connect("button_press_event", self.__on_click)
+        window = tk.Toplevel(self.root)
 
-        info_fig = plt.figure()
+        info_fig = Figure()
+        canvas = FigureCanvasTkAgg(info_fig, window)
+        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        self.canvas.mpl_connect("button_press_event", self.__on_click)
+
         info_text = info_fig.text(
-            0.01, 0.5, "", horizontalalignment="left", verticalalignment="center"
+            0.01,
+            0.5,
+            "",
+            horizontalalignment="left",
+            verticalalignment="center",
         )
-
-        self.__fig.canvas.mpl_connect("close_event", lambda event: plt.close("all"))
-        info_fig.canvas.mpl_connect("close_event", lambda event: plt.close("all"))
         return info_fig, info_text
 
     def __on_click(self, event: "MouseEvent"):
@@ -173,38 +229,10 @@ class PDFVisualiser:
         rect = _ElementRectangle(element, **style)
         self.__ax.add_patch(rect)
 
-    def __setup_toolbar(self):
-        fig_manager = self.__fig.canvas.manager
-        style = fig_manager.toolbar.style()
-        fig_manager.toolbar.addSeparator()
-
-        self.__first_page_button = fig_manager.toolbar.addAction(
-            style.standardIcon(style.SP_MediaSkipBackward), "First page"
-        )
-        self.__first_page_button.triggered.connect(self.__first_page)
-
-        self.__previous_page_button = fig_manager.toolbar.addAction(
-            style.standardIcon(style.SP_MediaSeekBackward), "Previous page"
-        )
-        self.__previous_page_button.triggered.connect(self.__previous_page)
-
-        self.__next_page_button = fig_manager.toolbar.addAction(
-            style.standardIcon(style.SP_MediaSeekForward), "Next page"
-        )
-        self.__next_page_button.triggered.connect(self.__next_page)
-
-        self.__last_page_button = fig_manager.toolbar.addAction(
-            style.standardIcon(style.SP_MediaSkipForward), "Last page"
-        )
-        self.__last_page_button.triggered.connect(self.__last_page)
-
     def __reset_toolbar(self):
         not_first_page = self.current_page != 1
         not_last_page = self.current_page != self.document.number_of_pages
-        self.__first_page_button.setEnabled(not_first_page)
-        self.__previous_page_button.setEnabled(not_first_page)
-        self.__next_page_button.setEnabled(not_last_page)
-        self.__last_page_button.setEnabled(not_last_page)
+        self.toolbar.reset(not_first_page, not_last_page)
 
     def __get_annotations(self, x: float, y: float) -> str:
         annotation = f"({x:.2f}, {y:.2f})"
@@ -223,9 +251,6 @@ class PDFVisualiser:
                     annotation += f", SECTIONS: '{sections_str}'"
 
         return annotation
-
-    def __initialise_plot(self, width: int, height: int) -> Tuple["Figure", "Axes"]:
-        return plt.subplots(figsize=(height, width))
 
     def __first_page(self):
         self.__set_page(min(self.document.page_numbers))
@@ -270,6 +295,8 @@ def visualise(
     page_number: int = 1,
     elements: "ElementList" = None,
     show_info: bool = False,
+    width: Optional[int] = None,
+    height: Optional[int] = None,
 ):
     """
     Visualises a PDFDocument, allowing you to inspect all the elements.
@@ -290,6 +317,11 @@ def visualise(
             Defaults to all of the elements in the document.
         show_info (bool): Shows an additional window allowing you to click on
             PDFElements and see details about them. Default: False.
+        width: (int, optional): The initial width of the visualisation window.
+            Default: Screen width.
+        height: (int, optional): The initial height of the visualisation window.
+            Default: Screen height.
     """
-    visualiser = PDFVisualiser(document, page_number, elements, show_info)
-    visualiser.visualise()
+    root = tk.Tk()
+    PDFVisualiser(root, document, page_number, elements, show_info, width, height)
+    root.mainloop()

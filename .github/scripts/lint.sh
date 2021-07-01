@@ -52,6 +52,9 @@ echo ''
 echo '#######################################################################'
 echo '#                             Running PyType                          #'
 echo '#######################################################################'
+# pytype pyi-error disabled due to https://github.com/google/pytype/issues/355
+# pytype import error disabled because some packages (e.g. pyvoronoi) don't have any
+# type hinting available.
 pytype $PROJECT_DIR --disable=pyi-error,import-error
 
 PYTYPE_STATUS=$?

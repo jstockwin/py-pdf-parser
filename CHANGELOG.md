@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- [BREAKING] Changes from using pyqt5 to using tkinter for the visualise tool. This
+  means we don't need the python3-dev as a requirement, and seems to solve endless
+  issues with pyqt5 not finding the correct qt bindings. This is a potential breaking
+  change, although the visualise tool is only in the development version. No code
+  changes are needed, but you will need tkinter installed for visualise to still work.
 - Changed python version from 3.6 to 3.8 in `.readthedocs.yml`.
 
 ## [0.9.0] - 2021-06-09

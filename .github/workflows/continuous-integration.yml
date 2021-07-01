@@ -39,6 +39,8 @@ jobs:
       - name: Run linting
         run: docker run --rm jstockwin/py-pdf-parser-test:test .github/scripts/lint.sh
       - name: Run test
-        run: docker run --rm jstockwin/py-pdf-parser-test:test .github/scripts/test.sh
+        run: |  # Note we need '-uroot' so user has permissions to github.workspace
+          docker run --rm -uroot --volume ${{ github.workspace }}:/py-pdf-parser \
+          jstockwin/py-pdf-parser-test:test .github/scripts/test.sh
       - name: Check docs build correctly
         run: docker run --rm jstockwin/py-pdf-parser-test:test .github/scripts/docs.sh
