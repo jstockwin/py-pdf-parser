@@ -115,7 +115,7 @@ class PDFVisualiser:
         if height is None:
             height = self.root.winfo_screenheight()
         self.root.geometry(f"{width}x{height}")
-        title = f"py-pdf-parser"
+        title = "py-pdf-parser"
         if self.document._pdf_file_path:
             title += f" - {self.document._pdf_file_path}"
         self.root.title(title)
@@ -318,7 +318,9 @@ def visualise(
         show_info (bool): Shows an additional window allowing you to click on
             PDFElements and see details about them. Default: False.
         width: (int, optional): The initial width of the visualisation window.
+            Default: Screen width.
         height: (int, optional): The initial height of the visualisation window.
+            Default: Screen height.
     """
     root = tk.Tk()
     PDFVisualiser(root, document, page_number, elements, show_info, width, height)
