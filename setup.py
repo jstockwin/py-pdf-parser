@@ -34,7 +34,7 @@ setup(
     extras_require={
         "dev": [
             "matplotlib==3.4.2",
-            "pillow==8.2.0",
+            "pillow==8.3.0",
             "pyvoronoi==1.0.5",
             "shapely==1.7.1",
         ],
@@ -45,7 +45,7 @@ setup(
             "mock==4.0.3",
             "mypy==0.812",
             "nose==1.3.7",
-            "pillow==8.2.0",
+            "pillow==8.3.0",
             "pycodestyle==2.7.0",
             "pytype==2021.5.25",
             "recommonmark==0.7.1",
