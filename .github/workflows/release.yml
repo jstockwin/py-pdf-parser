@@ -8,9 +8,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2.3.4
     - uses: actions/setup-python@master
-    - name: Get the tag
-      id: tagName
-      run: echo ::set-output name=tag::${GITHUB_REF/refs\/tags\//}
     - name: Install build packages
       run: pip3 install twine==3.1.1 wheel==0.34.2
     - name: Build package
