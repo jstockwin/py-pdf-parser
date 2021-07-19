@@ -12,7 +12,7 @@ shell:
 lint:
   extends:
     service: base
-  command: bash -c "black . --check && mypy . && pytype . --disable=pyi-error,import-error && pycodestyle . --config=pycodestyle.cfg"
+  command: ./.github/scripts/lint.sh
 
 lint-fix:
   extends:
