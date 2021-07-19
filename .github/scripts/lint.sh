@@ -33,7 +33,7 @@ echo ''
 echo '#######################################################################'
 echo '#                             Running MyPy                            #'
 echo '#######################################################################'
-mypy $PROJECT_DIR
+mypy --install-types --non-interactive $PROJECT_DIR
 
 MYPY_STATUS=$?
 if [[ ("$MYPY_STATUS" == 0) ]]; then
