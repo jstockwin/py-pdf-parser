@@ -55,7 +55,7 @@ def load(
         pdf_file (io): The PDF file.
         la_params (dict): The layout parameters passed to PDF Miner for analysis. See
             the PDFMiner documentation here:
-            https://pdfminersix.readthedocs.io/en/latest/api/composable.html#laparams.
+            https://pdfminersix.readthedocs.io/en/latest/reference/composable.html#laparams.
             Note that py_pdf_parser will re-order the elements it receives from PDFMiner
             so options relating to element ordering will have no effect.
         pdf_file_path (str, optional): Passed to `PDFDocument`. See the documentation
