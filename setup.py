@@ -55,7 +55,7 @@ setup(
             # This is a sub-dependency but is pinned because the next version doesn't
             # install correctly. See:
             # https://github.com/scikit-build/ninja-python-distributions/issues/27
-            "ninja==1.10.0.post2",
+            "ninja==1.10.0.post3",
         ],
     },
 )
