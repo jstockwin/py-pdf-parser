@@ -52,10 +52,6 @@ setup(
             "sphinx-autobuild==2021.3.14",
             "sphinx-rtd-theme==0.5.2",
             "Sphinx==4.1.1",
-            # This is a sub-dependency but is pinned because the next version doesn't
-            # install correctly. See:
-            # https://github.com/scikit-build/ninja-python-distributions/issues/27
-            "ninja==1.10.0.post2",
         ],
     },
 )
