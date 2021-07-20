@@ -89,7 +89,7 @@ class PDFVisualiser:
         root: tk.Tk,
         document: PDFDocument,
         current_page: int = 1,
-        elements: "ElementList" = None,
+        elements: Optional["ElementList"] = None,
         show_info: bool = False,
         width: Optional[int] = None,
         height: Optional[int] = None,
@@ -293,7 +293,7 @@ class _ElementRectangle(matplotlib.patches.Rectangle):
 def visualise(
     document: PDFDocument,
     page_number: int = 1,
-    elements: "ElementList" = None,
+    elements: Optional["ElementList"] = None,
     show_info: bool = False,
     width: Optional[int] = None,
     height: Optional[int] = None,
