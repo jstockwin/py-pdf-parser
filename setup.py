@@ -51,7 +51,7 @@ setup(
             "recommonmark==0.7.1",
             "sphinx-autobuild==2021.3.14",
             "sphinx-rtd-theme==0.5.2",
-            "Sphinx==4.1.1",
+            "Sphinx==4.1.2",
         ],
     },
 )
