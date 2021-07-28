@@ -47,7 +47,7 @@ setup(
             "nose==1.3.7",
             "pillow==8.3.1",
             "pycodestyle==2.7.0",
-            "pytype==2021.7.19",
+            "pytype==2021.7.27",
             "recommonmark==0.7.1",
             "sphinx-autobuild==2021.3.14",
             "sphinx-rtd-theme==0.5.2",
