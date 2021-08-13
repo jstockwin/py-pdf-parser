@@ -33,7 +33,7 @@ setup(
     ],
     extras_require={
         "dev": [
-            "matplotlib==3.4.2",
+            "matplotlib==3.4.3",
             "pillow==8.3.1",
             "pyvoronoi==1.0.5",
             "shapely==1.7.1",
@@ -41,7 +41,7 @@ setup(
         "test": [
             "black==21.7b0",
             "ddt==1.4.2",
-            "matplotlib==3.4.2",
+            "matplotlib==3.4.3",
             "mock==4.0.3",
             "mypy==0.910",
             "nose==1.3.7",
