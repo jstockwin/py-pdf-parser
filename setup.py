@@ -35,7 +35,7 @@ setup(
         "dev": [
             "matplotlib==3.4.3",
             "pillow==8.3.1",
-            "pyvoronoi==1.0.5",
+            "pyvoronoi==1.0.7",
             "shapely==1.7.1",
         ],
         "test": [
