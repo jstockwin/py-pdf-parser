@@ -75,7 +75,7 @@ You can see an example of the visualisation in the :ref:`simple-memo` and :ref:`
 Font Mappings
 -------------
 
-You can filter elements by font. The font will be taken from the PDF itself, however often they have long and confusing names. You can specify a ``font_mapping`` when you load the document to map these to more memorable names. See the :doc:`reference/components` reference for the :class:`~py_pdf_parser.components.PDFDocument` arguments for more information.
+You can filter elements by font. The font will be taken from the PDF itself, however often they have long and confusing names. You can specify a ``font_mapping`` when you load the document to map these to more memorable names. This ``font_mapping`` can either be a regex pattern or an exact string mapping. See the :doc:`reference/components` reference for the :class:`~py_pdf_parser.components.PDFDocument` arguments for more information.
 
 You can see an example of font mapping in the :ref:`order-summary` example.
 

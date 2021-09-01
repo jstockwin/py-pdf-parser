@@ -64,7 +64,38 @@ Using the visualise tool again, we can now see that our element's font has chang
 .. image:: /screenshots/order_summary_example/showing_font_2.png
    :height: 300px
 
-Step 3 - Add sections
+Step 3 - Use regex for font mapping
+...................................
+In certain use cases (especially when handling many PDF files) you may encounter the problem that the same fonts have different prefixes. 
+
+For example:
+
+File 1:
+::
+
+    >>> set(element.font for element in document.elements)
+    {'EAAAAA+FreeMono,12.0', 'BAAAAA+LiberationSerif-Bold,16.0', 'CAAAAA+LiberationSerif,12.0', 'DAAAAA+FreeMonoBold,12.0', 'BAAAAA+LiberationSerif-Bold,12.0'}
+
+File 2:
+::
+
+    >>> set(element.font for element in document.elements)
+    {'CIPKDS+FreeMono,12.0', 'FDHZTR+LiberationSerif-Bold,16.0', 'KJVFSL+LiberationSerif,12.0', 'BXNKHF+FreeMonoBold,12.0', 'OKSDFT+LiberationSerif-Bold,12.0'}
+
+In this case mapping fonts with regex patterns makes more sense. Create the your font mapping like before but fill it with regex patterns that don't specify the prefix precisely. Also specify that the font mapping contains regex patterns when loading the document.
+
+.. code-block:: python
+
+   FONT_MAPPING = {
+       r"\w{6}\+LiberationSerif-Bold,16.0": "title",
+       r"\w{6}\+LiberationSerif-Bold,12.0": "sub_title",
+       r"\w{6}\+LiberationSerif,12.0": "text",
+       r"\w{6}\+FreeMonoBold,12.0": "table_header",
+       r"\w{6}\+FreeMono,12.0": "table_text",
+   }
+   document = load_file("order_summary.pdf", font_mapping=FONT_MAPPING, font_mapping_is_regex=True)
+
+Step 4 - Add sections
 .....................
 
 Another thing we can do to make our job easier is to add :class:`Sections<py_pdf_parser.sectioning.Section>` to our document. A :class:`Sections<py_pdf_parser.sectioning.Sectioning>` class is made available on :attr:`document.sectioning<py_pdf_parser.components.PDFDocument.sectioning>`, which in particular allows us to call :meth:`~py_pdf_parser.sectioning.Sectioning.create_section`.
@@ -115,7 +146,7 @@ Again, the visualise tool is helpful to check everything worked as expected, as 
 .. image:: /screenshots/order_summary_example/sections.png
    :height: 300px
 
-Step 4 - Extract tables
+Step 5 - Extract tables
 .......................
 
 Now we have mapped our fonts and added some sections, we'd like to extract the table. In this case, we are able to use :meth:`~py_pdf_parser.tables.extract_simple_table`. We need to pass this the elements which form our table, however currently our sections also include the sub titles, "Order Summary:" and "Totals:". We need to exclude these from the elements we pass to :meth:`~py_pdf_parser.tables.extract_simple_table`. We have a reference to the sub title elements, so we could simply use :meth:`~py_pdf_parser.filtering.ElementList.remove_element`. However, since the tables seem to have their own fonts, it may be more robust to use :meth:`~py_pdf_parser.filtering.ElementList.filter_by_fonts`.
@@ -184,6 +215,19 @@ Full Code
        "EAAAAA+FreeMono,12.0": "table_text",
    }
    document = load_file("order_summary.pdf", font_mapping=FONT_MAPPING)
+
+   # OR
+
+   # use regex patterns
+
+   FONT_MAPPING = {
+       r"\w{6}\+LiberationSerif-Bold,16.0": "title",
+       r"\w{6}\+LiberationSerif-Bold,12.0": "sub_title",
+       r"\w{6}\+LiberationSerif,12.0": "text",
+       r"\w{6}\+FreeMonoBold,12.0": "table_header",
+       r"\w{6}\+FreeMono,12.0": "table_text",
+   }
+   document = load_file("order_summary.pdf", font_mapping=FONT_MAPPING, font_mapping_is_regex=True)
 
    # visualise(document)
 
