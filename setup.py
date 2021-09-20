@@ -50,7 +50,7 @@ setup(
             "pytype==2021.9.9",
             "recommonmark==0.7.1",
             "sphinx-autobuild==2021.3.14",
-            "sphinx-rtd-theme==0.5.2",
+            "sphinx-rtd-theme==1.0.0",
             "Sphinx==4.1.2",
         ],
     },
