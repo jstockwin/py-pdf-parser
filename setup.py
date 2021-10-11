@@ -46,7 +46,7 @@ setup(
             "mypy==0.910",
             "nose==1.3.7",
             "pillow==8.3.2",
-            "pycodestyle==2.7.0",
+            "pycodestyle==2.8.0",
             "pytype==2021.9.9",
             "recommonmark==0.7.1",
             "sphinx-autobuild==2021.3.14",
