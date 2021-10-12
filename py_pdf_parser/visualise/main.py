@@ -165,7 +165,7 @@ class PDFVisualiser:
             self.__ax.set_ylim([0, page.height])
 
         page = self.document.get_page(self.current_page)
-        for element in page.elements:
+        for element in page.elements & self.elements:
             style = STYLES["tagged"] if element.tags else STYLES["untagged"]
             self.__plot_element(element, style)
 
