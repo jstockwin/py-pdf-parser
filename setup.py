@@ -35,7 +35,7 @@ setup(
             "matplotlib==3.4.3",
             "pillow==8.4.0",
             "pyvoronoi==1.0.7",
-            "shapely==1.7.1",
+            "shapely==1.8.0",
         ],
         "test": [
             "black==21.10b0",
