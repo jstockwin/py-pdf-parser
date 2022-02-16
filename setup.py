@@ -1,7 +1,7 @@
 import os
 import sys
-from setuptools import setup, find_packages
 
+from setuptools import find_packages, setup
 
 if sys.version_info < (3, 6):
     print(sys.stderr, "{}: need Python 3.6 or later.".format(sys.argv[0]))
@@ -40,6 +40,7 @@ setup(
         "test": [
             "black==22.1.0",
             "ddt==1.4.4",
+            "isort==5.9.3",
             "matplotlib==3.5.1",
             "mock==4.0.3",
             "mypy==0.931",
