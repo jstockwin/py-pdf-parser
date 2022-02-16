@@ -1,12 +1,11 @@
-from typing import Dict, List, NamedTuple, IO, Optional
+from typing import IO, Dict, List, NamedTuple, Optional
 
 import logging
 
 from pdfminer.high_level import extract_pages
-from pdfminer.layout import LTTextBox, LAParams, LTFigure
+from pdfminer.layout import LAParams, LTFigure, LTTextBox
 
 from .components import PDFDocument
-
 
 logger = logging.getLogger("PDFParser")
 DEFAULT_LA_PARAMS: Dict = {"boxes_flow": None}

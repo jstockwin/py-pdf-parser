@@ -1,15 +1,15 @@
 import re
 
-from ddt import ddt, data
+from ddt import data, ddt
 
 from py_pdf_parser.common import BoundingBox
-from py_pdf_parser.components import PDFDocument, ElementOrdering
+from py_pdf_parser.components import ElementOrdering, PDFDocument
+from py_pdf_parser.exceptions import NoElementsOnPageError, PageNotFoundError
 from py_pdf_parser.filtering import ElementList
 from py_pdf_parser.loaders import Page
-from py_pdf_parser.exceptions import NoElementsOnPageError, PageNotFoundError
 
 from .base import BaseTestCase
-from .utils import create_pdf_element, create_pdf_document, FakePDFMinerTextElement
+from .utils import FakePDFMinerTextElement, create_pdf_document, create_pdf_element
 
 
 @ddt

@@ -1,13 +1,14 @@
-from typing import TYPE_CHECKING, Optional, List, Tuple, Dict, Union
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Union
 
 import pyvoronoi
-from shapely import geometry, ops
 from matplotlib import cm
+from shapely import geometry, ops
 
 if TYPE_CHECKING:
-    from py_pdf_parser.components import PDFPage, PDFDocument, PDFElement, ElementList
-    from py_pdf_parser.sectioning import Section
     from matplotlib.axes import Axes
+
+    from py_pdf_parser.components import ElementList, PDFDocument, PDFElement, PDFPage
+    from py_pdf_parser.sectioning import Section
 
 
 # The simple boundary margins are used when trying to draw simple rectangles around

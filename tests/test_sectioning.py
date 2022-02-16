@@ -4,7 +4,7 @@ from py_pdf_parser.exceptions import InvalidSectionError, SectionNotFoundError
 from py_pdf_parser.sectioning import Sectioning
 
 from .base import BaseTestCase
-from .utils import create_pdf_document, create_section, FakePDFMinerTextElement
+from .utils import FakePDFMinerTextElement, create_pdf_document, create_section
 
 
 class TestSection(BaseTestCase):

@@ -1,8 +1,8 @@
 import io
 
 import numpy
-import wand.image
 import wand.color
+import wand.image
 from PIL import Image
 
 

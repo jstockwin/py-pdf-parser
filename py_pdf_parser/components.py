@@ -1,4 +1,4 @@
-from typing import Callable, Dict, List, Set, Optional, Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Set, Union
 
 import re
 from collections import Counter, defaultdict
@@ -6,13 +6,14 @@ from enum import Enum, auto
 from itertools import chain
 
 from .common import BoundingBox
-from .exceptions import PageNotFoundError, NoElementsOnPageError
+from .exceptions import NoElementsOnPageError, PageNotFoundError
 from .filtering import ElementList
 from .sectioning import Sectioning
 
 if TYPE_CHECKING:
-    from .loaders import Page
     from pdfminer.layout import LTComponent
+
+    from .loaders import Page
 
 
 class ElementOrdering(Enum):
