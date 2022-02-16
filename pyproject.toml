@@ -1,2 +1,2 @@
-[tool.black]
-exclude=".pytype"
+[tool.isort]
+profile = "black"
