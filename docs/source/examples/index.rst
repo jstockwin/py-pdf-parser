@@ -16,4 +16,3 @@ Below you can find links to the following examples:
    more_tables
    element_ordering
    extracting_text_from_figures
-
