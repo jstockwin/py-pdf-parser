@@ -20,3 +20,17 @@ repos:
     rev: 21.12b0
     hooks:
     -   id: black
+-   repo: https://github.com/pycqa/flake8
+    rev: 4.0.1
+    hooks:
+    -   id: flake8
+-   repo: https://github.com/mattseymour/pre-commit-pytype
+    rev: '2020.10.8'
+    hooks:
+    -   id: pytype
+        args: ['--disable=pyi-error,import-error']
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: 'v0.931'
+    hooks:
+    -   id: mypy
+        args: [--install-types, --non-interactive]
