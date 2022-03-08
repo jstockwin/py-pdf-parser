@@ -36,8 +36,6 @@ jobs:
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-      - name: Run linting
-        run: docker run --rm jstockwin/py-pdf-parser-test:test .github/scripts/lint.sh
       - name: Run test
         run: |  # Note we need '-uroot' so user has permissions to github.workspace
           docker run --rm -uroot --volume ${{ github.workspace }}:/py-pdf-parser \
