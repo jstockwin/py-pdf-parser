@@ -1,9 +1,4 @@
 import os
-import tkinter as tk
-import unittest
-
-import _tkinter
-from PIL import Image
 
 from py_pdf_parser.loaders import load_file
 from py_pdf_parser.visualise.main import PDFVisualiser
