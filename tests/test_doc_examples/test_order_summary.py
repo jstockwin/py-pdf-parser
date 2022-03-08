@@ -2,7 +2,6 @@ import os
 
 from py_pdf_parser import tables
 from py_pdf_parser.loaders import load_file
-
 from tests.base import BaseTestCase
 
 

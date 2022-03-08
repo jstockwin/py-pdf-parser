@@ -1,18 +1,18 @@
-from typing import TYPE_CHECKING, Any, List, Set, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set
 
 from itertools import chain
 
 from .exceptions import (
-    TableExtractionError,
-    NoElementFoundError,
-    MultipleElementsFoundError,
     InvalidTableError,
     InvalidTableHeaderError,
+    MultipleElementsFoundError,
+    NoElementFoundError,
+    TableExtractionError,
 )
 
 if TYPE_CHECKING:
-    from .filtering import ElementList
     from .components import PDFElement
+    from .filtering import ElementList
 
 
 def extract_simple_table(

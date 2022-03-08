@@ -1,2 +1,4 @@
-[tool.black]
-exclude=".pytype"
+[tool.isort]
+profile = "black"
+known_typing = "typing"
+sections = "FUTURE,TYPING,STDLIB,THIRDPARTY,FIRSTPARTY,LOCALFOLDER"

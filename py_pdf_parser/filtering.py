@@ -1,12 +1,12 @@
 from typing import (
-    overload,
-    Union,
-    Set,
+    TYPE_CHECKING,
     FrozenSet,
-    Optional,
     Iterable,
     Iterator,
-    TYPE_CHECKING,
+    Optional,
+    Set,
+    Union,
+    overload,
 )
 
 import re
@@ -14,8 +14,8 @@ import re
 from .common import BoundingBox
 from .exceptions import (
     ElementOutOfRangeError,
-    NoElementFoundError,
     MultipleElementsFoundError,
+    NoElementFoundError,
     SectionNotFoundError,
 )
 

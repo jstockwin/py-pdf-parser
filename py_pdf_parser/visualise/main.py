@@ -1,25 +1,26 @@
-from typing import Dict, Tuple, Optional, Callable, TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, Dict, Optional, Tuple
 
 import logging
+import tkinter as tk
 
 import matplotlib
-import tkinter as tk
+from matplotlib.backend_bases import MouseButton
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
 
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-from matplotlib.backend_bases import MouseButton
-
 from py_pdf_parser.components import PDFDocument
+
 from .background import get_pdf_background
 from .info_figure import get_clicked_element_info
 from .sections import SectionVisualiser
 
 if TYPE_CHECKING:
-    from py_pdf_parser.filtering import ElementList
-    from py_pdf_parser.components import PDFElement
-    from matplotlib.figure import Text
     from matplotlib.axes import Axes
     from matplotlib.backend_bases import MouseEvent
+    from matplotlib.figure import Text
+
+    from py_pdf_parser.components import PDFElement
+    from py_pdf_parser.filtering import ElementList
 
 logger = logging.getLogger("PDFParser")
 

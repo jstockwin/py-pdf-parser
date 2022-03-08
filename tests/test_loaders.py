@@ -1,5 +1,4 @@
 import os
-
 from unittest import TestCase
 
 from py_pdf_parser.components import PDFDocument

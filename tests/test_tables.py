@@ -5,16 +5,16 @@ from py_pdf_parser.exceptions import (
     TableExtractionError,
 )
 from py_pdf_parser.tables import (
+    _are_elements_equal,
+    _validate_table_shape,
+    add_header_to_table,
     extract_simple_table,
     extract_table,
     get_text_from_table,
-    _validate_table_shape,
-    add_header_to_table,
-    _are_elements_equal,
 )
 
 from .base import BaseTestCase
-from .utils import create_pdf_document, create_pdf_element, FakePDFMinerTextElement
+from .utils import FakePDFMinerTextElement, create_pdf_document, create_pdf_element
 
 
 class TestTables(BaseTestCase):

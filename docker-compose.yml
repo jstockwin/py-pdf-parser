@@ -17,7 +17,7 @@ lint:
 lint-fix:
   extends:
     service: base
-  command: bash -c "black ."
+  command: bash -c "black . && isort ."
 
 tests:
   extends:

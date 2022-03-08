@@ -1,13 +1,13 @@
+from typing import Callable, Dict, List, NamedTuple, Optional, Union
+
 import re
 
-from typing import NamedTuple, Callable, Dict, List, Optional, Union
-
-from py_pdf_parser.components import PDFElement, PDFDocument, ElementOrdering
-from py_pdf_parser.sectioning import Section
 from pdfminer.layout import LTComponent
 
 from py_pdf_parser.common import BoundingBox
+from py_pdf_parser.components import ElementOrdering, PDFDocument, PDFElement
 from py_pdf_parser.loaders import Page
+from py_pdf_parser.sectioning import Section
 
 
 class FakePDFMinerCharacter(NamedTuple):

@@ -1,9 +1,9 @@
-from typing import Dict, Generator, ValuesView, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, Generator, ValuesView
 
 from collections import defaultdict
 
-from .filtering import ElementList
 from .exceptions import InvalidSectionError, SectionNotFoundError
+from .filtering import ElementList
 
 if TYPE_CHECKING:
     from .components import PDFDocument, PDFElement

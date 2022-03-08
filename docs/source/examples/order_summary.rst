@@ -66,7 +66,7 @@ Using the visualise tool again, we can now see that our element's font has chang
 
 Step 3 - Use regex for font mapping
 ...................................
-In certain use cases (especially when handling many PDF files) you may encounter the problem that the same fonts have different prefixes. 
+In certain use cases (especially when handling many PDF files) you may encounter the problem that the same fonts have different prefixes.
 
 For example:
 

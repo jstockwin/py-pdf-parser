@@ -1,13 +1,13 @@
 import re
 
-from mock import patch, call
+from mock import call, patch
 
-from py_pdf_parser.components import PDFDocument, PDFElement
 from py_pdf_parser.common import BoundingBox
+from py_pdf_parser.components import PDFDocument, PDFElement
 from py_pdf_parser.exceptions import (
-    NoElementFoundError,
-    MultipleElementsFoundError,
     ElementOutOfRangeError,
+    MultipleElementsFoundError,
+    NoElementFoundError,
 )
 from py_pdf_parser.filtering import ElementList
 from py_pdf_parser.loaders import Page
