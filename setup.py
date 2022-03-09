@@ -40,7 +40,7 @@ setup(
         "test": [
             "black==22.1.0",
             "ddt==1.4.4",
-            "isort==5.9.3",
+            "isort==5.10.1",
             "matplotlib==3.5.1",
             "mock==4.0.3",
             "mypy==0.931",
