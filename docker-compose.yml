@@ -9,16 +9,6 @@ shell:
     - DISPLAY
   command: bash
 
-lint:
-  extends:
-    service: base
-  command: ./.github/scripts/lint.sh
-
-lint-fix:
-  extends:
-    service: base
-  command: bash -c "black . && isort ."
-
 tests:
   extends:
     service: base
