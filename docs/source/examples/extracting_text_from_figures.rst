@@ -13,7 +13,7 @@ By default, the text in the figure will not be included:
 
 .. code-block:: python
 
-   from py_pdf_parser import load_file
+   from py_pdf_parser.loaders import load_file
    document = load_file("figure.pdf")
    print([element.text() for element in document.elements])
 
