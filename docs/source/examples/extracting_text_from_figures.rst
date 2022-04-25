@@ -34,7 +34,7 @@ In our case:
 
 .. code-block:: python
 
-   from py_pdf_parser import load_file
+   from py_pdf_parser.loaders import load_file
    document = load_file("figure.pdf", la_params={"all_texts": True})
    print([element.text() for element in document.elements])
 
