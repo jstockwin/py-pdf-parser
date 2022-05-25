@@ -35,7 +35,7 @@ setup(
             "matplotlib==3.5.1",
             "pillow==9.1.1",
             "pyvoronoi==1.0.7",
-            "shapely==1.8.1.post1",
+            "shapely==1.8.2",
         ],
         "test": [
             "ddt==1.4.4",
