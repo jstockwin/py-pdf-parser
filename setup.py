@@ -28,7 +28,7 @@ setup(
     install_requires=[
         "pdfminer.six==20220524",
         "docopt==0.6.2",
-        "wand==0.6.7",
+        "wand==0.6.9",
     ],
     extras_require={
         "dev": [
