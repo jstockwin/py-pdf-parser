@@ -90,4 +90,8 @@ def load(
             width=page.width, height=page.height, elements=elements
         )
 
+    # Disable pytype check due to false positive. See the following issue for details:
+    # https://github.com/google/pytype/issues/1028
+    # pytype: disable=wrong-arg-types
     return PDFDocument(pages=pages, pdf_file_path=pdf_file_path, **kwargs)
+    # pytype: enable=wrong-arg-types
