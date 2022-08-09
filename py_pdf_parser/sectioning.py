@@ -35,7 +35,14 @@ class Section:
     start_element: "PDFElement"
     end_element: "PDFElement"
 
-    def __init__(self, document, name, unique_name, start_element, end_element):
+    def __init__(
+        self,
+        document: "PDFDocument",
+        name: str,
+        unique_name: str,
+        start_element: "PDFElement",
+        end_element: "PDFElement",
+    ):
         if start_element._index > end_element._index:
             raise InvalidSectionError("end_element must come after start_element")
         self.document = document
@@ -76,13 +83,13 @@ class Section:
             ]
         )
 
-    def __len__(self):
+    def __len__(self) -> int:
         """
         Returns the number of elements in the section.
         """
         return len(self.elements)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"<Section name: '{self.name}', unique_name: '{self.unique_name}', "
             f"number of elements: {len(self)}>"
@@ -109,7 +116,7 @@ class Sectioning:
         start_element: "PDFElement",
         end_element: "PDFElement",
         include_last_element: bool = True,
-    ):
+    ) -> "Section":
         """
         Creates a new section with the specified name.
 

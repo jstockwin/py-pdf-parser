@@ -53,5 +53,5 @@ class BoundingBox:
             ]
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<BoundingBox x0={self.x0}, x1={self.x1}, y0={self.y0}, y1={self.y1}>"

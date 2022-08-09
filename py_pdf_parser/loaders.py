@@ -1,4 +1,4 @@
-from typing import IO, Dict, List, NamedTuple, Optional
+from typing import IO, Any, Dict, List, NamedTuple, Optional
 
 import logging
 
@@ -27,7 +27,7 @@ class Page(NamedTuple):
 
 
 def load_file(
-    path_to_file: str, la_params: Optional[Dict] = None, **kwargs
+    path_to_file: str, la_params: Optional[Dict] = None, **kwargs: Any
 ) -> PDFDocument:
     """
     Loads a file according to the specified file path.
@@ -45,7 +45,7 @@ def load(
     pdf_file: IO,
     pdf_file_path: Optional[str] = None,
     la_params: Optional[Dict] = None,
-    **kwargs,
+    **kwargs: Any,
 ) -> PDFDocument:
     """
     Loads the pdf file into a PDFDocument.

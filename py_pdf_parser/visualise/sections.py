@@ -91,7 +91,9 @@ class SectionVisualiser:
             for start, end in self.__get_segment_for_element(element)
         ]
 
-    def __get_element_boxes(self, elements: Union[List["PDFElement"], "ElementList"]):
+    def __get_element_boxes(
+        self, elements: Union[List["PDFElement"], "ElementList"]
+    ) -> List:
         return [
             geometry.box(
                 element.bounding_box.x0,
@@ -150,7 +152,9 @@ class SectionVisualiser:
         ys.append(ys[0])
         return xs, ys
 
-    def __plot_edges(self, to_plot: List, edges: List, vertices: List, label: str):
+    def __plot_edges(
+        self, to_plot: List, edges: List, vertices: List, label: str
+    ) -> None:
         lines = []
         for edge_idx in to_plot:
             edge = edges[edge_idx]
@@ -181,7 +185,7 @@ class SectionVisualiser:
             xs, ys = self.__simplify_outlines(merged_line)
             self.__ax.plot(xs, ys, **kwargs)
 
-    def __plot_section(self, section: "Section"):
+    def __plot_section(self, section: "Section") -> None:
         if self.pv is None or self.pv_segments is None:
             self.pv, self.pv_segments = self.__get_voronoi()
         edges = self.pv.GetEdges()
@@ -231,7 +235,7 @@ class SectionVisualiser:
         return pv, all_segments
 
     def __get_boundary_for_elements(
-        self, elements: List["PDFElement"], margin: int
+        self, elements: "ElementList", margin: int
     ) -> Tuple[float, float, float, float]:
         x0s = [element.bounding_box.x0 for element in elements]
         x1s = [element.bounding_box.x1 for element in elements]
@@ -245,7 +249,7 @@ class SectionVisualiser:
 
         return x0, x1, y0, y1
 
-    def __plot_section_simple(self, section) -> bool:
+    def __plot_section_simple(self, section: "Section") -> bool:
         section_elements_on_page = section.elements & self.page.elements
         non_section_elements = self.page.elements - section_elements_on_page
         boxes = self.__get_element_boxes(non_section_elements)
@@ -273,7 +277,7 @@ class SectionVisualiser:
 
         return True
 
-    def plot_sections_for_page(self, page: "PDFPage"):
+    def plot_sections_for_page(self, page: "PDFPage") -> None:
         self.pv = None
         self.pv_segments = None
         self.page = page
