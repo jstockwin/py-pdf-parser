@@ -32,7 +32,7 @@ class ElementIterator(Iterator):
         self.document = element_list.document
         self.indexes = iter(sorted(element_list.indexes))
 
-    def __next__(self):
+    def __next__(self) -> "PDFElement":
         index = next(self.indexes)
         return self.document._element_list[index]
 
@@ -169,7 +169,7 @@ class ElementList(Iterable):
         regex: str,
         regex_flags: Union[int, re.RegexFlag] = 0,
         stripped: bool = True,
-    ):
+    ) -> "ElementList":
         """
         Filter for elements given a regular expression.
 
@@ -739,7 +739,7 @@ class ElementList(Iterable):
         start_element: "PDFElement",
         end_element: "PDFElement",
         inclusive: bool = False,
-    ):
+    ) -> "ElementList":
         """
         Returns all elements between the start and end elements.
 
@@ -937,7 +937,7 @@ class ElementList(Iterable):
         """
         return element._index in self.indexes
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<ElementList of {len(self.indexes)} elements>"
 
     @overload
@@ -975,10 +975,10 @@ class ElementList(Iterable):
             and self.__class__ == other.__class__
         )
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(hash(self.indexes) + hash(self.document))
 
-    def __len__(self):
+    def __len__(self) -> int:
         """
         Returns the number of elements in the ElementList.
         """

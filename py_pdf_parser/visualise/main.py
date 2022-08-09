@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Callable, Dict, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Tuple
 
 import logging
 import tkinter as tk
@@ -43,8 +43,8 @@ class CustomToolbar(NavigationToolbar2Tk):
         previous_page_callback: Callable,
         next_page_callback: Callable,
         last_page_callback: Callable,
-        *args,
-        **kwargs,
+        *args: Any,
+        **kwargs: Any,
     ):
         self.first_page_callback = first_page_callback
         self.previous_page_callback = previous_page_callback
@@ -59,7 +59,7 @@ class CustomToolbar(NavigationToolbar2Tk):
         )
         super().__init__(canvas, window, *args, **kwargs)
 
-    def reset(self, not_first_page, not_last_page):
+    def reset(self, not_first_page: bool, not_last_page: bool) -> None:
         map = {True: tk.ACTIVE, False: tk.DISABLED}
         self._buttons["First page"]["state"] = map[not_first_page]
         self._buttons["Previous page"]["state"] = map[not_first_page]
@@ -142,7 +142,7 @@ class PDFVisualiser:
 
         self.__plot_current_page()
 
-    def __plot_current_page(self):
+    def __plot_current_page(self) -> None:
         if self.show_info:
             self.__clear_clicked_elements()
 
@@ -203,7 +203,7 @@ class PDFVisualiser:
         )
         return info_fig, info_text
 
-    def __on_click(self, event: "MouseEvent"):
+    def __on_click(self, event: "MouseEvent") -> None:
         if event.button == MouseButton.MIDDLE:
             self.__clear_clicked_elements()
             return
@@ -218,19 +218,21 @@ class PDFVisualiser:
 
             return
 
-    def __clear_clicked_elements(self):
+    def __clear_clicked_elements(self) -> None:
         self.__clicked_elements = {}
         self.__update_text()
 
-    def __update_text(self):
+    def __update_text(self) -> None:
+        if self.__info_text is None or self.__info_fig is None:
+            return
         self.__info_text.set_text(get_clicked_element_info(self.__clicked_elements))
         self.__info_fig.canvas.draw()
 
-    def __plot_element(self, element: "PDFElement", style: Dict):
+    def __plot_element(self, element: "PDFElement", style: Dict) -> None:
         rect = _ElementRectangle(element, **style)
         self.__ax.add_patch(rect)
 
-    def __reset_toolbar(self):
+    def __reset_toolbar(self) -> None:
         not_first_page = self.current_page != 1
         not_last_page = self.current_page != self.document.number_of_pages
         self.toolbar.reset(not_first_page, not_last_page)
@@ -253,25 +255,25 @@ class PDFVisualiser:
 
         return annotation
 
-    def __first_page(self):
+    def __first_page(self) -> None:
         self.__set_page(min(self.document.page_numbers))
 
-    def __last_page(self):
+    def __last_page(self) -> None:
         self.__set_page(max(self.document.page_numbers))
 
-    def __next_page(self):
+    def __next_page(self) -> None:
         current_page_idx = self.document.page_numbers.index(self.current_page)
         next_page_idx = min(current_page_idx + 1, self.document.number_of_pages)
         next_page = self.document.page_numbers[next_page_idx]
         self.__set_page(next_page)
 
-    def __previous_page(self):
+    def __previous_page(self) -> None:
         current_page_idx = self.document.page_numbers.index(self.current_page)
         previous_page_idx = max(current_page_idx - 1, 0)
         previous_page = self.document.page_numbers[previous_page_idx]
         self.__set_page(previous_page)
 
-    def __set_page(self, page_number: int):
+    def __set_page(self, page_number: int) -> None:
         if self.current_page != page_number:
             self.current_page = page_number
             self.__plot_current_page()
@@ -285,7 +287,7 @@ class _ElementRectangle(matplotlib.patches.Rectangle):
     the rectangle from the element's bounding box.
     """
 
-    def __init__(self, element: "PDFElement", **style):
+    def __init__(self, element: "PDFElement", **style: str):
         self.element = element
         bbox = element.bounding_box
         super().__init__((bbox.x0, bbox.y0), bbox.width, bbox.height, **style)
@@ -298,7 +300,7 @@ def visualise(
     show_info: bool = False,
     width: Optional[int] = None,
     height: Optional[int] = None,
-):
+) -> None:
     """
     Visualises a PDFDocument, allowing you to inspect all the elements.
 

@@ -244,7 +244,7 @@ class PDFElement:
         """
         return self._index in self.document._ignored_indexes
 
-    def add_tag(self, new_tag: str):
+    def add_tag(self, new_tag: str) -> None:
         """
         Adds the `new_tag` to the tags set.
 
@@ -273,7 +273,7 @@ class PDFElement:
             ]
         )
 
-    def ignore(self):
+    def ignore(self) -> None:
         """
         Marks the element as ignored.
 
@@ -317,7 +317,7 @@ class PDFElement:
         txt = self.original_element.get_text()
         return txt.strip() if stripped else txt
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"<PDFElement tags: {self.tags}, font: '{self.font}'"
             f"{', ignored' if self.ignored else ''}>"

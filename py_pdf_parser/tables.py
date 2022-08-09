@@ -233,15 +233,15 @@ def extract_table(
         table_row = []
         for col in sorted_cols:
             try:
-                element = (row & col).extract_single_element()
+                table_element = (row & col).extract_single_element()
             except NoElementFoundError:
-                element = None
+                table_element = None
             except MultipleElementsFoundError as err:
                 raise TableExtractionError(
                     "Multiple elements appear to be in the place of one cell in the "
                     "table. It could be worth trying to add a tolerance."
                 ) from err
-            table_row.append(element)
+            table_row.append(table_element)
         table.append(table_row)
 
     if remove_duplicate_header_rows:
@@ -330,7 +330,7 @@ def get_text_from_table(
     return new_table
 
 
-def _validate_table_shape(table: List[List[Any]]):
+def _validate_table_shape(table: List[List[Any]]) -> None:
     """
     Checks that all rows (and therefore all columns) are the same length.
     """
