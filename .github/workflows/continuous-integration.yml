@@ -21,7 +21,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-
       - name: Build the tests docker container
-        uses: docker/build-push-action@v3.0.0
+        uses: docker/build-push-action@v3.1.1
         with:
           tags: jstockwin/py-pdf-parser-test:test
           cache-from: type=local,src=/tmp/.buildx-cache
