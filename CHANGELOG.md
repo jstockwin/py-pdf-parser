@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Removed unused PyYAML dependency ([#262](https://github.com/jstockwin/py-pdf-parser/pull/262))
 
+## [0.10.2] - 2022-11-07
+
+### Changed
+- Various dependency updates
+
 ## [0.10.1] - 2021-10-12
 ### Fixed
 - The `visualise` function properly uses the _elements_ parameter in order to filter visualised elements. ([#256](https://github.com/jstockwin/py-pdf-parser/pull/256))
