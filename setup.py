@@ -45,7 +45,7 @@ setup(
             "pillow==9.2.0",
             "recommonmark==0.7.1",
             "sphinx-autobuild==2021.3.14",
-            "sphinx-rtd-theme==1.0.0",
+            "sphinx-rtd-theme==1.1.1",
             "Sphinx==5.2.3",
         ],
     },
