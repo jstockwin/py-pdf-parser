@@ -13,8 +13,8 @@ class LoadersTest(TestCase):
 
     def test_load_protected_file(self):
         file_path = os.path.join(os.path.dirname(__file__), "data", "pdfs", "test_protected.pdf")
-        document = load_file(file_path)
-        self.assertIsInstance(document, PDFDocument)    
+        document = load_file(file_path, password="p4ssword")
+        self.assertIsInstance(document, PDFDocument)
 
     def test_load(self):
         file_path = os.path.join(os.path.dirname(__file__), "data", "pdfs", "test.pdf")
