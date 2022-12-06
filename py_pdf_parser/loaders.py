@@ -45,7 +45,7 @@ def load(
     pdf_file: IO,
     pdf_file_path: Optional[str] = None,
     la_params: Optional[Dict] = None,
-    password: str = None,
+    password: Optional[str] = None,
     **kwargs: Any,
 ) -> PDFDocument:
     """
