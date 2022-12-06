@@ -70,7 +70,9 @@ def load(
     la_params = {**DEFAULT_LA_PARAMS, **la_params}
 
     pages: Dict[int, Page] = {}
-    for page in extract_pages(pdf_file, laparams=LAParams(**la_params), password=password):
+    for page in extract_pages(
+        pdf_file, laparams=LAParams(**la_params), password=password
+    ):
         elements = [element for element in page if isinstance(element, LTTextBox)]
 
         # If all_texts=True then we may get some text from inside figures
