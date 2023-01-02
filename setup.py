@@ -33,7 +33,7 @@ setup(
     extras_require={
         "dev": [
             "matplotlib==3.5.1",
-            "pillow==9.2.0",
+            "pillow==9.4.0",
             "pyvoronoi==1.0.7",
             "shapely==1.8.2",
         ],
@@ -42,7 +42,7 @@ setup(
             "matplotlib==3.5.1",
             "mock==4.0.3",
             "nose==1.3.7",
-            "pillow==9.2.0",
+            "pillow==9.4.0",
             "recommonmark==0.7.1",
             "sphinx-autobuild==2021.3.14",
             "sphinx-rtd-theme==1.0.0",
