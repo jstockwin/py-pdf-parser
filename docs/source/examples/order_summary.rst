@@ -34,7 +34,7 @@ Each :class:`~py_pdf_parser.components.PDFElement` has a :attr:`~py_pdf_parser.c
 
 Fonts often have long, not very useful names. However, additional keyword arguments passed to :func:`~py_pdf_parser.loaders.load_file` will be used to initialise the :class:`~py_pdf_parser.components.PDFDocument`. One of these is the font mapping, which allows you to map the fonts in your PDF to more useful names.
 
-The visualise tool allows you to inspect fonts. If you however over an element, a summary will be shown in text at the bottom of the window. For example, in the image below we hover over the first cell in the table, and can see that the font is ``EAAAA+FreeMono,12.0``.
+The visualise tool allows you to inspect fonts. If you hover over an element, a summary will be shown in text at the bottom of the window. For example, in the image below we hover over the first cell in the table, and can see that the font is ``EAAAA+FreeMono,12.0``.
 
 .. image:: /screenshots/order_summary_example/showing_font_1.png
    :height: 300px
