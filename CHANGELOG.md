@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Added the ignore_case argument for `filter_by_text_equal` and `filter_by_text_contains` methods for the `ElementList` class in `filtering.py`
+
 ## [0.10.2] - 2022-11-07
 
 ### Changed
