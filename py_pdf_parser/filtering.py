@@ -133,7 +133,9 @@ class ElementList(Iterable):
         )
         return ElementList(self.document, new_indexes)
 
-    def filter_by_text_equal(self, text: str, stripped: bool = True, ignore_case:bool = False) -> "ElementList":
+    def filter_by_text_equal(
+        self, text: str, stripped: bool = True, ignore_case: bool = False
+    ) -> "ElementList":
         """
         Filter for elements whose text is exactly the given string.
 
@@ -142,14 +144,16 @@ class ElementList(Iterable):
             stripped (bool, optional): Whether to strip the text of the element before
                 comparison. Default: True.
             ignore_case (bool): Whether to ignore case sensitivity when filtering for matches. Default: False.
-            
+
 
         Returns:
             ElementList: The filtered list.
         """
         if ignore_case:
             new_indexes = set(
-                element._index for element in self if element.text(stripped).casefold() == text.casefold()
+                element._index
+                for element in self
+                if element.text(stripped).casefold() == text.casefold()
             )
         else:
             new_indexes = set(
@@ -158,7 +162,9 @@ class ElementList(Iterable):
 
         return ElementList(self.document, new_indexes)
 
-    def filter_by_text_contains(self, text: str, ignore_case:bool = False) -> "ElementList":
+    def filter_by_text_contains(
+        self, text: str, ignore_case: bool = False
+    ) -> "ElementList":
         """
         Filter for elements whose text contains the given string.
 
@@ -169,9 +175,15 @@ class ElementList(Iterable):
             ElementList: The filtered list.
         """
         if ignore_case:
-            new_indexes = set(element._index for element in self if text.casefold() in element.text().casefold())
+            new_indexes = set(
+                element._index
+                for element in self
+                if text.casefold() in element.text().casefold()
+            )
         else:
-            new_indexes = set(element._index for element in self if text in element.text())
+            new_indexes = set(
+                element._index for element in self if text in element.text()
+            )
         return ElementList(self.document, new_indexes)
 
     def filter_by_regex(
