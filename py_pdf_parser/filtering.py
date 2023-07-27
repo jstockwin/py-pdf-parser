@@ -133,7 +133,7 @@ class ElementList(Iterable):
         )
         return ElementList(self.document, new_indexes)
 
-    def filter_by_text_equal(self, text: str, stripped: bool = True) -> "ElementList":
+    def filter_by_text_equals(self, text: str, stripped: bool = True) -> "ElementList":
         """
         Filter for elements whose text is exactly the given string.
 
