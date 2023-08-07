@@ -24,4 +24,3 @@ python:
       path: .
       extra_requirements:
         - dev
-  system_packages: true
