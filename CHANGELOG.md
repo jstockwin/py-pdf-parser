@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2023-08-07
+
+### Changed
+- Various dependency updates
+- PyPI releases now use Trusted Publishers
+
+### Fixed
+- Fixed typo in docs ([#361](https://github.com/jstockwin/py-pdf-parser/pull/361))
+
 ## [0.10.2] - 2022-11-07
 
 ### Changed
