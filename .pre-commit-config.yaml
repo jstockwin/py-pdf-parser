@@ -19,20 +19,20 @@ repos:
     -   id: isort
         args: [--profile, black]
 -   repo: https://github.com/psf/black
-    rev: 23.1.0
+    rev: 23.7.0
     hooks:
     -   id: black
 -   repo: https://github.com/pycqa/flake8
-    rev: 6.0.0
+    rev: 6.1.0
     hooks:
     -   id: flake8
 -   repo: https://github.com/mattseymour/pre-commit-pytype
-    rev: '2022.4.26'
+    rev: '2023.5.8'
     hooks:
     -   id: pytype
         args: ['--disable=pyi-error,import-error', '--exclude=tests']
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 'v1.0.0'
+    rev: 'v1.4.1'
     hooks:
     -   id: mypy
         additional_dependencies: [types-mock]
