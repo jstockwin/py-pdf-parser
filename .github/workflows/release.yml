@@ -6,16 +6,30 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-python@master
-    - name: Install build packages
-      run: pip3 install twine==3.1.1 wheel==0.34.2
-    - name: Build package
-      run: python3 setup.py sdist bdist_wheel
-    - name: Check built package
-      run: twine check dist/*
-    - name: Publish package to PyPI
-      run: twine upload dist/*
-      env:
-        TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
-        TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@master
+      - name: Install build packages
+        run: pip3 install twine==3.1.1 wheel==0.34.2
+      - name: Build package
+        run: python3 setup.py sdist bdist_wheel
+      - name: Check built package
+        run: twine check dist/*
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./dist
+
+  pypi-publish:
+    needs: ["build"]
+    environment: "pypi"
+
+    name: upload release to PyPI
+    runs-on: ubuntu-latest
+    permissions:
+      # IMPORTANT: this permission is mandatory for trusted publishing
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v3
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages_dir: artifact/
