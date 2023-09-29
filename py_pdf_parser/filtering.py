@@ -443,7 +443,7 @@ class ElementList(Iterable):
         If you draw a box from the bottom edge of the element to the bottom of the page,
         all elements which are partially within this box are returned. By default, only
         elements on the same page as the given element are included, but you can pass
-        `inclusive=True` to also include the pages which come after (and so are below)
+        `all_pages=True` to also include the pages which come after (and so are below)
         the page containing the given element.
 
         Note:
