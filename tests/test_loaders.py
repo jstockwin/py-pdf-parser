@@ -1,6 +1,8 @@
 import os
 from unittest import TestCase
 
+from pdfminer.pdfdocument import PDFPasswordIncorrect
+
 from py_pdf_parser.components import PDFDocument
 from py_pdf_parser.loaders import load, load_file
 
@@ -17,6 +19,13 @@ class LoadersTest(TestCase):
         )
         document = load_file(file_path, password="p4ssword")
         self.assertIsInstance(document, PDFDocument)
+
+    def test_load_protected_file_wrong_password(self):
+        file_path = os.path.join(
+            os.path.dirname(__file__), "data", "pdfs", "test_protected.pdf"
+        )
+        with self.assertRaises(PDFPasswordIncorrect):
+            load_file(file_path, password="wrong_password")
 
     def test_load(self):
         file_path = os.path.join(os.path.dirname(__file__), "data", "pdfs", "test.pdf")
