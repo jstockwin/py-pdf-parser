@@ -44,6 +44,7 @@ def load_file(
 def load(
     pdf_file: IO,
     pdf_file_path: Optional[str] = None,
+    password: Optional[str] = None,
     la_params: Optional[Dict] = None,
     **kwargs: Any,
 ) -> PDFDocument:
@@ -52,13 +53,15 @@ def load(
 
     Args:
         pdf_file (io): The PDF file.
+        pdf_file_path (str, optional): Passed to `PDFDocument`. See the documentation
+            for `PDFDocument`.
+        password (str, optional): Password for the encrypted PDF. Required if the
+            PDF is encrypted.
         la_params (dict): The layout parameters passed to PDF Miner for analysis. See
             the PDFMiner documentation here:
             https://pdfminersix.readthedocs.io/en/latest/reference/composable.html#laparams.
             Note that py_pdf_parser will re-order the elements it receives from PDFMiner
             so options relating to element ordering will have no effect.
-        pdf_file_path (str, optional): Passed to `PDFDocument`. See the documentation
-            for `PDFDocument`.
         kwargs: Passed to `PDFDocument`. See the documentation for `PDFDocument`.
 
     Returns:
@@ -69,7 +72,9 @@ def load(
     la_params = {**DEFAULT_LA_PARAMS, **la_params}
 
     pages: Dict[int, Page] = {}
-    for page in extract_pages(pdf_file, laparams=LAParams(**la_params)):
+    for page in extract_pages(
+        pdf_file, laparams=LAParams(**la_params), password=password
+    ):
         elements = [element for element in page if isinstance(element, LTTextBox)]
 
         # If all_texts=True then we may get some text from inside figures
