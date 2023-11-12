@@ -135,6 +135,13 @@ class ElementList(Iterable):
 
     def filter_by_text_equal(self, text: str, stripped: bool = True) -> "ElementList":
         """
+        Backward compatibility. Simply calls filter_by_text_equals() with the same arguments.
+        """
+
+        return self.filter_by_text_equals(text, stripped)
+
+    def filter_by_text_equals(self, text: str, stripped: bool = True) -> "ElementList":
+        """
         Filter for elements whose text is exactly the given string.
 
         Args:
