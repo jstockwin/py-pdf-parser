@@ -1,11 +1,11 @@
 from typing import TYPE_CHECKING, List, Optional, Union
 
+import _tkinter
 import logging
 import os
 import tkinter as tk
 from unittest import TestCase
 
-import _tkinter
 from PIL import Image
 
 if TYPE_CHECKING:
