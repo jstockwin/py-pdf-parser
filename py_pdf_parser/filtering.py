@@ -1,5 +1,6 @@
 from typing import (
     TYPE_CHECKING,
+    Callable,
     FrozenSet,
     Iterable,
     Iterator,
@@ -102,6 +103,21 @@ class ElementList(Iterable):
         """
         for element in self:
             element.add_tag(tag)
+
+    def filter(self, predicate: Callable[["PDFElement"], bool]) -> "ElementList":
+        """
+        Filter by elements matching a custom predicate. Anything that passes the
+        predicate is included in the new ElementList.
+
+        Args:
+            predicate (Callable[[PDFElement], bool]): The predicate to filter by.
+
+        Returns:
+            ElementList: The filtered list.
+        """
+
+        new_indexes = set(element._index for element in self if predicate(element))
+        return ElementList(self.document, new_indexes)
 
     def filter_by_tag(self, tag: str) -> "ElementList":
         """
@@ -215,6 +231,19 @@ class ElementList(Iterable):
         """
         new_indexes = self.indexes & self.document._element_indexes_with_fonts(*fonts)
         return ElementList(self.document, new_indexes)
+
+    def filter_by_font_size(self, font_size: float) -> "ElementList":
+        """
+        Filter for elements of a particular font size.
+
+        Args:
+            font_size (float): The font size to filter for.
+
+        Returns:
+            ElementList: The filtered list.
+        """
+
+        return self.filter(lambda e: e.font_size == font_size)
 
     def filter_by_page(self, page_number: int) -> "ElementList":
         """
@@ -918,6 +947,74 @@ class ElementList(Iterable):
                 capped=False.
         """
         return self.move_forwards_from(element, count=-count, capped=capped)
+
+    def filter_out_header(self, bottom_of_header_y: float) -> "ElementList":
+        """
+        Filter out header elements, as specified by a certain y position. Only elements
+        completely within the header are discarded. Partially overlapping elements are
+        kept.
+
+        Args:
+            bottom_of_header_y (float): The Y coordinate of the bottom of the header.
+
+        Note:
+            Y decreases as elements go down the page.
+
+        Returns:
+            ElementList: The filtered list without header elements.
+        """
+
+        return self.filter(lambda e: e.bounding_box.y0 < bottom_of_header_y)
+
+    def filter_out_footer(self, top_of_footer_y: float) -> "ElementList":
+        """
+        Filter out footer elements, as specified by a certain y position. Only elements
+        completely within the footer are discarded. Partially overlapping elements are
+        kept.
+
+        Args:
+            top_of_footer_y (float): The Y coordinate of the top of the footer.
+
+        Note:
+            Y decreases as elements go down the page.
+
+        Returns:
+            ElementList: The filtered list without footer elements.
+        """
+
+        return self.filter(lambda e: e.bounding_box.y1 > top_of_footer_y)
+
+    def first(self) -> "PDFElement":
+        """
+        Returns the first element in the ElementList
+
+        Unlike extract_single_element, an error is not thrown if there is more
+        than one element in the ElementList.
+
+        Raises:
+            NoElementFoundError: If there are no elements in the ElementList
+        """
+
+        if len(self.indexes) == 0:
+            raise NoElementFoundError("There are no elements in the ElementList")
+
+        return self[0]
+
+    def last(self) -> "PDFElement":
+        """
+        Returns the last element in the ElementList
+
+        Unlike extract_single_element, an error is not thrown if there is more
+        than one element in the ElementList.
+
+        Raises:
+            NoElementFoundError: If there are no elements in the ElementList
+        """
+
+        if len(self.indexes) == 0:
+            raise NoElementFoundError("There are no elements in the ElementList")
+
+        return self[-1]
 
     def __intersect_indexes_with_self(self, new_indexes: Set[int]) -> "ElementList":
         return self & ElementList(self.document, new_indexes)
