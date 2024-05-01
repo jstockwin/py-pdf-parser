@@ -192,9 +192,13 @@ class ElementList(Iterable):
         Returns:
             ElementList: The filtered list.
         """
-        predicate = lambda e: re.match(regex, e.text(stripped), flags=regex_flags)
+        new_indexes = set(
+            element._index
+            for element in self
+            if re.match(regex, element.text(stripped), flags=regex_flags)
+        )
 
-        return self.filter(predicate)
+        return ElementList(self.document, new_indexes)
 
     def filter_by_font(self, font: str) -> "ElementList":
         """
