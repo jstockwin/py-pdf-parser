@@ -129,8 +129,8 @@ class ElementList(Iterable):
         Returns:
             ElementList: The filtered list.
         """
-        new_indexes = set(element._index for element in self if tag in element.tags)
-        return ElementList(self.document, new_indexes)
+
+        return self.filter(lambda e: tag in e.tags)
 
     def filter_by_tags(self, *tags: str) -> "ElementList":
         """
@@ -142,12 +142,8 @@ class ElementList(Iterable):
         Returns:
             ElementList: The filtered list.
         """
-        new_indexes = set(
-            element._index
-            for element in self
-            if any(tag in element.tags for tag in tags)
-        )
-        return ElementList(self.document, new_indexes)
+
+        return self.filter(lambda e: any(tag in e.tags for tag in tags))
 
     def filter_by_text_equal(self, text: str, stripped: bool = True) -> "ElementList":
         """
@@ -161,11 +157,8 @@ class ElementList(Iterable):
         Returns:
             ElementList: The filtered list.
         """
-        new_indexes = set(
-            element._index for element in self if element.text(stripped) == text
-        )
 
-        return ElementList(self.document, new_indexes)
+        return self.filter(lambda e: e.text(stripped) == text)
 
     def filter_by_text_contains(self, text: str) -> "ElementList":
         """
@@ -177,8 +170,8 @@ class ElementList(Iterable):
         Returns:
             ElementList: The filtered list.
         """
-        new_indexes = set(element._index for element in self if text in element.text())
-        return ElementList(self.document, new_indexes)
+
+        return self.filter(lambda e: text in e.text())
 
     def filter_by_regex(
         self,
@@ -199,13 +192,9 @@ class ElementList(Iterable):
         Returns:
             ElementList: The filtered list.
         """
-        new_indexes = set(
-            element._index
-            for element in self
-            if re.match(regex, element.text(stripped), flags=regex_flags)
-        )
+        predicate = lambda e: re.match(regex, e.text(stripped), flags=regex_flags)
 
-        return ElementList(self.document, new_indexes)
+        return self.filter(predicate)
 
     def filter_by_font(self, font: str) -> "ElementList":
         """
@@ -815,7 +804,7 @@ class ElementList(Iterable):
                 f"There are {len(self.indexes)} elements in the ElementList"
             )
 
-        return self.document._element_list[list(self.indexes)[0]]
+        return self.first()
 
     def add_element(self, element: "PDFElement") -> "ElementList":
         """
