@@ -1211,6 +1211,63 @@ class TestFiltering(BaseTestCase):
             self.elem_list[-1],
         )
 
+    def test_filter(self):
+        elem1 = FakePDFMinerTextElement(text="even")
+        elem2 = FakePDFMinerTextElement(text="odd")
+        elem3 = FakePDFMinerTextElement(text="even")
+        elem4 = FakePDFMinerTextElement(text="odd")
+        elem5 = FakePDFMinerTextElement(text="even")
+
+        doc = create_pdf_document([elem1, elem2, elem3, elem4, elem5])
+        even_elems = doc.elements.filter(lambda e: len(e.text()) % 2 == 0)
+        odd_elems = doc.elements.filter(lambda e: len(e.text()) % 2 == 1)
+
+        self.assertEqual(ElementList(doc, {0, 2, 4}), even_elems)
+        self.assertEqual(ElementList(doc, {1, 3}), odd_elems)
+
+    def test_filter_by_font_size(self):
+        elem1 = FakePDFMinerTextElement(font_name="foo", font_size=1)
+        elem2 = FakePDFMinerTextElement(font_name="bar", font_size=2)
+        elem3 = FakePDFMinerTextElement(font_name="bat", font_size=2)
+        elem4 = FakePDFMinerTextElement(font_name="baz", font_size=3)
+        doc = create_pdf_document([elem1, elem2, elem3, elem4])
+
+        self.assertEqual(ElementList(doc, {1, 2}), doc.elements.filter_by_font_size(2))
+
+    def test_filter_out_header(self):
+        bbox1 = BoundingBox(20, 30, 75, 80)  # Completely within header - discarded
+        bbox2 = BoundingBox(20, 30, 25, 75)  # Completely outside header - kept
+        bbox3 = BoundingBox(20, 30, 10, 20)  # Partially within header - kept
+
+        elems = [FakePDFMinerTextElement(b) for b in (bbox1, bbox2, bbox3)]
+        doc = create_pdf_document(elems)
+
+        self.assertEqual(ElementList(doc, {1, 2}), doc.elements.filter_out_header(50))
+
+    def test_filter_out_footer(self):
+        bbox1 = BoundingBox(20, 30, 75, 80)  # Completely outside footer - kept
+        bbox2 = BoundingBox(20, 30, 25, 75)  # Partially within footer - kept
+        bbox3 = BoundingBox(20, 30, 10, 20)  # Completely within footer - discarded
+
+        elems = [FakePDFMinerTextElement(b) for b in (bbox1, bbox2, bbox3)]
+        doc = create_pdf_document(elems)
+
+        self.assertEqual(ElementList(doc, {0, 1}), doc.elements.filter_out_footer(50))
+
+    def test_first(self):
+        actual_first_elem = self.extract_element_from_list(self.elem1, self.elem_list)
+        self.assertEqual(self.elem_list.first(), actual_first_elem)
+
+        with self.assertRaises(NoElementFoundError):
+            self.elem_list.filter_by_tag("non_existent_tag").first()
+
+    def test_last(self):
+        actual_last_elem = self.extract_element_from_list(self.elem6, self.elem_list)
+        self.assertEqual(self.elem_list.last(), actual_last_elem)
+
+        with self.assertRaises(NoElementFoundError):
+            self.elem_list.filter_by_tag("non_existent_tag").last()
+
     def test_repr(self):
         self.assertEqual(repr(self.elem_list), "<ElementList of 6 elements>")
 
