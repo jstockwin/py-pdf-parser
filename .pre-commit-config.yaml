@@ -4,7 +4,7 @@ default_language_version:
     python: python3.8  # pinned until pytype issue resolved
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.6.0
     hooks:
     -   id: check-added-large-files
     -   id: check-merge-conflict
@@ -14,16 +14,16 @@ repos:
     -   id: mixed-line-ending
     -   id: trailing-whitespace
 -   repo: https://github.com/pycqa/isort
-    rev: 5.12.0
+    rev: 5.13.2
     hooks:
     -   id: isort
         args: [--profile, black]
 -   repo: https://github.com/psf/black
-    rev: 23.7.0
+    rev: 24.4.2
     hooks:
     -   id: black
 -   repo: https://github.com/pycqa/flake8
-    rev: 6.1.0
+    rev: 7.1.0
     hooks:
     -   id: flake8
 -   repo: https://github.com/mattseymour/pre-commit-pytype
@@ -32,7 +32,7 @@ repos:
     -   id: pytype
         args: ['--disable=pyi-error,import-error', '--exclude=tests']
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 'v1.4.1'
+    rev: 'v1.10.1'
     hooks:
     -   id: mypy
         additional_dependencies: [types-mock]
