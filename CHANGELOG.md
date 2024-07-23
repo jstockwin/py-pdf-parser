@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] - 2024-07-23
+
 ### Added
 - Added extra filtering methods for ElementList
 - Make sure tests and docs are not included in binary distribution wheels (PyPi) and source distribution (sdist).
