@@ -1,2 +1,6 @@
 include README.md
 include LICENSE
+prune tests
+prune tests/*
+prune docs
+prune docs/*
