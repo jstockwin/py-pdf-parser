@@ -1,6 +1,6 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set
-
+from bisect import bisect_left, bisect_right
 from itertools import chain
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple
 
 from .exceptions import (
     InvalidTableError,
@@ -13,6 +13,135 @@ from .exceptions import (
 if TYPE_CHECKING:
     from .components import PDFElement
     from .filtering import ElementList
+
+
+class _IntervalIndex:
+    """Indexes one-dimensional intervals for inclusive overlap queries."""
+
+    def __init__(self, intervals: List[Tuple[float, float, int]]):
+        self.center: Optional[float] = None
+        self.containing: Set[int] = set()
+        self.starts: List[Tuple[float, int]] = []
+        self.ends: List[Tuple[float, int]] = []
+        self.left: Optional["_IntervalIndex"] = None
+        self.right: Optional["_IntervalIndex"] = None
+
+        if not intervals:
+            return
+
+        endpoints = sorted(
+            coordinate for interval in intervals for coordinate in interval[:2]
+        )
+        self.center = endpoints[len(endpoints) // 2]
+        left_intervals = []
+        right_intervals = []
+        for start, end, index in intervals:
+            if end < self.center:
+                left_intervals.append((start, end, index))
+            elif start > self.center:
+                right_intervals.append((start, end, index))
+            else:
+                self.containing.add(index)
+                self.starts.append((start, index))
+                self.ends.append((end, index))
+
+        self.starts.sort()
+        self.ends.sort()
+        if left_intervals:
+            self.left = _IntervalIndex(left_intervals)
+        if right_intervals:
+            self.right = _IntervalIndex(right_intervals)
+
+    def overlapping(self, start: float, end: float) -> Set[int]:
+        """Returns indexes for intervals that overlap ``[start, end]``."""
+        return self._overlapping(start, end)
+
+    def _overlapping(self, start: float, end: float) -> Set[int]:
+        if self.center is None:
+            return set()
+
+        if start <= self.center <= end:
+            results = set(self.containing)
+            if self.left is not None:
+                results.update(self.left._overlapping(start, end))
+            if self.right is not None:
+                results.update(self.right._overlapping(start, end))
+            return results
+
+        if end < self.center:
+            stop = bisect_right(self.starts, (end, float("inf")))
+            results = {index for _, index in self.starts[:stop]}
+            if self.left is not None:
+                results.update(self.left._overlapping(start, end))
+            return results
+
+        start_index = bisect_left(self.ends, (start, -1))
+        results = {index for _, index in self.ends[start_index:]}
+        if self.right is not None:
+            results.update(self.right._overlapping(start, end))
+        return results
+
+
+def _get_aligned_rows_and_columns(
+    elements: "ElementList", tolerance: float
+) -> Tuple[Set["ElementList"], Set["ElementList"]]:
+    """Builds the row and column groups used by :func:`extract_table`."""
+    horizontal_intervals: Dict[int, List[Tuple[float, float, int]]] = {}
+    vertical_intervals: Dict[int, List[Tuple[float, float, int]]] = {}
+    element_list = list(elements)
+    for element in element_list:
+        bounding_box = element.bounding_box
+        horizontal_intervals.setdefault(element.page_number, []).append(
+            (bounding_box.y0, bounding_box.y1, element._index)
+        )
+        vertical_intervals.setdefault(element.page_number, []).append(
+            (bounding_box.x0, bounding_box.x1, element._index)
+        )
+
+    horizontal_indexes = {
+        page_number: _IntervalIndex(intervals)
+        for page_number, intervals in horizontal_intervals.items()
+    }
+    vertical_indexes = {
+        page_number: _IntervalIndex(intervals)
+        for page_number, intervals in vertical_intervals.items()
+    }
+    horizontal_cache: Dict[Tuple[int, float, float], "ElementList"] = {}
+    vertical_cache: Dict[Tuple[float, float], "ElementList"] = {}
+    rows: Set["ElementList"] = set()
+    cols: Set["ElementList"] = set()
+
+    for element in element_list:
+        bounding_box = element.bounding_box
+        horizontal_tolerance = min(bounding_box.height / 2, tolerance)
+        row_key = (
+            element.page_number,
+            bounding_box.y0 + horizontal_tolerance,
+            bounding_box.y1 - horizontal_tolerance,
+        )
+        if row_key not in horizontal_cache:
+            page_number, start, end = row_key
+            horizontal_cache[row_key] = elements.__class__(
+                elements.document,
+                horizontal_indexes[page_number].overlapping(start, end),
+            )
+        rows.add(horizontal_cache[row_key])
+
+        vertical_tolerance = min(bounding_box.width / 2, tolerance)
+        col_key = (
+            bounding_box.x0 + vertical_tolerance,
+            bounding_box.x1 - vertical_tolerance,
+        )
+        if col_key not in vertical_cache:
+            aligned_indexes: Set[int] = set()
+            for index in vertical_indexes.values():
+                aligned_indexes.update(index.overlapping(*col_key))
+            vertical_cache[col_key] = elements.__class__(
+                elements.document, aligned_indexes
+            )
+        cols.add(vertical_cache[col_key])
+
+    return rows, cols
 
 
 def extract_simple_table(
@@ -146,6 +275,7 @@ def extract_table(
     fix_element_in_multiple_cols: bool = False,
     tolerance: float = 0.0,
     remove_duplicate_header_rows: bool = False,
+    max_elements: Optional[int] = None,
 ) -> List[List]:
     """
     Returns elements structured as a table.
@@ -158,8 +288,12 @@ def extract_table(
     If you fail to satisfy any of the other conditions listed above, that case is not
     yet supported.
 
-    Note: If you satisfy the conditions to use extract_simple_table, then that should be
-    used instead, as it's much more efficient.
+    Note: If you satisfy the conditions to use extract_simple_table, it can be more
+    efficient because it discovers rows and columns from one complete reference row
+    and column. This function indexes alignment bands before resolving the table cells.
+    The alignment discovery is O(n log² n) in the number of supplied elements; resolving
+    the returned grid is O(rows * columns). For untrusted or unbounded input, pass
+    max_elements or filter the ElementList to the table region before calling it.
 
     Args:
         elements (ElementList): A list of elements to extract into a table.
@@ -181,6 +315,9 @@ def extract_table(
             column, they must overlap by at least `tolerance`. Default: 0.
         remove_duplicate_header_rows (bool, optional): Remove duplicates of the header
             row (the first row) if they exist. Default: False.
+        max_elements (int, optional): Maximum number of elements to process. Use this
+            to bound work when the input is untrusted or unbounded. If None, no limit
+            is applied. Default: None.
 
     Raises:
         TableExtractionError: If something goes wrong.
@@ -189,18 +326,15 @@ def extract_table(
         list[list]: a list of rows, which are lists of PDFElements or strings
             (depending on the value of as_text).
     """
+    if max_elements is not None and max_elements <= 0:
+        raise TableExtractionError("max_elements must be greater than zero")
+    if max_elements is not None and len(elements) > max_elements:
+        raise TableExtractionError(
+            f"Number of elements ({len(elements)}) exceeds max_elements ({max_elements})"
+        )
+
     table = []
-    rows = set()
-    cols = set()
-    for element in elements:
-        row = elements.horizontally_in_line_with(
-            element, inclusive=True, tolerance=tolerance
-        )
-        rows.add(row)
-        col = elements.vertically_in_line_with(
-            element, inclusive=True, all_pages=True, tolerance=tolerance
-        )
-        cols.add(col)
+    rows, cols = _get_aligned_rows_and_columns(elements, tolerance)
 
     # Check no element is in multiple rows or columns
     if fix_element_in_multiple_rows:
@@ -229,18 +363,35 @@ def extract_table(
         cols, key=lambda col: max(elem.bounding_box.x0 for elem in col)
     )
 
-    for row in sorted_rows:
+    row_indexes = {
+        element._index: row_index
+        for row_index, row in enumerate(sorted_rows)
+        for element in row
+    }
+    col_indexes = {
+        element._index: col_index
+        for col_index, col in enumerate(sorted_cols)
+        for element in col
+    }
+    cells: Dict[Tuple[int, int], List["PDFElement"]] = {}
+    for element in elements:
+        cell = (row_indexes[element._index], col_indexes[element._index])
+        cells.setdefault(cell, []).append(element)
+
+    for row_index, row in enumerate(sorted_rows):
         table_row = []
-        for col in sorted_cols:
+        for col_index, _ in enumerate(sorted_cols):
             try:
-                table_element = (row & col).extract_single_element()
-            except NoElementFoundError:
+                table_element = cells[(row_index, col_index)]
+            except KeyError:
                 table_element = None
-            except MultipleElementsFoundError as err:
-                raise TableExtractionError(
-                    "Multiple elements appear to be in the place of one cell in the "
-                    "table. It could be worth trying to add a tolerance."
-                ) from err
+            else:
+                if len(table_element) > 1:
+                    raise TableExtractionError(
+                        "Multiple elements appear to be in the place of one cell in the "
+                        "table. It could be worth trying to add a tolerance."
+                    )
+                table_element = table_element[0]
             table_row.append(table_element)
         table.append(table_row)
 

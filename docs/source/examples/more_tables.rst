@@ -101,7 +101,9 @@ To use :meth:`~py_pdf_parser.tables.extract_simple_table` we must have at least 
 
 To understand why: for each column element in the reference row and each row element in the reference column, :meth:`~py_pdf_parser.tables.extract_simple_table` will scan across from the row element (to get the row) and up/down from the column element (to get the column), and see if there is an element there. If there is, it is added to the table. Therefore, if there are gaps in the reference row/column, other elements may get missed. There is a check for this, so an exception will be raised if this is the case.
 
-This means :meth:`~py_pdf_parser.tables.extract_simple_table` takes time proportional to ``len(cols) + len(rows)``. Conversely,  :meth:`~py_pdf_parser.tables.extract_table` is at least ``len(cols) * len(rows)``, and if there are merged cells it will be even worse. (Note in reality the complexity is not quite this simple, but it should give you an idea of the difference.)
+For a table that satisfies its preconditions, :meth:`~py_pdf_parser.tables.extract_simple_table` only discovers rows and columns from one complete reference row and column. :meth:`~py_pdf_parser.tables.extract_table` supports missing and merged cells; it indexes alignment bands in ``O(n log² n)`` time for ``n`` supplied elements, then resolves the output grid in ``O(len(rows) * len(cols))`` time. The grid-resolution cost is unavoidable because every output cell must be considered.
+
+When processing untrusted or unbounded input, filter the ElementList to the table region first and pass ``max_elements`` to :meth:`~py_pdf_parser.tables.extract_table` to reject inputs larger than your application's work budget. The limit is opt-in and defaults to no limit so existing large-table callers continue to work.
 
 Below, we will work through increasingly complex examples to explain the functionality, and the steps involved.
 

@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Improved `extract_table` performance on large inputs and added an opt-in
+  `max_elements` work bound. Thanks to Yassin Yamada for reporting the issue.
+
 ## [0.13.0] - 2024-07-23
 
 ### Added

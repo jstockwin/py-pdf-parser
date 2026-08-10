@@ -1,3 +1,6 @@
+from typing import Set
+from unittest.mock import patch
+
 from py_pdf_parser.common import BoundingBox
 from py_pdf_parser.exceptions import (
     InvalidTableError,
@@ -5,6 +8,7 @@ from py_pdf_parser.exceptions import (
     TableExtractionError,
 )
 from py_pdf_parser.tables import (
+    _IntervalIndex,
     _are_elements_equal,
     _validate_table_shape,
     add_header_to_table,
@@ -467,6 +471,58 @@ class TestTables(BaseTestCase):
         self.assert_original_element_list_list_equal(
             [[elem_1, elem_2], [elem_3, elem_4]], result
         )
+
+    def test_extract_table_max_elements(self):
+        elements = [
+            FakePDFMinerTextElement(bounding_box=BoundingBox(0, 5, 6, 10)),
+            FakePDFMinerTextElement(bounding_box=BoundingBox(6, 10, 6, 10)),
+        ]
+        document = create_pdf_document(elements=elements)
+
+        with patch("py_pdf_parser.tables._IntervalIndex") as interval_index:
+            with self.assertRaises(TableExtractionError):
+                extract_table(document.elements, max_elements=1)
+        interval_index.assert_not_called()
+        with self.assertRaises(TableExtractionError):
+            extract_table(document.elements, max_elements=0)
+
+        result = extract_table(document.elements, max_elements=2)
+        self.assert_original_element_list_list_equal([elements], result)
+
+    def test_extract_table_caches_aligned_grid_queries(self):
+        row_count = 20
+        column_count = 20
+        elements = [
+            FakePDFMinerTextElement(
+                bounding_box=BoundingBox(
+                    column * 11,
+                    column * 11 + 10,
+                    (row_count - row - 1) * 11,
+                    (row_count - row - 1) * 11 + 10,
+                )
+            )
+            for row in range(row_count)
+            for column in range(column_count)
+        ]
+        document = create_pdf_document(elements=elements)
+        original_overlapping = _IntervalIndex.overlapping
+        query_count = 0
+
+        def counting_overlapping(
+            index: _IntervalIndex, start: float, end: float
+        ) -> Set[int]:
+            nonlocal query_count
+            query_count += 1
+            return original_overlapping(index, start, end)
+
+        with patch.object(
+            _IntervalIndex, "overlapping", new=counting_overlapping
+        ):
+            result = extract_table(document.elements)
+
+        self.assertEqual(query_count, row_count + column_count)
+        self.assertEqual(len(result), row_count)
+        self.assertTrue(all(len(row) == column_count for row in result))
 
     def test_extract_table_removing_duplicate_header_rows(self):
         #    header_elem_1    header_elem_2
